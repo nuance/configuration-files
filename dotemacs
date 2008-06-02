@@ -1,0 +1,441 @@
+(global-set-key "\C-x\C-m" 'execute-extended-command)
+(global-set-key "\C-c\C-m" 'execute-extended-command)
+
+;;load path set to folder ~/emacs for .el files
+(setq load-path (cons "~/emacs/mmm-mode" (cons "~/emacs/color-theme" (cons "~/emacs/remember" (cons "~/emacs/org-6.03/lisp" (cons "~/emacs" load-path))))))
+
+;; bell gets really annoying 
+(setq visible-bell t)
+(setq ring-bell-function (lambda ()));get rid of bell completely
+
+;; Some better defaults
+(fset 'yes-or-no-p 'y-or-n-p)           ;replace y-e-s by y
+(setq inhibit-startup-message t)        ;no splash screen
+(setq ls-lisp-dirs-first t)             ;display dirs first in dired
+(setq x-select-enable-clipboard t);use system clipboard
+(show-paren-mode 1);match parenthesis
+(menu-bar-mode -1);hide menu-bar
+(scroll-bar-mode -1);hide scroll-bar
+(tool-bar-mode -1);hide tool-bar
+(column-number-mode 1);show column number
+(global-font-lock-mode 1);Color syntax highlighting
+(icomplete-mode 1)
+(auto-compression-mode 1) ; Use compressed files as if they were normal
+(setq font-lock-maximum-decoration t);why not? 
+(add-hook 'text-mode-hook 'auto-fill-mode)  ;auto-fill
+(setq transient-mark-mode t);highlights selections
+(setq comment-style 'plain)
+(setq frame-title-format (list '("emacs ") '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
+
+(interactive)
+;; Scroll wheel and mouse in console rock! 
+;; but they only work in emacs 21 with these settings
+(require 'xt-mouse)
+(xterm-mouse-mode t)
+(mouse-wheel-mode t)
+
+;; does this work ?
+(if (load "mwheel" t)
+    (mwheel-install))
+
+;;-----------------------------------------------------------------------------
+;; Smarter Tab Behavior
+;;-----------------------------------------------------------------------------
+
+(defun indent-or-expand (arg)
+  "Either indent according to mode, or expand the word preceding
+point."
+  (interactive "*P")
+  (if (and
+       (or (bobp) (= ?w (char-syntax (char-before))))
+       (or (eobp) (not (= ?w (char-syntax (char-after))))))
+      (dabbrev-expand arg)
+    (indent-according-to-mode)))
+
+(defun my-tab-fix ()
+  (local-set-key "\t" 'indent-or-expand))
+ 
+(add-hook 'c-mode-hook          'my-tab-fix)
+(add-hook 'sh-mode-hook         'my-tab-fix)
+(add-hook 'emacs-lisp-mode-hook 'my-tab-fix)
+(add-hook 'python-mode-hook     'my-tab-fix)
+(add-hook 'java-mode-hook       'my-tab-fix)
+
+
+;;-----------------------------------------------------------------------------
+;; Org-mode
+;;-----------------------------------------------------------------------------
+(add-to-list 'load-path "~/.elisp/org")
+(require 'org-install)
+(require 'org-mouse)
+;; Standard org stuff
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+
+;; Settings
+(setq org-return-follows-link t)
+(setq org-ellipsis "...")
+(setq org-cycle-separator-lines 1) ; Display blank lines, like outline-blank-lines
+(setq org-special-ctrl-a/e t)
+(setq org-tags-column -79); tags right aligned
+(setq org-agenda-align-tags-to-column 70) ; try to right align tags in agenda
+(setq org-hide-leading-stars t); only show one *
+(setq org-log-done t); add CLOSED when complete item
+(setq org-startup-folded 'showall); Best default for small files with tables
+(setq org-highest-priority 49) ; 1
+(setq org-lowest-priority 57) ; 9
+(setq org-default-priority 53) ; 5
+(setq org-agenda-ndays 1) ; default to one day in agenda
+(setq org-agenda-start-on-weekday nil)
+(setq org-deadline-warning-days 14)
+(setq org-agenda-skip-deadline-if-done t)
+(setq org-agenda-skip-scheduled-if-done t)
+(setq org-agenda-show-all-dates t)
+(setq org-reverse-note-order t)
+(setq org-fontify-done-headline t)
+
+
+;; Custom keywords
+(setq org-todo-keywords
+         '((type "NEXT" "GOAL" "WAITING" "DELEGATED" "SOMEDAY" "|" "DONE")
+	      (sequence "QUESTION" "|" "ANSWERED")
+	         (sequence "|" "CANCELED")))
+
+
+;; fix flyspell in org-mode
+(autoload 'flyspell-delay-command "flyspell" "Delay on command." t)
+(autoload 'tex-mode-flyspell-verify "flyspell" "" t)
+(setq flyspell-delayed-commands 
+      '(org-self-insert-commandorg-delete-backward-char
+	org-backward-or-forward-delete-char org-delete-char))
+
+;; Nice for adding bold, italics, etc
+(add-hook 'org-load-hook
+	    (lambda () (define-key org-mode-map "\C-cf" 'org-emphasize)))
+
+(setq org-agenda-custom-commands
+      '(("b" tags "+buy")
+	("Y" agenda "" nil ("~/.diary/agenda.ps"))))
+
+(setq safe-local-variable-values (quote ((after-save-hook archive-done-tasks))))
+
+;; Added for printing agenda
+(setq org-agenda-include-diary t)
+(add-hook 'list-diary-entries-hook 'include-other-diary-files)
+(add-hook 'mark-diary-entries-hook 'mark-included-diary-files)
+(require 'ps2pdf)
+
+;; Remember mode
+(require 'remember)
+(add-hook 'remember-mode-hook 'org-remember-apply-template)
+(define-key global-map [(control meta ?r)] 'remember) ; cool
+(setq org-default-notes-file "~/Documents/org/notes.org")
+(autoload 'org-remember-annotation "org")
+(autoload 'org-remember-handler "org")
+(setq org-directory "~/Documents/org/")
+(setq remember-annotation-functions '(org-remember-annotation))
+(setq remember-handler-functions '(org-remember-handler))
+(setq org-remember-store-without-prompt t)
+
+(setq org-remember-templates
+      '((?l "* NEXT %?" "~/Documents/org/life.org" "New Tasks")
+        (?c "* NEXT %?" "~/Documents/org/caldera.org" "New Tasks")
+	(?p "* %T %?" "~/Documents/org/caldera.org" "Phone Calls")
+	(?o "| NAME | PHONE | EMAIL | ADDRESS|" "~/Documents/org/caldera.org" "Contacts")))
+
+;; Make remember play nice with emacsclient
+(defun my-remember nil
+ (progn (select-frame
+         (make-frame '((name . "*Remember*") )))
+        (raise-frame)
+        (remember)))
+
+(setq remember-all-handler-functions t)
+(setq remember-handler-functions
+     '(org-remember-handler
+     (lambda nil
+       (let* ((frame-names-alist (make-frame-names-alist))
+              (frame (cdr (assoc "*Remember*" frame-names-alist))))
+         (if frame
+             (delete-frame frame t))))))
+
+;; Remember should take full frame
+(add-hook 'remember-mode-hook 'delete-other-windows)
+
+;; Python mode
+(add-hook 'python-mode-hook '(lambda () (define-key python-mode-map "\C-m" 'newline-and-indent)))
+
+;; Java mode
+(add-hook 'java-mode-hook (lambda () (local-set-key [(return)] 'newline-and-indent) ))
+
+;; Go to binding
+(global-set-key "\M-g" 'goto-line)
+
+(setq inhibit-startup-message t)
+
+(tool-bar-mode 0)
+
+(global-font-lock-mode t)
+(setq font-lock-maximum-decoration t)
+
+;;-----------------------------------------------------------------------------
+;; Major modes
+;;-----------------------------------------------------------------------------
+;; ido - This mode seriously rocks!
+(if (< emacs-major-version 22) ;newer version included in Emacs 22, that doesn't work with 21
+    (load-library "ido-old")
+  (require 'ido))
+(ido-mode t)
+(add-hook 'ido-define-mode-map-hook 'ido-my-keys)
+(defun ido-my-keys ()
+  (define-key ido-mode-map "\t" 'ido-complete)
+;tab is better for completion lists
+;(define-key ido-mode-map (kbd "tab") 'ido-complete)
+  (define-key ido-mode-map "\C-t" 'ido-toggle-regexp) ; same as in isearch
+  (define-key ido-mode-map "\C-d" 'ido-enter-dired)) ; cool
+
+;; de-root - C-x C-r open a file as root
+;;(require 'de-root)
+
+;; tail on command or file, cool
+(require 'tail)
+
+;; Tramp - Access files over ssh
+(add-to-list 'load-path "~/.elisp/tramp/lisp/")
+(require 'tramp)
+
+;; htmlize - Great mode for printing buffers in color
+(require 'htmlize)
+
+;;-----------------------------------------------------------------------------
+;; Minor modes
+;;-----------------------------------------------------------------------------
+;; flyspell - Finds too many errors for my taste
+;(add-hook 'text-mode-hook 'flyspell-mode)
+
+;; Line numbering - M-x linum
+(require 'linum)
+
+;; Highline - M-x highline-mode
+(require 'highline)
+(add-hook 'dired-after-readin-hook 'highline-local-mode)
+(add-hook 'buffer-menu-mode-hook 'highline-local-mode)
+
+;;(require 'smooth-scrolling)
+
+;; Only search filenames
+;;(require 'dired-isearch)
+;; (eval-after-load "dired"
+;;   '(progn 
+;;      (define-key dired-mode-map (kbd "C-s") 'dired-isearch-forward)
+;;      (define-key dired-mode-map (kbd "C-r") 'dired-isearch-backward)
+;;      (define-key dired-mode-map (kbd "ESC C-s") 'dired-isearch-forward-regexp)
+;;      (define-key dired-mode-map (kbd "ESC C-r") 'dired-isearch-backward-regexp)))
+
+(defun org-print (&optional region)
+  "Print current buffer using org-mode"
+  (interactive)
+  (color-theme-google)
+  (setq org-fontify-done-headline t)
+  (if region
+      (w32-print-print-region-htmlize)
+    (w32-print-print-buffer-htmlize))
+  (setq org-fontify-done-headline nil))
+  
+(global-set-key (kbd "\C-cp") 'org-print)
+
+(defun org-print-region ()
+  "Print region using org-mode"
+  (interactive)
+  (org-print t))
+
+(global-set-key (kbd "\C-cr") 'org-print-region)
+
+(defun iwb ()
+  "indent whole buffer"
+  (interactive)
+  (delete-trailing-whitespace)
+  (indent-region (point-min) (point-max) nil)
+  (untabify (point-min) (point-max)))
+
+(defun count-words (start end)
+  "Print number of words in the region."
+  (interactive "r")
+  (save-excursion
+    (save-restriction
+      (narrow-to-region start end)
+      (goto-char (point-min))
+      (count-matches "\\sw+"))))
+
+(defun count-words-analysis (start end)
+  "Count how many times each word is used in the region.
+    Punctuation is ignored."
+  (interactive "r")
+  (let (words)
+    (save-excursion
+      (goto-char start)
+      (while (re-search-forward "\\w+" end t)
+	(let* ((word (intern (match-string 0)))
+	              (cell (assq word words)))
+	    (if cell
+		      (setcdr cell (1+ (cdr cell)))
+	          (setq words (cons (cons word 1) words))))))
+    (when (interactive-p)
+      (message "%S" words))
+    words))
+
+
+(defun download-calendar-file (calUrl icsFilename)
+  (call-process-shell-command (concat "wget" " --no-check-certificate " calUrl " -O " icsFilename)));; Custom aliases
+(defalias 'word-count 'count-words)
+(defalias 'word-count-analysis 'count-words-analysis)
+(defalias 'tt 'toggle-truncate-lines)
+(defalias 'fa 'Footnote-add-footnote);M-x fa to add footnote
+;;-----------------------------------------------------------------------------
+;; Color theme
+;;-----------------------------------------------------------------------------
+(add-to-list 'load-path "~/.elisp/color-theme")
+(require 'color-theme)
+;;(load-library "color-theme-print")
+(load-library "color-theme-cl-frame")
+(load-library "color-theme-colorful-obsolescence")
+;;(load-library "color-theme-google")
+
+(require 'tabbar)
+
+(defun load-dark-settings ()
+  (interactive)
+  (color-theme-colorful-obsolescence)
+  (setq org-fontify-done-headline t)
+  (tabbar-mode)
+  (highline-mode))
+
+(defun load-light-settings ()
+  (interactive)
+  (color-theme-google)
+  (require 'bar-cursor)
+  (setq cursor-in-non-selected-windows nil)
+  (menu-bar-mode 1))
+
+(load-dark-settings)
+
+
+;;(show-paren-mode t)
+;;(setq show-paren-style 'mixed)
+
+;; Centering code stolen from somewhere and restolen from 
+;; http://www.chrislott.org/geek/emacs/dotemacs.html
+;; centers the screen around a line...
+(global-set-key [(control l)]  'centerer)
+
+(defun centerer ()
+   "Repositions current line: once middle, twice top, thrice bottom"
+   (interactive)
+   (cond ((eq last-command 'centerer2)  ; 3 times pressed = bottom
+	    (recenter -1))
+	  ((eq last-command 'centerer1)  ; 2 times pressed = top
+	     (recenter 0)
+	       (setq this-command 'centerer2))
+	   (t                             ; 1 time pressed = middle
+	      (recenter)
+	        (setq this-command 'centerer1))))
+
+(when (load "flymake" t)
+  (defun flymake-pylint-init ()
+    (let* ((temp-file (flymake-init-create-temp-buffer-copy
+		       'flymake-create-temp-inplace))
+           (local-file (file-relative-name
+                        temp-file
+                        (file-name-directory buffer-file-name))))
+      (list "epylint" (list local-file))))
+  
+  (add-to-list 'flymake-allowed-file-name-masks
+               '("\\.py\\'" flymake-pylint-init)))
+
+(defun next-flymake-error ()
+      (interactive)
+      (let ((err-buf nil))
+        (condition-case err
+            (setq err-buf (next-error-find-buffer))
+          (error))
+        (if err-buf
+            (next-error)
+            (progn
+              (flymake-goto-next-error)
+              (let ((err (get-char-property (point) 'help-echo)))
+                (when err
+                  (message err)))))))
+
+;; (global-set-key [f3] 'flymake-goto-next-error)
+(global-set-key [f4] 'next-flymake-error)
+;;(global-set-key "\C-N" 'next-flymake-error)
+
+(add-hook 'find-file-hook 'flymake-find-file-hook)
+
+;; Cheetah mode
+(define-derived-mode cheetah-mode html-mode "Cheetah"
+  (make-face 'cheetah-variable-face)
+  (font-lock-add-keywords
+   nil
+   '(
+     ("\\(#\\(from\\|else\\|else if\\|include\\|extends\\|set\\|def\\|import\\|for\\|if\\|end\\)+\\)\\>" 1 font-lock-type-face)
+     ("\\(#\\(from\\|for\\|end\\)\\).*\\<\\(for\\|import\\|def\\|if\\|in\\)\\>" 3 font-lock-type-face)
+     ("\\(##.*\\)\n" 1 font-lock-comment-face)
+     ("\\(\\$\\(?:\\sw\\|}\\|{\\|\\s_\\)+\\)" 1 font-lock-variable-name-face))
+   )
+  (font-lock-mode 1)
+  )
+
+;; Smart Cheetah (use mmm for javascript)
+;; CSS-Mode
+(autoload 'css-mode "css-mode")
+(add-to-list 'auto-mode-alist '("\\.css\\'" . css-mode))
+(setq cssm-indent-function #'cssm-c-style-indenter)
+(setq cssm-indent-level '2)
+
+;; javascript-generic-mode
+(autoload 'javascript-mode "javascript" nil t)
+(add-to-list 'auto-mode-alist '("\\.js\\'" . javascript-mode))
+
+;; MMM-Mode
+(require 'mmm-auto)
+(setq mmm-global-mode 'maybe)
+(setq mmm-submode-decoration-level 0)
+
+;; Set up an mmm group for fancy html editing
+(mmm-add-group
+ 'fancy-cheetah
+ '(
+         (html-css-embedded
+                :submode css-mode
+                :face mmm-declaration-submode-face
+                :front "<style\[^>\]*>"
+                :back "</style>")
+         (html-css-attribute
+                :submode css-mode
+                :face mmm-declaration-submode-face
+                :front "\\bstyle=\\s-*\""
+                :back "\"")
+         (html-javascript-embedded
+                :submode javascript-mode
+                :face mmm-code-submode-face
+                :front "<script\[^>\]*>"
+                :back "</script>")
+         (html-javascript-attribute
+                :submode javascript-mode
+                :face mmm-code-submode-face
+                :front "\\bon\\w+=\\s-*\""
+                :back "\"")
+   )
+)
+
+(setq auto-mode-alist (cons '( "\\.tmpl\\'" . cheetah-mode ) auto-mode-alist ))
+(add-to-list 'mmm-mode-ext-classes-alist '(cheetah-mode nil fancy-cheetah))
+
+;; Snippets
+(setq load-path (cons "~/emacs/yasnippet" load-path))
+
+(require 'yasnippet)
+(yas/initialize)
+(yas/load-directory "~/emacs/snippets/")
