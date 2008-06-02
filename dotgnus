@@ -1,0 +1,55 @@
+; -*- Lisp -*-
+
+;; Stolen from mah.everybody.org/docs/mail, plus some gmail configuration
+;; from emacswiki
+
+; Setting the imap-ssl-program like this isn't strictly necessary, but
+; I do it anyway since I'm paranoid. (I think it will default to
+; `-ssl2' instead of `-tls1' if you don't do this.)
+(setq imap-ssl-program "openssl s_client -tls1 -connect %s:%p")
+
+; Since I use gnus primarily for mail and not for reading News, I
+; make my IMAP setting the default method for gnus.
+(setq gnus-select-method '(nnimap "gmail"
+                                  (nnimap-address "imap.gmail.com")
+				  (nnimap-server-port 993)
+                                  (nnimap-stream ssl)))
+
+;; Use gmail's smtp server
+(setq message-send-mail-function 'smtpmail-send-it
+      smtpmail-starttls-credentials '(("smtp.gmail.com" 25 nil nil))
+      smtpmail-auth-credentials '(("smtp.gmail.com" 25 "mattj@yelp.com" nil))
+      smtpmail-default-smtp-server "smtp.gmail.com"
+      smtpmail-smtp-server "smtp.gmail.com"
+      smtpmail-smtp-service 25)
+
+;; Fetch only part of the article if we can.  I saw this in someone
+;; else's .gnus
+(setq gnus-read-active-file 'some)
+
+;; Tree view for groups.  I like the organisational feel this has.
+(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
+
+;; Threads!  I hate reading un-threaded email -- especially mailing
+;; lists.  This helps a ton!
+(setq gnus-summary-thread-gathering-function 
+      'gnus-gather-threads-by-subject)
+
+;; Also, I prefer to see only the top level message.  If a message has
+;; several replies or is part of a thread, only show the first
+;; message.  'gnus-thread-ignore-subject' will ignore the subject and
+;; look at 'In-Reply-To:' and 'References:' headers.
+(setq gnus-thread-hide-subtree t)
+(setq gnus-thread-ignore-subject t)
+
+;; Change email address for work folder.  This is one of the most
+;; interesting features of Gnus.  I plan on adding custom .sigs soon
+;; for different mailing lists.
+;;(setq gnus-posting-styles
+;;      '((".*"
+;;         (name "Mark A. Hershberger")
+;;         ("X-URL" "http://mah.everybody.org/"))
+;;        ("work" 
+;;         (address "mhershb@mcdermott.com"))
+;;        ("everybody.org"
+;;         (address "mah@everybody.org")))) 
