@@ -166,6 +166,11 @@ point."
 ;; Python mode
 (add-hook 'python-mode-hook '(lambda () (define-key python-mode-map "\C-m" 'newline-and-indent)))
 
+(add-hook 'python-mode-hook '(lambda () (custom-set-variables
+					 '(py-indent-offset 4)
+					 '(tab-width 4)
+					 '(py-smart-indentation nil))))
+
 ;; Java mode
 (add-hook 'java-mode-hook (lambda () (local-set-key [(return)] 'newline-and-indent) ))
 

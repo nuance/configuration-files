@@ -53,3 +53,8 @@
 ;;         (address "mhershb@mcdermott.com"))
 ;;        ("everybody.org"
 ;;         (address "mah@everybody.org")))) 
+
+(setq gnus-thread-sort-functions
+      '((lambda (t1 t2) (not (gnus-thread-sort-by-number t1 t2)))))
+
+(setq gnus-asynchronous t)
