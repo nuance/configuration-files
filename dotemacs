@@ -307,13 +307,13 @@ point."
 (load-library "color-theme-colorful-obsolescence")
 ;;(load-library "color-theme-google")
 
-(require 'tabbar)
+;;(require 'tabbar)
 
 (defun load-dark-settings ()
   (interactive)
   (color-theme-colorful-obsolescence)
   (setq org-fontify-done-headline t)
-  (tabbar-mode)
+;;  (tabbar-mode)
   (highline-mode))
 
 (defun load-light-settings ()
