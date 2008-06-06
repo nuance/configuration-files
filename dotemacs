@@ -432,6 +432,16 @@ point."
                 :face mmm-code-submode-face
                 :front "\\bon\\w+=\\s-*\""
                 :back "\"")
+	 (python-chunks
+	        :submode python-mode
+		:face mmm-code-submode-face
+		:front "#"
+		:back "#")
+	 (python-lines
+	        :submode python-mode
+		:face mmm-code-submode-face
+		:front "#"
+		:back "[^#]*\n")
    )
 )
 
