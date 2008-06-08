@@ -1,0 +1,198 @@
+#!/bin/zsh
+
+autoload -U promptinit
+promptinit
+
+setopt extendedglob
+
+export HISTSIZE=2000
+export HISTFILE="$HOME/.zsh-history"
+export SAVEHIST=$HISTSIZE
+
+setopt hist_ignore_all_dups
+setopt hist_ignore_space
+
+export PS1="[%n@%m %1~]$ "
+
+# See if we can use colors. 
+autoload colors zsh/terminfo 
+if [[ "$terminfo[colors]" -ge 8 ]]; then
+    colors
+fi
+for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE; do
+    eval PR_$color='%{$terminfo[bold]$fg[${(L)color}]%}'
+    eval PR_LIGHT_$color='%{$fg[${(L)color}]%}'
+    (( count = $count + 1 ))
+done
+
+# Completion stuff
+zstyle ':completion:::::' completer _complete
+
+autoload -U compinit
+compinit
+ZLS_COLORS=$LS_COLORS
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+zstyle ':completion:*' list-colors no=00 fi=00 di=01\;34 pi=33 so=01\;35 bd=00\;35 cd=00\;34 or=00\;41 mi=00\;45 ex=01\;32
+
+
+### Enable advanced completions
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+
+### General completion technique
+#zstyle ':completion:*' completer _complete _correct _approximate _prefix
+zstyle ':completion:*' completer _complete _prefix
+zstyle ':completion::prefix-1:*' completer _complete
+zstyle ':completion:incremental:*' completer _complete _correct
+zstyle ':completion:predict:*' completer _complete
+
+# Completion caching
+zstyle ':completion::complete:*' use-cache 1
+zstyle ':completion::complete:*' cache-path ~/.zsh/cache/$HOST
+
+# Expand partial paths
+zstyle ':completion:*' expand 'yes'
+zstyle ':completion:*' squeeze-slashes 'yes'
+# Don't complete backup files as executables
+zstyle ':completion:*:complete:-command-::commands' ignored-patterns '*\~'
+
+# Separate matches into groups
+zstyle ':completion:*:matches' group 'yes'
+
+# Describe each match group.
+zstyle ':completion:*:descriptions' format "%B---- %d%b"
+
+# Messages/warnings format
+zstyle ':completion:*:messages' format '%B%U---- %d%u%b' 
+zstyle ':completion:*:warnings' format '%B%U---- no match for: %d%u%b'
+ 
+# Describe options in full
+zstyle ':completion:*:options' description 'yes'
+zstyle ':completion:*:options' auto-description '%d'
+
+zstyle ':completion:*:history-words' stop yes
+zstyle ':completion:*:history-words' remove-all-dups yes
+zstyle ':completion:*:history-words' list false
+zstyle ':completion:*:history-words' menu yes
+
+# kill
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+
+# menu for kill
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:kill:*' force-list always
+
+# kill menu extension!
+zstyle ':completion:*:processes' command 'ps --forest -U $(whoami) | sed "/ps/d"'
+#zstyle ':completion:*:*:kill:*:processes' command 'ps --forest -A -o pid,user,cmd'
+zstyle ':completion:*:processes' insert-ids menu yes select
+
+# remove uninteresting users
+zstyle ':completion:*:*:*:users' ignored-patterns \
+   adm alias apache at bin cron cyrus daemon ftp games gdm guest \
+   haldaemon halt mail man messagebus mysql named news nobody nut \
+   lp operator portage postfix postgres postmaster qmaild qmaill \
+   qmailp qmailq qmailr qmails shutdown smmsp squid sshd sync \
+   uucp vpopmail xfs
+
+# case insensitivity, partial matching, substitution
+zstyle ':completion:*' matcher-list 'm:{A-Z}={a-z}' 'm:{a-z}={A-Z}' 'r:|[._-]=** r:|=**' 'l:|=* r:|=*'
+
+local _myhosts;
+_myhosts=( ${${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) /dev/null)"}%%[# ]*}//,/ }:#\!*}
+${=${(f)"$(cat /etc/hosts(|)(N) <<(ypcat hosts 2>/dev/null))"}%%\#*} );
+zstyle ':completion:*' hosts $_myhosts;
+
+[ -f ~/.ssh/config ] && : ${(A)ssh_config_hosts:=${${${${(@M)${(f)"$(<~/.ssh/config)"}:#Host *}#Host }:#*\**}:#*\?*}}
+[ -f ~/.ssh/known_hosts ] && : ${(A)ssh_known_hosts:=${${${(f)"$(<$HOME/.ssh/known_hosts)"}%%\ *}%%,*}}
+
+zstyle ':completion:*:*:*' hosts $ssh_config_hosts $ssh_known_hosts
+
+source $HOME/dev/projects/todo-github-import/todo-zsh.sh
+
+# /usr/local/bin/blt --check }
+
+alias i=/home/matt/bin/itunes
+alias pp="/home/matt/bin/itunes playpause"
+alias np="/home/matt/bin/itunes status"
+
+source $HOME/.bash_profile
+
+precmd() {
+    todoprecmd
+}
+
+# Extract most types of archive
+extract() {
+   if [[ -z "$1" ]]; then
+      print -P "usage: \e[1;36mextract\e[1;0m < filename >"
+      print -P "       Extract the file specified based on the extension"
+   elif [[ -f $1 ]]; then
+      case ${(L)1} in
+	    *.tar.bz2)  tar -jxvf $1;;
+  *.tar.gz)   tar -zxvf $1;;
+    *.bz2)      bunzip2 $1   ;;
+      *.gz)       gunzip $1   ;;
+        *.jar)      unzip $1       ;;
+	  *.rar)      unrar x $1   ;;
+	    *.tar)      tar -xvf $1   ;;
+	      *.tbz2)     tar -jxvf $1;;
+	        *.tgz)      tar -zxvf $1;;
+		  *.zip)      unzip $1      ;;
+		    *.Z)        uncompress $1;;
+         *)          echo "Unable to extract '$1' :: Unknown extension"
+      esac
+   else
+      echo "File ('$1') does not exist!"
+   fi
+}
+
+compctl -g '*.tar.bz2 *.tar.gz *.bz2 *.gz *.jar *.rar *.tar *.tbz2 *.tgz *.zip *.Z' + -g '*(-/)' extract
+
+# summarized google, ggogle, mggogle, agoogle and fm
+function search()
+{
+    case "$1" in
+	-g) ${BROWSER:-lynx} http://www.google.com/search\?q=$2
+	    ;;
+	-u) ${BROWSER:-lynx} http://groups.google.com/groups\?q=$2
+	    ;;
+	-m) ${BROWSER:-lynx} http://groups.google.com/groups\?selm=$2
+	    ;;
+	-a) ${BROWSER:-lynx} http://groups.google.com/groups\?as_uauthors=$2
+	    ;;
+	-c) ${BROWSER:-lynx} http://search.cpan.org/search\?query=$2\&mode=module
+	    ;;
+	-f) ${BROWSER:-lynx} http://freshmeat.net/search/\?q=$2\&section=projects
+	    ;;
+	-F) ${BROWSER:-lynx} http://www.filewatcher.com/\?q=$2
+	    ;;
+	-G) ${BROWSER:-lynx} http://www.rommel.stw.uni-erlangen.de/~fejf/cgi-bin/pfs-web.pl\?filter-search_file=$2
+	    ;;
+	-s) ${BROWSER:-lynx} http://sourceforge.net/search/\?type=soft\&q=$2
+            ;;
+	-w) ${BROWSER:-lynx} http://de.wikipedia.org/wiki/$2
+	    ;;
+	-W) ${BROWSER:-lynx} http://en.wikipedia.org/wiki/$2
+	    ;;
+	-d) lynx -source "http://dict.leo.org?$2" | grep -i "TABLE.*/TABLE" | sed "s/^.*\(<TABLE.*TABLE>\).*$/<HTML><BODY>\1<\/BODY><\/HTML>/" | lynx -stdin -dump -width=$COLUMNS -nolist;
+	    ;;
+	*) 
+	    echo "Usage: $0 {-g | -u | -m | -a | -f | -c | -F | -s | -w | -W | -d}"
+	    echo "-g:  Searching for keyword in google.com"
+	    echo "-u:  Searching for keyword in groups.google.com"
+	    echo "-m:  Searching for message-id in groups.google.com"
+	    echo "-a:  Searching for Authors in groups.google.com"
+	    echo "-c:  Searching for Modules on cpan.org."
+	    echo "-f:  Searching for projects on Freshmeat."
+	    echo "-F:  Searching for packages on FileWatcher."
+	    echo "-G:  Gentoo file search."
+	    echo "-s:  Searching for software on Sourceforge."
+	    echo "-w:  Searching for keyword at wikipedia (german)."
+	    echo "-W:  Searching for keyword at wikipedia (english)."
+	    echo "-d:  Query dict.leo.org ;)"
+    esac
+}
+
+bindkey -s "^x^f" $'emacs '
+
