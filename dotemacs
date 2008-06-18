@@ -1,6 +1,12 @@
 (global-set-key "\C-x\C-m" 'execute-extended-command)
 (global-set-key "\C-c\C-m" 'execute-extended-command)
 
+(global-set-key [f1] 'find-tag)
+(global-set-key [S-f1] 'pop-tag-mark)
+(global-set-key [f2] 'show-subtree)
+(global-set-key [f3] 'hide-subtree)
+
+
 ;;load path set to folder ~/emacs for .el files
 (setq load-path (cons "~/emacs/mmm-mode" (cons "~/emacs/color-theme" (cons "~/emacs/remember" (cons "~/emacs/org-6.03/lisp" (cons "~/emacs" load-path))))))
 
@@ -183,9 +189,9 @@ point."
        (current-column))))
 ; this get called after python mode is enabled
 (defun my-python-hook ()
-   ; outline uses this regexp to find headers. I match lines with no indent and indented "class"
-   ; and "def" lines.
-   (setq outline-regexp "[ \t]*\\(def\\) ")
+   ; outline uses this regexp to find headers. I match lines with indented "class"
+   ; and "def" lines and lines with @
+   (setq outline-regexp "[ \t]*\\(def\\|class\\) \\|[\t]*\\@[A-Za-z]+")
    ; enable our level computation
    (setq outline-level 'py-outline-level)
    ; do not use their \C-c@ prefix, too hard to type. Note this overides some python mode bindings
