@@ -1,10 +1,23 @@
+;; Global keybindings
+
 (global-set-key "\C-x\C-m" 'execute-extended-command)
 (global-set-key "\C-c\C-m" 'execute-extended-command)
 
 (global-set-key [f1] 'find-tag)
-(global-set-key [S-f1] 'pop-tag-mark)
-(global-set-key [f2] 'show-subtree)
-(global-set-key [f3] 'hide-subtree)
+(global-set-key [f2] 'pop-tag-mark)
+(global-set-key [f3] 'show-subtree)
+(global-set-key [f4] 'hide-subtree)
+(global-set-key [f5] 'next-flymake-error)
+(global-set-key [f6] 'flymake-start-syntax-check)
+
+;; Go to binding
+(global-set-key "\M-g" 'goto-line)
+
+;; Smarter centering
+(global-set-key [(control l)]  'centerer)
+
+;; Default to regexp search
+(global-set-key [(control s)] 'isearch-forward-regexp)
 
 
 ;;load path set to folder ~/emacs for .el files
@@ -190,7 +203,7 @@ point."
 ; this get called after python mode is enabled
 (defun my-python-hook ()
    ; outline uses this regexp to find headers. I match lines with indented "class"
-   ; and "def" lines and lines with @
+   ; and "def" lines and lines with @ (attribute)
    (setq outline-regexp "[ \t]*\\(def\\|class\\) \\|[\t]*\\@[A-Za-z]+")
    ; enable our level computation
    (setq outline-level 'py-outline-level)
@@ -210,9 +223,6 @@ point."
 
 ;; Java mode
 (add-hook 'java-mode-hook (lambda () (local-set-key [(return)] 'newline-and-indent) ))
-
-;; Go to binding
-(global-set-key "\M-g" 'goto-line)
 
 (setq inhibit-startup-message t)
 
@@ -263,36 +273,6 @@ point."
 (require 'highline)
 (add-hook 'dired-after-readin-hook 'highline-local-mode)
 (add-hook 'buffer-menu-mode-hook 'highline-local-mode)
-
-;;(require 'smooth-scrolling)
-
-;; Only search filenames
-;;(require 'dired-isearch)
-;; (eval-after-load "dired"
-;;   '(progn 
-;;      (define-key dired-mode-map (kbd "C-s") 'dired-isearch-forward)
-;;      (define-key dired-mode-map (kbd "C-r") 'dired-isearch-backward)
-;;      (define-key dired-mode-map (kbd "ESC C-s") 'dired-isearch-forward-regexp)
-;;      (define-key dired-mode-map (kbd "ESC C-r") 'dired-isearch-backward-regexp)))
-
-(defun org-print (&optional region)
-  "Print current buffer using org-mode"
-  (interactive)
-  (color-theme-google)
-  (setq org-fontify-done-headline t)
-  (if region
-      (w32-print-print-region-htmlize)
-    (w32-print-print-buffer-htmlize))
-  (setq org-fontify-done-headline nil))
-  
-(global-set-key (kbd "\C-cp") 'org-print)
-
-(defun org-print-region ()
-  "Print region using org-mode"
-  (interactive)
-  (org-print t))
-
-(global-set-key (kbd "\C-cr") 'org-print-region)
 
 (defun iwb ()
   "indent whole buffer"
@@ -369,7 +349,6 @@ point."
 ;; Centering code stolen from somewhere and restolen from 
 ;; http://www.chrislott.org/geek/emacs/dotemacs.html
 ;; centers the screen around a line...
-(global-set-key [(control l)]  'centerer)
 
 (defun centerer ()
    "Repositions current line: once middle, twice top, thrice bottom"
@@ -410,7 +389,6 @@ point."
                   (message err)))))))
 
 ;; (global-set-key [f3] 'flymake-goto-next-error)
-(global-set-key [f4] 'next-flymake-error)
 ;;(global-set-key "\C-N" 'next-flymake-error)
 
 (add-hook 'find-file-hook 'flymake-find-file-hook)
