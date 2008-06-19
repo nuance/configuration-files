@@ -22,6 +22,10 @@
 (global-set-key [(control s)] 'isearch-forward-regexp)
 (global-set-key [(control r)] 'isearch-backward-regexp)
 
+(custom-set-variables
+ '(flymake-errline ((((class color)) (:background "LightPink" :foreground "black"))))
+ '(flymake-warnline ((((class color)) (:background "LightBlue2" :foreground "black"))))
+)
 
 ;;-----------------------------------------------------------------------------
 ;; Load Path
@@ -206,17 +210,35 @@ point."
 ;; Flymake - error checking as you type
 ;;-----------------------------------------------------------------------------
 
-(when (load "flymake" t)
-  (defun flymake-pylint-init ()
-    (let* ((temp-file (flymake-init-create-temp-buffer-copy
-		       'flymake-create-temp-inplace))
-           (local-file (file-relative-name
-                        temp-file
-                        (file-name-directory buffer-file-name))))
-      (list "epylint" (list local-file))))
-  
-  (add-to-list 'flymake-allowed-file-name-masks
-               '("\\.py\\'" flymake-pylint-init)))
+;; pyflakes... thanks again to chrism.
+
+  (when (load "flymake" t) 
+         (defun flymake-pyflakes-init () 
+           (let* ((temp-file (flymake-init-create-temp-buffer-copy 
+                              'flymake-create-temp-inplace)) 
+              (local-file (file-relative-name 
+                           temp-file 
+                           (file-name-directory buffer-file-name)))) 
+             (list "pyflakes" (list local-file)))) 
+
+         (add-to-list 'flymake-allowed-file-name-masks 
+                  '("\\.py\\'" flymake-pyflakes-init))) 
+
+   (add-hook 'find-file-hook 'flymake-find-file-hook)
+
+(load-library "flymake-cursor")
+
+;;(when (load "flymake" t)
+;;  (defun flymake-pylint-init ()
+;;    (let* ((temp-file (flymake-init-create-temp-buffer-copy
+;;		       'flymake-create-temp-inplace))
+;;           (local-file (file-relative-name
+;;                        temp-file
+;;                        (file-name-directory buffer-file-name))))
+;;      (list "epylint" (list local-file))))
+;;  
+;;  (add-to-list 'flymake-allowed-file-name-masks
+;;               '("\\.py\\'" flymake-pylint-init)))
 
 (defun next-flymake-error ()
       (interactive)
@@ -232,7 +254,7 @@ point."
                 (when err
                   (message err)))))))
 
-(add-hook 'find-file-hook 'flymake-find-file-hook)
+;;(add-hook 'find-file-hook 'flymake-find-file-hook)
 
 ;;-----------------------------------------------------------------------------
 ;; MMM modes (allows a buffer to use multiple major modes)
