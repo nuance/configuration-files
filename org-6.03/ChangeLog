@@ -1,5 +1,0 @@
-
-2008-04-25  Carsten Dominik  <dominik@science.uva.nl>
-
-	* Makefile (BATCH): Fix the path to the local lisp files.
-
