@@ -33,6 +33,7 @@
 
 ;;load path set to folder ~/emacs for .el files
 (setq load-path (cons "~/emacs/mmm-mode" (cons "~/emacs/color-theme" (cons "~/emacs" load-path))))
+(setq load-path (cons "~/emacs/color-theme/themes" load-path))
 
 ;; bell gets really annoying 
 (setq visible-bell t)
@@ -87,6 +88,7 @@ point."
 (add-hook 'emacs-lisp-mode-hook 'my-tab-fix)
 (add-hook 'python-mode-hook     'my-tab-fix)
 (add-hook 'java-mode-hook       'my-tab-fix)
+(add-hook 'objc-mode-hook       'my-tab-fix)
 
 ;;-----------------------------------------------------------------------------
 ;; Major modes
@@ -173,17 +175,22 @@ point."
 ;; Color theme
 ;;-----------------------------------------------------------------------------
 
-(add-to-list 'load-path "~/.elisp/color-theme")
 (require 'color-theme)
 (load-library "color-theme-cl-frame")
 (load-library "color-theme-colorful-obsolescence")
+(load-library "color-theme-library")
 
 (defun load-dark-settings ()
   (interactive)
   (color-theme-colorful-obsolescence)
   (highline-mode))
 
-(load-dark-settings)
+(defun load-light-settings ()
+  (interactive)
+  (color-theme-calm-forest)
+  (highline-mode))
+
+(load-light-settings)
 
 ;;-----------------------------------------------------------------------------
 ;; Smarter Centering

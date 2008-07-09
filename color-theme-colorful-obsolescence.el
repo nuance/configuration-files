@@ -52,7 +52,7 @@
 ;;-----------------------------------------------------------------------------
 ;; General
 ;;-----------------------------------------------------------------------------
-       ((background-color . "black")
+       ((background-color . "#2a211c");; black")
 	(background-mode . dark)
 	(background-toolbar-color . "black")
 	(border-color . "black")
@@ -144,7 +144,7 @@
        (org-upcoming-deadline ((t (:inherit font-lock-keyword-face))))
 
 ;; Strong but not overbearing (dark blue)
-     (font-lock-builtin-face ((t (:foreground "#5555ff"))))
+     (font-lock-builtin-face ((t (:foreground "#BDAE9D"))));;#5555ff"))))
      (org-level-1 ((t (:inherit font-lock-builtin-face))))
 
 ;; dark purple
