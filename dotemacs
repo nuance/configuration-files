@@ -34,6 +34,7 @@
 ;;load path set to folder ~/emacs for .el files
 (setq load-path (cons "~/emacs/mmm-mode" (cons "~/emacs/color-theme" (cons "~/emacs" load-path))))
 (setq load-path (cons "~/emacs/color-theme/themes" load-path))
+(setq load-path (cons "~/emacs/remember" load-path))
 
 ;; bell gets really annoying 
 (setq visible-bell t)
@@ -175,6 +176,11 @@ point."
   (define-key ido-mode-map "\t" 'ido-complete)
   (define-key ido-mode-map "\C-t" 'ido-toggle-regexp) ; same as in isearch
   (define-key ido-mode-map "\C-d" 'ido-enter-dired)) ; cool
+
+;;-----------------------------------------------------------------------------
+;; Remember mode
+;;-----------------------------------------------------------------------------
+(require 'remember)
 
 ;;-----------------------------------------------------------------------------
 ;; Minor modes
