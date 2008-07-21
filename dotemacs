@@ -260,6 +260,9 @@ point."
 ;; Minor modes
 ;;-----------------------------------------------------------------------------
 
+;; Cheat
+(require 'cheat
+
 ;; Line numbering - M-x linum
 (require 'linum)
 
