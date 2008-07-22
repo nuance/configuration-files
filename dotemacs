@@ -261,7 +261,7 @@ point."
 ;;-----------------------------------------------------------------------------
 
 ;; Cheat
-(require 'cheat
+(require 'cheat)
 
 ;; Line numbering - M-x linum
 (require 'linum)
