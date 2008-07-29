@@ -25,7 +25,7 @@
 (custom-set-variables
  '(flymake-errline ((((class color)) (:background "LightPink" :foreground "black"))))
  '(flymake-warnline ((((class color)) (:background "LightBlue2" :foreground "black"))))
-)
+ )
 
 ;;-----------------------------------------------------------------------------
 ;; Load Path
@@ -34,9 +34,9 @@
 ;;load path set to folder ~/emacs for .el files
 (setq load-path (cons "~/emacs" load-path))
 
-;; bell gets really annoying 
+;; bell gets really annoying
 (setq visible-bell t)
-(setq ring-bell-function (lambda ()));get rid of bell completely
+(setq ring-bell-function (lambda ()))   ;get rid of bell completely
 
 ;;-----------------------------------------------------------------------------
 ;; Global Defaults
@@ -46,18 +46,18 @@
 (fset 'yes-or-no-p 'y-or-n-p)           ;replace y-e-s by y
 (setq inhibit-startup-message t)        ;no splash screen
 (setq ls-lisp-dirs-first t)             ;display dirs first in dired
-(setq x-select-enable-clipboard t);use system clipboard
-(show-paren-mode 1);match parenthesis
-(menu-bar-mode -1);hide menu-bar
-(scroll-bar-mode -1);hide scroll-bar
-(tool-bar-mode -1);hide tool-bar
-(column-number-mode 1);show column number
-(global-font-lock-mode 1);Color syntax highlighting
+(setq x-select-enable-clipboard t)      ;use system clipboard
+(show-paren-mode 1)                     ;match parenthesis
+(menu-bar-mode -1)                      ;hide menu-bar
+(scroll-bar-mode -1)                    ;hide scroll-bar
+(tool-bar-mode -1)                      ;hide tool-bar
+(column-number-mode 1)                  ;show column number
+(global-font-lock-mode 1)               ;Color syntax highlighting
 (icomplete-mode 1)
 (auto-compression-mode 1) ; Use compressed files as if they were normal
-(setq font-lock-maximum-decoration t);why not? 
-(add-hook 'text-mode-hook 'auto-fill-mode)  ;auto-fill
-(setq transient-mark-mode t);highlights selections
+(setq font-lock-maximum-decoration t)      ;why not?
+(add-hook 'text-mode-hook 'auto-fill-mode) ;auto-fill
+(setq transient-mark-mode t)               ;highlights selections
 (setq comment-style 'plain)
 (setq frame-title-format (list '("emacs ") '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
 (tool-bar-mode 0)
@@ -76,10 +76,10 @@
   (if (string-match "^\\([^.]+\\)\\.\\(.*\\)" system-name)
       ;; fully qualified system-name
       (setq host-name (match-string 1 system-name)
-	        domain-name (match-string 2 system-name))
-  ;; system-name is host-name
-  (setq host-name system-name
-	domain-name (getenv "DOMAINNAME"))))
+            domain-name (match-string 2 system-name))
+    ;; system-name is host-name
+    (setq host-name system-name
+          domain-name (getenv "DOMAINNAME"))))
 
 ;;-----------------------------------------------------------------------------
 ;; Smarter Tab Behavior
@@ -110,40 +110,53 @@ point."
 ;;-----------------------------------------------------------------------------
 
 ;;-----------------------------------------------------------------------------
+;; Tramp mode
+;;-----------------------------------------------------------------------------
+
+(require 'tramp)
+;;(setq tramp-default-method "ssh2")
+;;(setq tramp-default-user "mattj")
+;;(setq tramp-default-host "jin")
+
+;; mhjones
+;;(add-to-list 'tramp-default-user-alist
+;;             '("ssh2" "mhjones\\.org'" "matt"))
+
+;;-----------------------------------------------------------------------------
 ;; Python mode
 ;;-----------------------------------------------------------------------------
 
 (add-hook 'python-mode-hook '(lambda () (define-key python-mode-map "\C-m" 'newline-and-indent)))
 
 (add-hook 'python-mode-hook '(lambda () (custom-set-variables
-					 '(py-indent-offset 4)
-					 '(tab-width 4)
-					 '(py-smart-indentation nil))))
+                                         '(py-indent-offset 4)
+                                         '(tab-width 4)
+                                         '(py-smart-indentation nil))))
 
 ;; Outline mode
 ;; setup python mode
-; add my customization
+                                        ; add my customization
 (add-hook 'python-mode-hook 'my-python-hook)
-; this gets called by outline to deteremine the level. Just use the length of the whitespace
+                                        ; this gets called by outline to deteremine the level. Just use the length of the whitespace
 (defun py-outline-level ()
-   (let (buffer-invisibility-spec)
-     (save-excursion
-       (skip-chars-forward "\t ")
-       (current-column))))
-; this get called after python mode is enabled
+  (let (buffer-invisibility-spec)
+    (save-excursion
+      (skip-chars-forward "\t ")
+      (current-column))))
+                                        ; this get called after python mode is enabled
 (defun my-python-hook ()
-   ; outline uses this regexp to find headers. I match lines with indented "class"
-   ; and "def" lines and lines with @ (attribute)
-   (setq outline-regexp "[ \t]*\\(def\\|class\\) \\|[\t]*\\@[A-Za-z]+")
-   ; enable our level computation
-   (setq outline-level 'py-outline-level)
-   ; turn on outline mode
-   (outline-minor-mode t)
-   ; initially hide all but the headers
-   (hide-body)
-   ; make paren matches visible
-   (show-paren-mode 1)
-)
+                                        ; outline uses this regexp to find headers. I match lines with indented "class"
+                                        ; and "def" lines and lines with @ (attribute)
+  (setq outline-regexp "[ \t]*\\(def\\|class\\) \\|[\t]*\\@[A-Za-z]+")
+                                        ; enable our level computation
+  (setq outline-level 'py-outline-level)
+                                        ; turn on outline mode
+  (outline-minor-mode t)
+                                        ; initially hide all but the headers
+  (hide-body)
+                                        ; make paren matches visible
+  (show-paren-mode 1)
+  )
 
 
 ;;-----------------------------------------------------------------------------
@@ -173,7 +186,7 @@ point."
 (defun ido-my-keys ()
   (define-key ido-mode-map "\t" 'ido-complete)
   (define-key ido-mode-map "\C-t" 'ido-toggle-regexp) ; same as in isearch
-  (define-key ido-mode-map "\C-d" 'ido-enter-dired)) ; cool
+  (define-key ido-mode-map "\C-d" 'ido-enter-dired))  ; cool
 
 ;;-----------------------------------------------------------------------------
 ;; Remember mode
@@ -306,21 +319,21 @@ point."
 ;; Smarter Centering
 ;;-----------------------------------------------------------------------------
 
-;; Centering code stolen from somewhere and restolen from 
+;; Centering code stolen from somewhere and restolen from
 ;; http://www.chrislott.org/geek/emacs/dotemacs.html
 ;; centers the screen around a line...
 
 (defun centerer ()
-   "Repositions current line: once middle, twice top, thrice bottom"
-   (interactive)
-   (cond ((eq last-command 'centerer2)  ; 3 times pressed = bottom
-	    (recenter -1))
-	  ((eq last-command 'centerer1)  ; 2 times pressed = top
-	     (recenter 0)
-	       (setq this-command 'centerer2))
-	   (t                             ; 1 time pressed = middle
-	      (recenter)
-	        (setq this-command 'centerer1))))
+  "Repositions current line: once middle, twice top, thrice bottom"
+  (interactive)
+  (cond ((eq last-command 'centerer2)   ; 3 times pressed = bottom
+         (recenter -1))
+        ((eq last-command 'centerer1)   ; 2 times pressed = top
+         (recenter 0)
+         (setq this-command 'centerer2))
+        (t                              ; 1 time pressed = middle
+         (recenter)
+         (setq this-command 'centerer1))))
 
 
 ;;-----------------------------------------------------------------------------
@@ -329,61 +342,71 @@ point."
 
 ;; pyflakes... thanks again to chrism.
 
-  (when (load "flymake" t) 
-         (defun flymake-pyflakes-init () 
-           (let* ((temp-file (flymake-init-create-temp-buffer-copy 
-                              'flymake-create-temp-inplace)) 
-              (local-file (file-relative-name 
-                           temp-file 
-                           (file-name-directory buffer-file-name)))) 
-             (list "pyflakes" (list local-file)))) 
+(when (load "flymake" t)
+  (defun flymake-pyflakes-init ()
+    (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-inplace))
+           (local-file (file-relative-name
+                        temp-file
+                        (file-name-directory buffer-file-name))))
+      (list "pyflakes" (list local-file))))
 
-         (add-to-list 'flymake-allowed-file-name-masks 
-                  '("\\.py\\'" flymake-pyflakes-init))) 
+  (add-to-list 'flymake-allowed-file-name-masks
+               '("\\.py\\'" flymake-pyflakes-init)))
 
-   (add-hook 'find-file-hook 'flymake-find-file-hook)
+(add-hook 'find-file-hook 'flymake-find-file-hook)
 
 (load-library "flymake-cursor")
+
+(defun pylint ()
+  "Run pylint against the file behind the current buffer after
+checking if unsaved buffers should be saved."
+
+  (interactive)
+  (let* ((file (buffer-file-name (current-buffer)))
+         (command (concat "pylint --output-format=parseable \"" file "\"")))
+    (save-some-buffers (not compilation-ask-about-save) nil) ; save files.
+    (compile-internal command "No more errors or warnings" "pylint")))
 
 ;;(when (load "flymake" t)
 (defun flymake-pylint-init ()
   (let* ((temp-file (flymake-init-create-temp-buffer-copy
-		     'flymake-create-temp-inplace))
-	 (local-file (file-relative-name
-		      temp-file
-		      (file-name-directory buffer-file-name))))
+                     'flymake-create-temp-inplace))
+         (local-file (file-relative-name
+                      temp-file
+                      (file-name-directory buffer-file-name))))
     (list "epylint" (list local-file))))
 
 
 (defun strict-flymake-enable ()
   (interactive)
-  (delete 'flymake-allowed-file-name-masks 
-	  '("\\.py\\'" flymake-pyflakes-init))
+  (delete 'flymake-allowed-file-name-masks
+          '("\\.py\\'" flymake-pyflakes-init))
   (add-to-list 'flymake-allowed-file-name-masks
                '("\\.py\\'" flymake-pylint-init))
   (flymake-start-syntax-check))
 
 (defun strict-flymake-disable ()
   (interactive)
-  (delete 'flymake-allowed-file-name-masks 
-	  '("\\.py\\'" flymake-pylint-init))
-  (add-to-list 'flymake-allowed-file-name-masks 
-	       '("\\.py\\'" flymake-pyflakes-init))
-  (flymake-start-syntax-check)) 
+  (delete 'flymake-allowed-file-name-masks
+          '("\\.py\\'" flymake-pylint-init))
+  (add-to-list 'flymake-allowed-file-name-masks
+               '("\\.py\\'" flymake-pyflakes-init))
+  (flymake-start-syntax-check))
 
 (defun next-flymake-error ()
-      (interactive)
-      (let ((err-buf nil))
-        (condition-case err
-            (setq err-buf (next-error-find-buffer))
-          (error))
-        (if err-buf
-            (next-error)
-            (progn
-              (flymake-goto-next-error)
-              (let ((err (get-char-property (point) 'help-echo)))
-                (when err
-                  (message err)))))))
+  (interactive)
+  (let ((err-buf nil))
+    (condition-case err
+        (setq err-buf (next-error-find-buffer))
+      (error))
+    (if err-buf
+        (next-error)
+      (progn
+        (flymake-goto-next-error)
+        (let ((err (get-char-property (point) 'help-echo)))
+          (when err
+            (message err)))))))
 
 ;;(add-hook 'find-file-hook 'flymake-find-file-hook)
 
@@ -431,38 +454,38 @@ point."
 (mmm-add-group
  'fancy-cheetah
  '(
-         (html-css-embedded
-                :submode css-mode
-                :face mmm-declaration-submode-face
-                :front "<style\[^>\]*>"
-                :back "</style>")
-         (html-css-attribute
-                :submode css-mode
-                :face mmm-declaration-submode-face
-                :front "\\bstyle=\\s-*\""
-                :back "\"")
-         (html-javascript-embedded
-                :submode javascript-mode
-                :face mmm-code-submode-face
-                :front "<script\[^>\]*>"
-                :back "</script>")
-         (html-javascript-attribute
-                :submode javascript-mode
-                :face mmm-code-submode-face
-                :front "\\bon\\w+=\\s-*\""
-                :back "\"")
-	 (python-chunks
-	        :submode python-mode
-		:face mmm-code-submode-face
-		:front "#"
-		:back "#")
-	 (python-lines
-	        :submode python-mode
-		:face mmm-code-submode-face
-		:front "#"
-		:back "[^#]*\n")
+   (html-css-embedded
+    :submode css-mode
+    :face mmm-declaration-submode-face
+    :front "<style\[^>\]*>"
+    :back "</style>")
+   (html-css-attribute
+    :submode css-mode
+    :face mmm-declaration-submode-face
+    :front "\\bstyle=\\s-*\""
+    :back "\"")
+   (html-javascript-embedded
+    :submode javascript-mode
+    :face mmm-code-submode-face
+    :front "<script\[^>\]*>"
+    :back "</script>")
+   (html-javascript-attribute
+    :submode javascript-mode
+    :face mmm-code-submode-face
+    :front "\\bon\\w+=\\s-*\""
+    :back "\"")
+   (python-chunks
+    :submode python-mode
+    :face mmm-code-submode-face
+    :front "#"
+    :back "#")
+   (python-lines
+    :submode python-mode
+    :face mmm-code-submode-face
+    :front "#"
+    :back "[^#]*\n")
    )
-)
+ )
 
 (setq auto-mode-alist (cons '( "\\.tmpl\\'" . cheetah-mode ) auto-mode-alist ))
 (add-to-list 'mmm-mode-ext-classes-alist '(cheetah-mode nil fancy-cheetah))
