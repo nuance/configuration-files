@@ -188,6 +188,20 @@ point."
  "Open `remember-data-file'."
  (interactive)
  (find-file-other-window remember-data-file))
+
+(defun wicked/remember-line-numbers-and-file-names ()
+ "Return FILENAME line NUMBER."
+ (save-restriction
+  (widen)
+   (format " %s line %d"
+    (or (buffer-file-name) (buffer-name))
+    (line-number-at-pos))))
+
+(eval-after-load 'remember
+  '(progn
+     (add-to-list 'remember-annotation-functions
+                  'wicked/remember-line-numbers-and-file-names)))
+
 (global-set-key (kbd "C-c R") 'wicked/remember-review-file)
 
 ;;-----------------------------------------------------------------------------
