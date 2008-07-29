@@ -114,9 +114,9 @@ point."
 ;;-----------------------------------------------------------------------------
 
 (require 'tramp)
-;;(setq tramp-default-method "ssh2")
-;;(setq tramp-default-user "mattj")
-;;(setq tramp-default-host "jin")
+(setq tramp-default-method "sshx")
+(setq tramp-default-user "mattj")
+(setq tramp-default-host "jin")
 
 ;; mhjones
 ;;(add-to-list 'tramp-default-user-alist
