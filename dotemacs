@@ -193,7 +193,15 @@ point."
 ;;-----------------------------------------------------------------------------
 
 (setq load-path (cons "~/emacs/remember" load-path))
-(require 'remember)
+(require 'remember-autoloads)
+(setq remember-data-file "~/notes.txt")
+(global-set-key (kbd "C-c r") 'remember)
+
+(defun wicked/remember-review-file ()
+ "Open `remember-data-file'."
+ (interactive)
+ (find-file-other-window remember-data-file))
+(global-set-key (kbd "C-c R") 'wicked/remember-review-file)
 
 ;;-----------------------------------------------------------------------------
 ;; Org mode
@@ -230,9 +238,9 @@ point."
 ;;;      (define-key org-agenda-mode-map "\C-p" 'previous-line)
 ;;;      (define-key org-agenda-keymap "\C-p" 'previous-line)))
 
-(add-hook 'remember-mode-hook 'org-remember-apply-template)
+;;(add-hook 'remember-mode-hook 'org-remember-apply-template)
 
-(define-key global-map [(control meta ?r)] 'remember)
+;;(define-key global-map [(control meta ?r)] 'remember)
 
 ;;; (custom-set-variables
 ;;;  '(org-agenda-files (quote ("~/todo.org")))
