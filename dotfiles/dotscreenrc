@@ -1,0 +1,143 @@
+# $Id: screenrc,v 1.3 1998-06-15 20:06:42-07 mconst Exp mconst $
+
+# make bells in other windows audible
+bell "Bell in window %^G"
+
+# get rid of some useless stuff in /usr/local/etc/screenrc
+bind P
+bind R
+
+# add an easy key to renumber the current window
+bind \# colon "number "
+
+# unbind the keys for "kill all windows"
+bind \\ echo "You cannot hope to slay so many windows at once!"
+register \\ ^A\
+bind ^\ process \\
+
+# make h consistent with ^H as "move to previous window"; use C for hardcopy
+bind h prev
+bind C hardcopy
+
+# make ^N and ^P next and prev for laziness
+bind ^N next
+bind ^P prev
+
+# make "kill this window" a bit harder to hit
+bind k echo "Your weak spell bounces harmlessly off the window."
+bind K kill
+
+# unbind "toggle wrap mode" and flow control, which I tend to hit by mistake
+bind r echo "Despite your effort, the wrap mode remains unchanged."
+bind f echo "Despite your effort, the flow control remains unchanged."
+register r ^Ar
+register f ^Af
+bind ^R process r
+bind ^F process f
+
+# make split more convenient: it now brings up the previous window
+# instead of a blank one, and it leaves the cursor in the new region
+register S "^O:split^M^O^I^O^O"
+bind S process S
+
+# bind generic function keys to switch windows
+bindkey -k k0 select 9
+bindkey -k k1 select 0
+bindkey -k k2 select 1
+bindkey -k k3 select 2
+bindkey -k k4 select 3
+bindkey -k k5 select 4
+bindkey -k k6 select 5
+bindkey -k k7 select 6
+bindkey -k k8 select 7
+bindkey -k k9 select 8
+#bindkey -k k; select 0
+
+bindkey "\033[[A" select 1
+bindkey "\033[[B" select 2
+bindkey "\033[[C" select 3
+bindkey "\033[[D" select 4
+bindkey "\033[[E" select 5
+
+bindkey "\033[11~" select 1
+bindkey "\033[12~" select 2
+bindkey "\033[13~" select 3
+bindkey "\033[14~" select 4
+bindkey "\033[15~" select 5
+bindkey "\033[17~" select 6
+bindkey "\033[18~" select 7
+bindkey "\033[19~" select 8
+bindkey "\033[20~" select 9
+bindkey "\033[21~" select 0
+
+bindkey "\033[11~" select 1
+bindkey "\033[12~" select 2
+bindkey "\033[13~" select 3
+bindkey "\033[14~" select 4
+bindkey "\033[15~" select 5
+
+# make keypad_delete send ascii 127.  this is wrong: really I ought
+# to fix all the termcaps that have kD=\177 instead of kD=\E[3~, but
+# this works and I don't care that much.
+#bindkey -k kD stuff \177
+
+# by default, always let me know when background windows produce text
+defmonitor off
+
+# don't lock up when one display dies
+defnonblock on
+
+# keep 5000 lines of history in all windows
+defscrollback 5000
+
+# make ^O the escape character, and make ^Oo a literal ^O
+escape ^Zz
+
+# use the xterm's title bar to display window titles, but display ordinary
+# screen messages on the bottom line, as usual
+#hardstatus off
+#hardstatus ignore
+
+# make the timeout for multicharacter key bindings nice and short
+maptimeout 100
+
+# let messages be displayed for a long time if they're not interrupted
+msgwait 15
+
+# use interesting messages
+nethack on
+
+# use nifty cool dynamic window title updating
+shelltitle "$ |zsh"
+
+# by default, wait an entire minute before deciding a window is silent
+silencewait 60
+
+# suppress the default startup message
+startup_message off
+
+# pretend to be a vt100, since no one has heard of terminal type "screen"
+#term vt220
+term screen
+
+# use an xterm's title bar to display the hardstatus line
+termcapinfo xterm hs:ts=\E]0;:fs=\007:ds=\E]0;\007
+
+# make bells in this window audible
+vbell off
+
+#fix scrollback residue from size changes
+altscreen on
+
+# make only the first window show up in the utmp, and report idle time to it
+#screen -t "] |login" 0
+#reportidle
+#deflogin off
+#deflogin on
+
+#Add neato titlebar and windowlist.
+hardstatus on
+hardstatus alwayslastline
+#caption always "%{= C}screen[%n] | %c | %h%="
+hardstatus string "%{.bW}%-w%{.rW}%n %t%{-}%+w %=%{..G} %{..Y} %D %m/%d %C%a "
+windowlist string " screen[%n %t] %h"
