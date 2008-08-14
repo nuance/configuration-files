@@ -1,0 +1,7 @@
+- ssh keys
+- ssh config (yelp proxies etc.)
+- chsh support (test for zsh)
+- .gitconfig
+- compile .el to .elc
+- epylint
+- itunes.py
