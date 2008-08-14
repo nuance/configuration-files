@@ -1,0 +1,30 @@
+Host haku
+HostName haku.yelpcorp.com
+GatewayPorts yes
+IdentityFile ~/.ssh/id_rsa
+LocalForward 7222 jin.yelpcorp.com:22
+LocalForward 7888 127.0.0.1:8888
+User mattj
+
+Host jin 
+HostName localhost
+IdentityFile ~/.ssh/id_rsa
+Port 7222
+ForwardX11 yes
+ForwardAgent yes
+ForwardX11Trusted yes
+Compression yes
+User mattj
+
+Host joe
+HostName localhost
+IdentityFile ~/.ssh/id_rsa
+Port 2222
+ForwardAgent yes
+Compression yes
+User matt
+
+Host 194vm
+HostName 194vm.czremote
+IdentityFile ~/.ssh/id_rsa
+User eecs194
