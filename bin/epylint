@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+
+import re
+import sys
+
+from subprocess import *
+
+p = Popen("pylint -e -f parseable -r n --disable-msg-cat=C,R --zope=y --acquired-members=display,context,errors,messages %s" %
+          sys.argv[1], shell = True, stdout = PIPE).stdout
+
+for line in p:
+	if line.find("Found indentation with tabs instead of spaces") != -1: continue
+	if line.find("Line too long") != -1: continue
+	
+#	if re.search("Instance of .* has no .* member", line): continue
+	
+	match = re.search("\\[([WE])(, (.+?))?\\]", line)
+	if match:
+		kind = match.group(1)
+		func = match.group(3)
+		if kind == "W":
+			msg = "Warning"
+		else:
+			msg = "Error"
+            
+		if func:
+			line = re.sub("\\[([WE])(, (.+?))?\\]",
+						  "%s (%s):" % (msg, func), line)
+		else:
+			line = re.sub("\\[([WE])?\\]", "%s:" % msg, line)
+			
+	print line,
+	
+p.close()
+
