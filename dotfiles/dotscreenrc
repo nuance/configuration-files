@@ -91,7 +91,7 @@ defnonblock on
 defscrollback 5000
 
 # make ^O the escape character, and make ^Oo a literal ^O
-escape ^Zz
+escape ^Oo
 
 # use the xterm's title bar to display window titles, but display ordinary
 # screen messages on the bottom line, as usual
