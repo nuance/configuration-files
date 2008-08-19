@@ -183,11 +183,34 @@ point."
     (load-library "ido-old")
   (require 'ido))
 (ido-mode t)
+
 (add-hook 'ido-define-mode-map-hook 'ido-my-keys)
 (defun ido-my-keys ()
   (define-key ido-mode-map "\t" 'ido-complete)
   (define-key ido-mode-map "\C-t" 'ido-toggle-regexp) ; same as in isearch
   (define-key ido-mode-map "\C-d" 'ido-enter-dired))  ; cool
+
+;; Completion for all commands (eg M-x completion)
+
+(setq ido-execute-command-cache nil)
+(defun ido-execute-command ()
+  (interactive)
+  (call-interactively
+   (intern
+	(ido-completing-read
+	 "M-x "
+	 (progn
+	   (unless ido-execute-command-cache
+		 (mapatoms (lambda (s)
+					 (when (commandp s)
+					   (setq ido-execute-command-cache
+							 (cons (format "%S" s) ido-execute-command-cache))))))
+	   ido-execute-command-cache)))))
+
+(add-hook 'ido-setup-hook
+		  (lambda ()
+			(setq ido-enable-flex-matching t)
+			(global-set-key "\M-x" 'ido-execute-command)))
 
 ;;-----------------------------------------------------------------------------
 ;; Remember mode
