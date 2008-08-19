@@ -118,6 +118,8 @@ alias np="/home/matt/bin/itunes status"
 
 source $HOME/.bash_profile
 
+source $HOME/includes/svn-magic.sh
+
 precmd() {
 #    todoprecmd
 }
