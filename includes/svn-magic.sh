@@ -60,6 +60,27 @@ function switchtonewbranch {
     myapachectl -k graceful
 }
 
+# Create a branch from $1 with name $2 - don't run any yelp magic on it
+function simplebranch() {
+    datestamp=`date +%Y%m%d`
+    name=$2
+
+    branchname="${USER}_${datestamp}_${name}"
+
+    echo "Creating branch $branchname"
+
+    echo "*** svn copy https://svn/loc/main https://svn/loc/branch/$branchname ***"
+    svn copy https://svn/loc/$1 https://svn/loc/branch/$branchname
+    svn switch https://svn/loc/branch/$branchname
+
+    folder=`pwd`
+
+    cd ~/pg
+    mv $folder $name
+	
+    cd $name
+}
+
 function bname() {
     svn info | grep URL | cut -f2 -d' ' | rev | cut -f1 -d'/' | rev
 }

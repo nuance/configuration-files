@@ -108,7 +108,7 @@ zstyle ':completion:*' hosts $_myhosts;
 
 zstyle ':completion:*:*:*' hosts $ssh_config_hosts $ssh_known_hosts
 
-source $HOME/dev/projects/todo-github-import/todo-zsh.sh
+#source $HOME/dev/projects/todo-github-import/todo-zsh.sh
 
 # /usr/local/bin/blt --check }
 
