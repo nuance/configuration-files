@@ -335,7 +335,7 @@ point."
 ;; Indent whole buffer
 ;;-----------------------------------------------------------------------------
 
-(defun iwb ()
+(defun indent-whole-buffer ()
   "indent whole buffer"
   (interactive)
   (delete-trailing-whitespace)
