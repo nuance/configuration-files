@@ -170,8 +170,7 @@ point."
 (add-hook 'objc-mode-hook 
 	  (lambda ()
 	    (pair-mode)
-	    (highline-mode)
-	    (setq outline-regexp "[ \t]*\\(@interface\\|@implementation\\)\\|[ \t]*\\(\\-\\|\\+\\)[ \t]+([^\)]*)")
+	    (setq outline-regexp "[ \t]*\\(@interface\\|@implementation\\)\\|[ \t]*\\(\\-\\|\\+\\)[ \t]*([^\)]*)")
 	    (setq outline-level 'objc-outline-level)
 	    (outline-minor-mode t)
 	    (hide-body)
