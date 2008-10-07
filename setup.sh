@@ -7,8 +7,12 @@ pushd ~
 # Link emacs directory (so the paths in the emacs config work)
 ln -s $CONFIG_DIR/emacs emacs
 
-# Link ssh directory
-ln -s $CONFIG_DIR/ssh .ssh
+# Link ssh directory if it doesn't exist, otherwise link individual files
+if [[ -e .ssh ]]; then
+  ln -s $CONFIG_DIR/ssh/* .ssh/
+else
+  ln -s $CONFIG_DIR/ssh .ssh
+fi
 
 # Set up configuration files
 ln -s $CONFIG_DIR/emacs/dotemacs .emacs
