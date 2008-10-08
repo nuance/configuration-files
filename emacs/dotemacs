@@ -157,8 +157,25 @@ point."
   (hide-body)
                                         ; make paren matches visible
   (show-paren-mode 1)
+  ; higlight current line
+  (highline-mode)
   )
 
+;;-----------------------------------------------------------------------------
+;; Objective-C mode
+;;-----------------------------------------------------------------------------
+(defun objc-outline-level ()
+  0)
+
+(add-hook 'objc-mode-hook 
+	  (lambda ()
+	    (pair-mode)
+	    (setq outline-regexp "[ \t]*\\(@interface\\|@implementation\\)\\|[ \t]*\\(\\-\\|\\+\\)[ \t]*([^\)]*)")
+	    (setq outline-level 'objc-outline-level)
+	    (outline-minor-mode t)
+	    (hide-body)
+	    (show-paren-mode 1)
+	    (local-set-key [(return)] 'newline-and-indent)))
 
 ;;-----------------------------------------------------------------------------
 ;; Java mode
@@ -335,7 +352,7 @@ point."
 ;; Indent whole buffer
 ;;-----------------------------------------------------------------------------
 
-(defun iwb ()
+(defun indent-whole-buffer ()
   "indent whole buffer"
   (interactive)
   (delete-trailing-whitespace)
