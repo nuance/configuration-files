@@ -158,7 +158,7 @@ point."
                                         ; make paren matches visible
   (show-paren-mode 1)
   ; higlight current line
-  (highline-mode)
+;;  (highline-mode)
   )
 
 ;;-----------------------------------------------------------------------------
@@ -366,18 +366,20 @@ point."
 (setq load-path (append load-path  (list "~/emacs/color-theme/themes" "~/emacs/color-theme")))
 (require 'color-theme)
 (load-library "color-theme-cl-frame")
-(load-library "color-theme-colorful-obsolescence")
+;;(load-library "color-theme-colorful-obsolescence")
 (load-library "color-theme-library")
 
 (defun load-dark-settings ()
   (interactive)
   (color-theme-colorful-obsolescence)
-  (highline-mode))
+;;  (highline-mode)
+)
 
 (defun load-light-settings ()
   (interactive)
   (color-theme-calm-forest)
-  (highline-mode))
+;;  (highline-mode)
+)
 
 (load-light-settings)
 
