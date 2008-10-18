@@ -26,7 +26,7 @@ ln -s $CONFIG_DIR/bin/adhoc-sql bin/
 
 # Add shell includes
 mkdir includes
-ln -s $CONFIG_DIR/includes/svn-magic.sh includes/
+ln -s $CONFIG_DIR/includes/* includes/
 
 popd
 
