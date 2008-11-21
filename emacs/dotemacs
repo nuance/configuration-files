@@ -194,6 +194,17 @@ point."
   (require 'erlang-start))
 
 ;;-----------------------------------------------------------------------------
+;; Haskell mode
+;;-----------------------------------------------------------------------------
+
+(load "~/emacs/haskell-mode/haskell-site-file")
+(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+(add-hook 'haskell-mode-hook 'font-lock-mode)
+
+(add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
+
+;;-----------------------------------------------------------------------------
 ;; ido - Better minibuffer completion
 ;;-----------------------------------------------------------------------------
 (if (< emacs-major-version 22) ;newer version included in Emacs 22, that doesn't work with 21
