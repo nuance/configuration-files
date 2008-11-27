@@ -157,8 +157,8 @@ point."
   (hide-body)
                                         ; make paren matches visible
   (show-paren-mode 1)
-  ; higlight current line
-;;  (highline-mode)
+					; higlight current line
+  ;;  (highline-mode)
   )
 
 ;;-----------------------------------------------------------------------------
@@ -225,20 +225,31 @@ point."
   (interactive)
   (call-interactively
    (intern
-	(ido-completing-read
-	 "M-x "
-	 (progn
-	   (unless ido-execute-command-cache
-		 (mapatoms (lambda (s)
-					 (when (commandp s)
-					   (setq ido-execute-command-cache
-							 (cons (format "%S" s) ido-execute-command-cache))))))
-	   ido-execute-command-cache)))))
+    (ido-completing-read
+     "M-x "
+     (progn
+       (unless ido-execute-command-cache
+	 (mapatoms (lambda (s)
+		     (when (commandp s)
+		       (setq ido-execute-command-cache
+			     (cons (format "%S" s) ido-execute-command-cache))))))
+       ido-execute-command-cache)))))
 
 (add-hook 'ido-setup-hook
-		  (lambda ()
-			(setq ido-enable-flex-matching t)
-			(global-set-key "\M-x" 'ido-execute-command)))
+	  (lambda ()
+	    (setq ido-enable-flex-matching t)
+	    (global-set-key "\M-x" 'ido-execute-command)))
+
+(defun ido-find-file-in-tag-files ()
+  (interactive)
+  (save-excursion
+    (let ((enable-recursive-minibuffers t))
+      (visit-tags-table-buffer))
+    (ido-completing-read "Project file: "
+			 (tags-table-files)
+			 nil t)))
+
+;;(global-set-key "\C-x\C-f" 'ido-find-file-in-tag-files)
 
 ;;-----------------------------------------------------------------------------
 ;; Remember mode
@@ -250,17 +261,17 @@ point."
 (global-set-key (kbd "C-c r") 'remember)
 
 (defun wicked/remember-review-file ()
- "Open `remember-data-file'."
- (interactive)
- (find-file-other-window remember-data-file))
+  "Open `remember-data-file'."
+  (interactive)
+  (find-file-other-window remember-data-file))
 
 (defun wicked/remember-line-numbers-and-file-names ()
- "Return FILENAME line NUMBER."
- (save-restriction
-  (widen)
-   (format " %s line %d"
-    (or (buffer-file-name) (buffer-name))
-    (line-number-at-pos))))
+  "Return FILENAME line NUMBER."
+  (save-restriction
+    (widen)
+    (format " %s line %d"
+	    (or (buffer-file-name) (buffer-name))
+	    (line-number-at-pos))))
 
 (eval-after-load 'remember
   '(progn
@@ -383,14 +394,14 @@ point."
 (defun load-dark-settings ()
   (interactive)
   (color-theme-colorful-obsolescence)
-;;  (highline-mode)
-)
+  ;;  (highline-mode)
+  )
 
 (defun load-light-settings ()
   (interactive)
   (color-theme-calm-forest)
-;;  (highline-mode)
-)
+  ;;  (highline-mode)
+  )
 
 (load-light-settings)
 
