@@ -18,6 +18,12 @@ ForwardX11Trusted no
 Compression yes
 User mattj
 
+Host zat
+HostName zat.706.yelpcorp.com
+ForwardX11 yes
+ForwardX11Trusted yes
+User mattj
+
 Host zat-remote
 HostName localhost
 IdentityFile ~/.ssh/id_rsa
