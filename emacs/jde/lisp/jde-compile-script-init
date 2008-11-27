@@ -1,0 +1,6 @@
+(add-to-list 'load-path ".")
+(add-to-list 'load-path "../../elib")
+(setq debug-on-error t)
+(load-file "../../cedet/common/cedet.el")
+(require 'jde-compat)
+(require 'jde)
