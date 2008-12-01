@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SVN_PATH="svn+ssh://svn.yelpcorp.com/loc"
+
 function newbranch {
     datestamp=`date +%Y%m%d`
     name=$1
@@ -8,8 +10,8 @@ function newbranch {
 
     echo "Creating branch $branchname"
 
-    echo "*** svn copy svn+ssh://svn.yelpcorp.com/loc/main svn+ssh://svn.yelpcorp.com/loc/branch/$branchname ***"
-    svn copy svn+ssh://svn.yelpcorp.com/loc/main svn+ssh://svn.yelpcorp.com/loc/branch/$branchname
+    echo "*** svn copy $SVN_PATH/main $SVN_PATH/branch/$branchname ***"
+    svn copy $SVN_PATH/main $SVN_PATH/branch/$branchname
 
     cd ~/pg
     echo "*** copg branch/$branchname $name ***"
@@ -37,9 +39,9 @@ function switchtonewbranch {
 
     echo "Creating branch $branchname"
 
-    echo "*** svn copy svn+ssh://svn.yelpcorp.com/loc/main svn+ssh://svn.yelpcorp.com/loc/branch/$branchname ***"
-    svn copy svn+ssh://svn.yelpcorp.com/loc/main svn+ssh://svn.yelpcorp.com/loc/branch/$branchname
-	svn switch svn+ssh://svn.yelpcorp.com/loc/branch/$branchname
+    echo "*** svn copy $SVN_PATH/main $SVN_PATH/branch/$branchname ***"
+    svn copy $SVN_PATH/main $SVN_PATH/branch/$branchname
+	svn switch $SVN_PATH/branch/$branchname
 
 	folder=`pwd`
 
@@ -69,9 +71,9 @@ function simplebranch() {
 
     echo "Creating branch $branchname"
 
-    echo "*** svn copy https://svn/loc/main https://svn/loc/branch/$branchname ***"
-    svn copy https://svn/loc/$1 https://svn/loc/branch/$branchname
-    svn switch https://svn/loc/branch/$branchname
+    echo "*** svn copy $SVN_PATH/$1 $SVN_PATH/branch/$branchname ***"
+    svn copy $SVN_PATH/$1 $SVN_PATH/branch/$branchname
+    svn switch $SVN_PATH/branch/$branchname
 
     folder=`pwd`
 
@@ -81,8 +83,12 @@ function simplebranch() {
     cd $name
 }
 
-function bname() {
-    svn info | grep URL | cut -f2 -d' ' | rev | cut -f1 -d'/' | rev
+function burl {
+    svn info | grep URL | cut -f2 -d' '
+}
+
+function bname {
+    burl | rev | cut -f1 -d'/' | rev
 }
 
 function bstart {
@@ -100,7 +106,7 @@ function blog {
 }
 
 function bdiff {
-    svn diff -r $(bstart):$(bstop) svn+ssh://svn.yelpcorp.com/loc/branch/$(bname) | less
+    svn diff -r $(bstart):$(bstop) $SVN_PATH/branch/$(bname) | less
 }
 
 # Convenience functions
@@ -108,12 +114,20 @@ function bdiff {
 function bmerge {
     echo "Branch name: $(bname)"
     echo "Revision range: $(bstart):$(bstop)"
-    echo "Merge string: merge -r $(bstart):$(bstop) svn+ssh://svn.yelpcorp.com/loc/branch/$(bname)"
+    echo "Merge string: merge -r $(bstart):$(bstop) $SVN_PATH/branch/$(bname)"
 }
 
 function lsbranch {
     # Assuming you're using my naming convention, there is a Y3K bug here
-    svn ls svn+ssh://svn.yelpcorp.com/loc/branch/ | egrep "^${USER}\_2"
+    svn ls $SVN_PATH/branch/ | egrep "^${USER}\_2"
+}
+
+function rmbranch {
+    branch_name=$1
+
+    echo "Removing $SVN_PATH/branch/$branch_name ..."
+    # $* let's me pass in messages
+    svn rm $SVN_PATH/branch/$branch_name $*
 }
 
 function switchloc {
