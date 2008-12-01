@@ -148,6 +148,8 @@ point."
 ;; Python mode
 ;;-----------------------------------------------------------------------------
 
+(load-library "python")
+
 (add-hook 'python-mode-hook '(lambda () (define-key python-mode-map "\C-m" 'newline-and-indent)))
 
 (add-hook 'python-mode-hook '(lambda () (custom-set-variables
@@ -578,10 +580,15 @@ checking if unsaved buffers should be saved."
   (font-lock-add-keywords
    nil
    '(
-     ("\\(#\\(from\\|else\\|else if\\|include\\|extends\\|set\\|def\\|import\\|for\\|if\\|end\\)+\\)\\>" 1 font-lock-type-face)
+     ("\\(#\\(attr\\|from\\|else\\|else if\\|include\\|extends\\|implements\\|set\\|import\\|for\\|if\\|end\\|block\\)+\\)\\>" 1 font-lock-type-face)
      ("\\(#\\(from\\|for\\|end\\)\\).*\\<\\(for\\|import\\|def\\|if\\|in\\)\\>" 3 font-lock-type-face)
-     ("\\(##.*\\)\n" 1 font-lock-comment-face)
-     ("\\(\\$\\(?:\\sw\\|}\\|{\\|\\s_\\)+\\)" 1 font-lock-variable-name-face))
+     ("\\(^##.*\\)\n" 1 font-lock-comment-face)
+	 ;; $var
+     ("\\(\\$\\(?:\\sw\\|}\\|{\\|\\s_\\)+\\)" 1 font-lock-variable-name-face)
+	 ;; Methods
+	 ("[ \t]*\\(#def[^(#]*\\)\\(\(\\|#\\)*" 1 font-lock-variable-name-face)
+	 ("^#.*\\(True\\|False\\|None\\)" 1 font-lock-builtin-face)
+	 )
    )
   (font-lock-mode 1)
   )
@@ -614,35 +621,41 @@ checking if unsaved buffers should be saved."
     :face mmm-declaration-submode-face
     :front "\\bstyle=\\s-*\""
     :back "\"")
+   (html-script-embedded
+    :submode javascript-mode
+    :face mmm-code-submode-face
+    :front "<script>"
+    :back "</script>")
    (html-javascript-embedded
     :submode javascript-mode
     :face mmm-code-submode-face
-    :front "<script\[^>\]*>"
+    :front "<script type=\"text/javascript\">"
     :back "</script>")
    (html-javascript-attribute
     :submode javascript-mode
     :face mmm-code-submode-face
     :front "\\bon\\w+=\\s-*\""
     :back "\"")
-   (python-chunks
-    :submode python-mode
-    :face mmm-code-submode-face
-    :front "#"
-    :back "#")
-   (python-lines
-    :submode python-mode
-    :face mmm-code-submode-face
-    :front "#"
-    :back "[^#]*\n")
+;;   (python-chunks
+;;     :submode python-mode
+;;     :face mmm-code-submode-face
+;;     :front "#"
+;;     :back "#")
+;;    (python-lines
+;;     :submode python-mode
+;;     :face mmm-code-submode-face
+;;     :front "#"
+;;     :back "[^#]*\n")
    )
  )
 
-(setq auto-mode-alist (cons '( "\\.tmpl\\'" . cheetah-mode ) auto-mode-alist ))
 (add-to-list 'mmm-mode-ext-classes-alist '(cheetah-mode nil fancy-cheetah))
+
+(setq auto-mode-alist (cons '( "\\.tmpl\\'" . cheetah-mode ) auto-mode-alist ))
 
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width normal :foundry "unknown" :family "Consolas")))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "unknown" :family "Consolas")))))
