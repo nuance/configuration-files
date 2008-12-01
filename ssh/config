@@ -5,6 +5,7 @@ HostName haku.yelpcorp.com
 GatewayPorts yes
 IdentityFile ~/.ssh/id_rsa
 LocalForward 7222 dev01.yelpcorp.com:22
+LocalForward 7223 zat.yelpcorp.com:22
 LocalForward 7888 127.0.0.1:8888
 User mattj
 
@@ -12,8 +13,23 @@ Host dev-remote
 HostName localhost
 IdentityFile ~/.ssh/id_rsa
 Port 7222
+ForwardX11 no
+ForwardX11Trusted no
+Compression yes
+User mattj
+
+Host zat
+HostName zat.706.yelpcorp.com
 ForwardX11 yes
 ForwardX11Trusted yes
+User mattj
+
+Host zat-remote
+HostName localhost
+IdentityFile ~/.ssh/id_rsa
+Port 7223
+ForwardX11 no
+ForwardX11Trusted no
 Compression yes
 User mattj
 

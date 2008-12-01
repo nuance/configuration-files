@@ -24,9 +24,16 @@
 (global-set-key [(control r)] 'isearch-backward-regexp)
 
 (custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
  '(flymake-errline ((((class color)) (:background "LightPink" :foreground "black"))))
  '(flymake-warnline ((((class color)) (:background "LightBlue2" :foreground "black"))))
- )
+ '(py-indent-offset 4)
+ '(py-smart-indentation nil)
+ '(speedbar-default-position (quote left))
+ '(tab-width 4))
 
 ;;-----------------------------------------------------------------------------
 ;; Load Path
@@ -99,11 +106,25 @@ point."
 (defun my-tab-fix ()
   (local-set-key "\t" 'indent-or-expand))
 
+(defun indent-tab-or-expand (arg)
+  "Either indent according to mode, or expand the word preceding
+point."
+  (interactive "*P")
+  (if (and
+       (or (bobp) (= ?w (char-syntax (char-before))))
+       (or (eobp) (not (= ?w (char-syntax (char-after))))))
+      (dabbrev-expand arg)
+    (tab-to-tab-stop)))
+
+(defun my-java-tab-fix ()
+  (local-set-key "\t" 'indent-tab-or-expand))
+
+
 (add-hook 'c-mode-hook          'my-tab-fix)
 (add-hook 'sh-mode-hook         'my-tab-fix)
 (add-hook 'emacs-lisp-mode-hook 'my-tab-fix)
 (add-hook 'python-mode-hook     'my-tab-fix)
-(add-hook 'java-mode-hook       'my-tab-fix)
+(add-hook 'java-mode-hook       'my-java-tab-fix)
 (add-hook 'objc-mode-hook       'my-tab-fix)
 
 ;;-----------------------------------------------------------------------------
@@ -117,7 +138,7 @@ point."
 (require 'tramp)
 (setq tramp-default-method "sshx")
 (setq tramp-default-user "mattj")
-(setq tramp-default-host "jin")
+(setq tramp-default-host "dev02")
 
 ;; mhjones
 ;;(add-to-list 'tramp-default-user-alist
@@ -126,6 +147,8 @@ point."
 ;;-----------------------------------------------------------------------------
 ;; Python mode
 ;;-----------------------------------------------------------------------------
+
+(load-library "python")
 
 (add-hook 'python-mode-hook '(lambda () (define-key python-mode-map "\C-m" 'newline-and-indent)))
 
@@ -157,8 +180,8 @@ point."
   (hide-body)
                                         ; make paren matches visible
   (show-paren-mode 1)
-  ; higlight current line
-;;  (highline-mode)
+					; higlight current line
+  ;;  (highline-mode)
   )
 
 ;;-----------------------------------------------------------------------------
@@ -180,21 +203,62 @@ point."
 ;;-----------------------------------------------------------------------------
 ;; Java mode
 ;;-----------------------------------------------------------------------------
-(add-hook 'java-mode-hook (lambda ()
-			    (local-set-key [(return)] 'newline-and-indent) 
-			    (custom-set-variables '(tab-width 4))
-			    ))
-
+(add-hook 'java-mode-hook 
+		  (lambda () 
+			(local-set-key [(return)] 'newline-and-indent) 
+			(custom-set-variables '(tab-width 4))
+			(add-to-list 'load-path (expand-file-name "~/emacs/jde/lisp"))
+			(add-to-list 'load-path (expand-file-name "~/emacs/cedet/common"))
+			(load-file (expand-file-name "~/emacs/cedet/common/cedet.el"))
+			(add-to-list 'load-path (expand-file-name "~/emacs/elib"))
+			(require 'jde)))
 
 ;;-----------------------------------------------------------------------------
 ;; Erlang mode
 ;;-----------------------------------------------------------------------------
 
-(when (string-equal host-name "nuance")
-  (setq load-path (cons  "/sw/lib/erlang/lib/tools-2.6/emacs" load-path))
-  (setq erlang-root-dir "/sw/")
-  (setq exec-path (cons "/sw/bin" exec-path))
-  (require 'erlang-start))
+;;(when (string-equal host-name "nuance")
+;;  (setq load-path (cons  "/sw/lib/erlang/lib/tools-2.6/emacs" load-path))
+;;  (setq erlang-root-dir "/sw/")
+;;  (setq exec-path (cons "/sw/bin" exec-path))
+;;  (require 'erlang-start))
+
+;;-----------------------------------------------------------------------------
+;; Lua mode
+;;-----------------------------------------------------------------------------
+
+(require 'lua-mode)
+
+(defun flymake-lua-init ()
+  "Invoke luac with '-p' to get syntax checking"
+  (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-inplace))
+		 (local-file  (file-relative-name
+                       temp-file
+                       (file-name-directory buffer-file-name))))
+    (list "luac" (list "-p" local-file))))
+
+(when (load "flymake" t)
+  (add-to-list 'flymake-allowed-file-name-masks '("\\.lua\\'" flymake-lua-init))
+  (add-to-list 'flymake-err-line-patterns '("^.*luac[0-9.]*\\(.exe\\)?: *\\(.*\\):\\([0-9]+\\): \\(.*\\)$" 2 3 nil 4)))
+
+(add-hook 'lua-mode-hook
+          '(lambda ()
+			 "Don't want flymake mode for lua regions in rhtml
+	      files and also on read only files"
+			 (if (and (not (null buffer-file-name)) (file-writable-p buffer-file-name))
+				 (flymake-mode))))
+
+;;-----------------------------------------------------------------------------
+;; Haskell mode
+;;-----------------------------------------------------------------------------
+
+(load "~/emacs/haskell-mode/haskell-site-file")
+(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+(add-hook 'haskell-mode-hook 'font-lock-mode)
+
+(add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
 
 ;;-----------------------------------------------------------------------------
 ;; ido - Better minibuffer completion
@@ -217,20 +281,31 @@ point."
   (interactive)
   (call-interactively
    (intern
-	(ido-completing-read
-	 "M-x "
-	 (progn
-	   (unless ido-execute-command-cache
-		 (mapatoms (lambda (s)
-					 (when (commandp s)
-					   (setq ido-execute-command-cache
-							 (cons (format "%S" s) ido-execute-command-cache))))))
-	   ido-execute-command-cache)))))
+    (ido-completing-read
+     "M-x "
+     (progn
+       (unless ido-execute-command-cache
+	 (mapatoms (lambda (s)
+		     (when (commandp s)
+		       (setq ido-execute-command-cache
+			     (cons (format "%S" s) ido-execute-command-cache))))))
+       ido-execute-command-cache)))))
 
 (add-hook 'ido-setup-hook
-		  (lambda ()
-			(setq ido-enable-flex-matching t)
-			(global-set-key "\M-x" 'ido-execute-command)))
+	  (lambda ()
+	    (setq ido-enable-flex-matching t)
+	    (global-set-key "\M-x" 'ido-execute-command)))
+
+(defun ido-find-file-in-tag-files ()
+  (interactive)
+  (save-excursion
+    (let ((enable-recursive-minibuffers t))
+      (visit-tags-table-buffer))
+    (ido-completing-read "Project file: "
+			 (tags-table-files)
+			 nil t)))
+
+;;(global-set-key "\C-x\C-f" 'ido-find-file-in-tag-files)
 
 ;;-----------------------------------------------------------------------------
 ;; Remember mode
@@ -242,17 +317,17 @@ point."
 (global-set-key (kbd "C-c r") 'remember)
 
 (defun wicked/remember-review-file ()
- "Open `remember-data-file'."
- (interactive)
- (find-file-other-window remember-data-file))
+  "Open `remember-data-file'."
+  (interactive)
+  (find-file-other-window remember-data-file))
 
 (defun wicked/remember-line-numbers-and-file-names ()
- "Return FILENAME line NUMBER."
- (save-restriction
-  (widen)
-   (format " %s line %d"
-    (or (buffer-file-name) (buffer-name))
-    (line-number-at-pos))))
+  "Return FILENAME line NUMBER."
+  (save-restriction
+    (widen)
+    (format " %s line %d"
+	    (or (buffer-file-name) (buffer-name))
+	    (line-number-at-pos))))
 
 (eval-after-load 'remember
   '(progn
@@ -351,6 +426,10 @@ point."
 ;; Line highlighting
 (require 'highline)
 
+;; Textmate mode
+(require 'textmate)
+(global-set-key "\C-q" 'textmate-goto-file)
+
 ;;-----------------------------------------------------------------------------
 ;; Indent whole buffer
 ;;-----------------------------------------------------------------------------
@@ -368,23 +447,25 @@ point."
 
 (setq load-path (append load-path  (list "~/emacs/color-theme/themes" "~/emacs/color-theme")))
 (require 'color-theme)
-(load-library "color-theme-cl-frame")
+;;(load-library "color-theme-cl-frame")
 ;;(load-library "color-theme-colorful-obsolescence")
-(load-library "color-theme-library")
+;;(load-library "color-theme-library")
+(color-theme-initialize)
+(load-library "color-theme-twilight")
 
 (defun load-dark-settings ()
   (interactive)
   (color-theme-colorful-obsolescence)
-;;  (highline-mode)
-)
+  ;;  (highline-mode)
+  )
 
 (defun load-light-settings ()
   (interactive)
   (color-theme-calm-forest)
-;;  (highline-mode)
-)
+  ;;  (highline-mode)
+  )
 
-(load-light-settings)
+(color-theme-twilight)
 
 ;;-----------------------------------------------------------------------------
 ;; Smarter Centering
@@ -499,10 +580,15 @@ checking if unsaved buffers should be saved."
   (font-lock-add-keywords
    nil
    '(
-     ("\\(#\\(from\\|else\\|else if\\|include\\|extends\\|set\\|def\\|import\\|for\\|if\\|end\\)+\\)\\>" 1 font-lock-type-face)
+     ("\\(#\\(attr\\|from\\|else\\|else if\\|include\\|extends\\|implements\\|set\\|import\\|for\\|if\\|end\\|block\\)+\\)\\>" 1 font-lock-type-face)
      ("\\(#\\(from\\|for\\|end\\)\\).*\\<\\(for\\|import\\|def\\|if\\|in\\)\\>" 3 font-lock-type-face)
-     ("\\(##.*\\)\n" 1 font-lock-comment-face)
-     ("\\(\\$\\(?:\\sw\\|}\\|{\\|\\s_\\)+\\)" 1 font-lock-variable-name-face))
+     ("\\(^##.*\\)\n" 1 font-lock-comment-face)
+	 ;; $var
+     ("\\(\\$\\(?:\\sw\\|}\\|{\\|\\s_\\)+\\)" 1 font-lock-variable-name-face)
+	 ;; Methods
+	 ("[ \t]*\\(#def[^(#]*\\)\\(\(\\|#\\)*" 1 font-lock-variable-name-face)
+	 ("^#.*\\(True\\|False\\|None\\)" 1 font-lock-builtin-face)
+	 )
    )
   (font-lock-mode 1)
   )
@@ -535,29 +621,41 @@ checking if unsaved buffers should be saved."
     :face mmm-declaration-submode-face
     :front "\\bstyle=\\s-*\""
     :back "\"")
+   (html-script-embedded
+    :submode javascript-mode
+    :face mmm-code-submode-face
+    :front "<script>"
+    :back "</script>")
    (html-javascript-embedded
     :submode javascript-mode
     :face mmm-code-submode-face
-    :front "<script\[^>\]*>"
+    :front "<script type=\"text/javascript\">"
     :back "</script>")
    (html-javascript-attribute
     :submode javascript-mode
     :face mmm-code-submode-face
     :front "\\bon\\w+=\\s-*\""
     :back "\"")
-   (python-chunks
-    :submode python-mode
-    :face mmm-code-submode-face
-    :front "#"
-    :back "#")
-   (python-lines
-    :submode python-mode
-    :face mmm-code-submode-face
-    :front "#"
-    :back "[^#]*\n")
+;;   (python-chunks
+;;     :submode python-mode
+;;     :face mmm-code-submode-face
+;;     :front "#"
+;;     :back "#")
+;;    (python-lines
+;;     :submode python-mode
+;;     :face mmm-code-submode-face
+;;     :front "#"
+;;     :back "[^#]*\n")
    )
  )
 
-(setq auto-mode-alist (cons '( "\\.tmpl\\'" . cheetah-mode ) auto-mode-alist ))
 (add-to-list 'mmm-mode-ext-classes-alist '(cheetah-mode nil fancy-cheetah))
 
+(setq auto-mode-alist (cons '( "\\.tmpl\\'" . cheetah-mode ) auto-mode-alist ))
+
+(custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "unknown" :family "Consolas")))))
