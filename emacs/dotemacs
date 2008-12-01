@@ -180,7 +180,10 @@ point."
 ;;-----------------------------------------------------------------------------
 ;; Java mode
 ;;-----------------------------------------------------------------------------
-(add-hook 'java-mode-hook (lambda () (local-set-key [(return)] 'newline-and-indent) ))
+(add-hook 'java-mode-hook (lambda ()
+			    (local-set-key [(return)] 'newline-and-indent) 
+			    (custom-set-variables '(tab-width 4))
+			    ))
 
 
 ;;-----------------------------------------------------------------------------

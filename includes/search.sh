@@ -1,3 +1,4 @@
+export CURRENT_BRANCH=loc
 export BT=/nail/home/$USER/pg/${CURRENT_BRANCH}/
 export PYTHONPATH=$BT
 
@@ -9,6 +10,10 @@ export LUCY_JCONSOLE_PORT=13501
 export CATHY_PORT=13502
 # spell checker
 export VLAD_PORT=13503
+# review
+export REVIEWSEARCH_PORT=13504
+# list
+export LISTSEARCH_PORT=13505
 # For tmp files.
 export YELP_DEVELOPER_PID_PREFIX=$USER-
 # Index location for lucene, yelp_search.sh will add yelp_index to
