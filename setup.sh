@@ -28,6 +28,9 @@ ln -s $CONFIG_DIR/bin/adhoc-sql bin/
 mkdir includes
 ln -s $CONFIG_DIR/includes/* includes/
 
+mkdir -p .config/awesome
+ln -s $CONFIG_DIR/awesome/rc.lua .config/awesome/
+
 popd
 
 echo "Configured!"
