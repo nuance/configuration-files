@@ -10,8 +10,9 @@
 (global-set-key [f2] 'pop-tag-mark)
 (global-set-key [f3] 'show-subtree)
 (global-set-key [f4] 'hide-subtree)
-(global-set-key [f5] 'next-flymake-error)
-(global-set-key [f6] 'flymake-start-syntax-check)
+(global-set-key [f5] 'flymake-goto-prev-error)
+(global-set-key [f6] 'flymake-goto-next-error)
+(global-set-key [f7] 'flymake-start-syntax-check)
 
 ;; Go to binding
 (global-set-key "\M-g" 'goto-line)
@@ -28,8 +29,8 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(flymake-errline ((((class color)) (:background "LightPink" :foreground "black"))))
- '(flymake-warnline ((((class color)) (:background "LightBlue2" :foreground "black"))))
+;; '(flymake-errline ((((class color)) (:background "LightPink" :foreground "black"))))
+;; '(flymake-warnline ((((class color)) (:background "LightBlue2" :foreground "black"))))
  '(py-indent-offset 4)
  '(py-smart-indentation nil)
  '(speedbar-default-position (quote left))
@@ -138,11 +139,96 @@ point."
 (require 'tramp)
 (setq tramp-default-method "sshx")
 (setq tramp-default-user "mattj")
-(setq tramp-default-host "dev02")
+(setq tramp-default-host "dev01")
 
 ;; mhjones
 ;;(add-to-list 'tramp-default-user-alist
 ;;             '("ssh2" "mhjones\\.org'" "matt"))
+
+;;-----------------------------------------------------------------------------
+;; Yelp helper code
+;;-----------------------------------------------------------------------------
+
+(when (string-equal host-name "yuance")
+  (global-set-key "\C-x\M-f" 'open-from-pg)
+  (global-set-key [f8] 'toggle-test-file))
+
+;;=====================================
+;; Helper functions
+;;=====================================
+
+;; at each step pull off top directory and prepend it to file-relative
+;; return when the next directory down is named pg or nil
+(defun split-branch-h (base parent relative)
+  (cond 
+   ;; Found the pg dir as parent, so return our arguments
+   ((string-equal (file-name-nondirectory (directory-file-name (file-name-directory parent))) base)
+	(list parent relative))
+   ;; Found /, so return nil
+   ((string-equal parent "/") nil)
+   ;; Otherwise, recurse
+   (t (split-branch-h base (directory-file-name (file-name-directory parent))
+					  (concat (file-name-nondirectory parent) "/" relative)))))
+
+;; return the branch folder (eg ~/pg/loc/) and the relative path
+;; so (current-branch .../pg/happy_faces/logic/reviews.py) will return '(.../pg/happy_faces logic/reviews.py)
+(defun split-branch (base)
+  (if (buffer-file-name)
+	  (split-branch-h base (file-name-directory (buffer-file-name)) (file-name-nondirectory (buffer-file-name)))
+	nil))
+
+;;=====================================
+;; File navigation
+;;=====================================
+
+;; Default open to playground
+(defun open-from-pg ()
+  (interactive)
+  (ido-find-file-in-dir "/media/pg/"))
+
+;; Switch to tests / switch from tests
+;; Basic idea - find the current branch, append tests to the relative dir, 
+;; and modify the file name from (.*)\.py to $1-test.py
+(defun switch-to-test ()
+  (let* ((buffer-file (split-branch "pg"))
+		 (branch-dir (car buffer-file))
+		 (current-file (cadr buffer-file)))
+	(find-file (concat branch-dir "/tests/" (file-name-sans-extension current-file)
+					   "_test" (file-name-extension current-file t)))))
+
+(defun switch-from-test ()
+  (let* ((buffer-file (split-branch "tests"))
+		 (folder (file-name-nondirectory (directory-file-name (car buffer-file))))
+		 (branch-dir (file-name-directory (directory-file-name (file-name-directory (directory-file-name (car buffer-file))))))
+		 (current-file (cadr buffer-file)))
+	(find-file (concat branch-dir folder (substring (file-name-sans-extension current-file) 0 -5)
+					   (file-name-extension current-file t)))))
+
+(defun toggle-test-file ()
+  (interactive)
+  (if (split-branch "tests")
+	  (switch-from-test)
+	(switch-to-test)))
+
+;;=====================================
+;; Playground commands
+;;=====================================
+
+;; Switch loc
+
+;; Make templates
+
+;;=====================================
+;; Misc
+;;=====================================
+
+;; Open current document in firefox (works for static, templates & exposed servlet methods)
+
+;; Run current test
+
+;; Graceful apache
+
+;; Start/Stop lucene
 
 ;;-----------------------------------------------------------------------------
 ;; Python mode
