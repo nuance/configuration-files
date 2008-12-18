@@ -63,8 +63,10 @@ floatapps =
 -- Use the screen and tags indices.
 apptags =
 {
-    -- ["Firefox"] = { screen = 1, tag = 2 },
-    -- ["mocp"] = { screen = 2, tag = 4 },
+    ["Firefox"] = { screen = 1, tag = 3 },
+	["emacs"] = { screen = 1, tag = 2},
+	["gnome-terminal"] = { screen = 1, tag = 1},
+	["pidgin"] = { screen = 1, tag = 4},
 }
 
 -- Define if we want to use titlebar on all applications.
@@ -115,46 +117,87 @@ mysystray = widget({ type = "systray", align = "right" })
 -- Create wicked widgets
 mpdbox = widget({ type = 'textbox', name = 'mpdbox', align = 'right'})
 
-local volume = nil
-
-function remove_volume()
-   if volume ~= nil then
-	  naughty.destroy(volume)
-	  volume = nil
-   end
-end
-
-function add_volume()
-   local status = awful.util.pread("amixer sget 'Master',0")
--- Remove isn't quite working - I need to have this happen during the timeout
---   remove_volume()
-   for volume_string in string.gmatch(status, "%d+%%") do
-	  volume = naughty.notify({text = '<span color="white">Volume</span> ' .. volume_string, timeout = 0.5})
-   end
-end
-
-mpdbox:buttons({  button({ }, 1, function() awful.util.spawn("mpc toggle") end),
-				  button({ }, 4, function() 
-									add_volume()
-									awful.util.spawn("amixer sset 'Master',0 3+")
+mpdbox:buttons({  button({ }, 1, function() 
+									awful.util.pread("mpc toggle") 
+								 end),
+				  button({ }, 3, function()
+									awful.util.pread("mpc next")
+									mpdbox.mouse_leave()
+									mpdbox.mouse_enter()
+								 end),
+				  button({ modkey }, 3, function()
+										   awful.util.pread("mpc prev")
+										   mpdbox.mouse_leave()
+										   mpdbox.mouse_enter()
+										end),
+				  button({ }, 4, function()
+									awful.util.pread("amixer sset 'Master',0 3+")
+									mpdbox.mouse_leave()
+									mpdbox.mouse_enter()
 								 end),
 				  button({ }, 5, function()
-									add_volume()
-									awful.util.spawn("amixer sset 'Master',0 3-")
+									awful.util.pread("amixer sset 'Master',0 3-")
+									mpdbox.mouse_leave()
+									mpdbox.mouse_enter()
 								 end),
 			   })
 									
 wicked.register(mpdbox, wicked.widgets.mpd, 
 						function (widget, args)
 						         if args[1] ~= '' and args[1]:find("volume:") == nil then
-								   return '  <span color="white">Now Playing:</span> ' .. args[1] .. '  '
+								   return '  <span color="white">Now Playing:</span> ' .. args[1] .. ' '
 								 else
-								   return '  <span color="white">MPDStopped</span> '
+								   return '  <span color="white">MPD Stopped</span> '
 								 end
 						end)
+
+local playlist = nil
+
+mpdbox.mouse_enter = function () 
+		local status = awful.util.pread("amixer sget 'Master',0")
+		local playing = ""
+
+		for volume_string in string.gmatch(status, "%d+%%") do
+		   playing = '<span color="white">Volume:</span> ' .. volume_string .. '\n'
+		end
+
+		local f = io.popen("mpc playlist | egrep '^>' -A3 -B3")
+
+		playing = playing .. '<span color="white">Playlist:</span>\n'
+
+		for line in f:lines() do
+			playing = playing .. line .. '\n' 
+		end
+		f:close()
+	        playlist = naughty.notify({ 
+                    text = playing,
+                    timeout = 0, hover_timeout = 0.5,
+                })
+end
+mpdbox.mouse_leave = function () naughty.destroy(playlist) end
 		
 datebox = widget({ type = 'textbox', name = 'datebox', align = 'right'})
 wicked.register(datebox, wicked.widgets.date, '  <span color="white">Date: </span> %l:%M %P %a %D  ')
+
+local calendar = nil
+datebox.mouse_enter = function () 
+		local f = io.popen("cal -m")
+		local cal = "\n"
+		local i = 1
+		for line in f:lines() do
+			if i > 1 then
+			cal = cal .. "\n" .. line 
+			end
+			i = i + 1
+		end
+		f:close()
+	        calendar = naughty.notify({ 
+                    text = os.date("%a, %d %B %Y") .. cal, 
+                    timeout = 0, hover_timeout = 0.5,
+                    width = 150, 
+                })
+end
+datebox.mouse_leave = function () naughty.destroy(calendar) end
 
 -- Create a launcher widget and a main menu
 myawesomemenu = {
