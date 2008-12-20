@@ -172,10 +172,11 @@ point."
 
 ;; return the branch folder (eg ~/pg/loc/) and the relative path
 ;; so (current-branch .../pg/happy_faces/logic/reviews.py) will return '(.../pg/happy_faces logic/reviews.py)
-(defun split-branch (base)
-  (if (buffer-file-name)
-	  (split-branch-h base (file-name-directory (buffer-file-name)) (file-name-nondirectory (buffer-file-name)))
-	nil))
+(defun split-branch (base &optional filename)
+  (let ((current-file (if filename filename (buffer-file-name))))
+	(if current-file
+		(split-branch-h base (file-name-directory current-file) (file-name-nondirectory current-file))
+	  nil)))
 
 ;;=====================================
 ;; File navigation
@@ -189,12 +190,19 @@ point."
 ;; Switch to tests / switch from tests
 ;; Basic idea - find the current branch, append tests to the relative dir, 
 ;; and modify the file name from (.*)\.py to $1-test.py
+(defun test-file-name (file-name)
+  (if (split-branch "tests")
+	  ;; It's a test, so just return the file
+	  file-name
+	;; find the correct file
+	(let* ((buffer-file (split-branch "pg" file-name))
+		   (branch-dir (car buffer-file))
+		   (current-file (cadr buffer-file)))
+	  (concat branch-dir "/tests/" (file-name-sans-extension current-file)
+			  "_test" (file-name-extension current-file t)))))
+
 (defun switch-to-test ()
-  (let* ((buffer-file (split-branch "pg"))
-		 (branch-dir (car buffer-file))
-		 (current-file (cadr buffer-file)))
-	(find-file (concat branch-dir "/tests/" (file-name-sans-extension current-file)
-					   "_test" (file-name-extension current-file t)))))
+	(find-file (test-file-name (buffer-file-name))))
 
 (defun switch-from-test ()
   (let* ((buffer-file (split-branch "tests"))
@@ -225,6 +233,11 @@ point."
 ;; Open current document in firefox (works for static, templates & exposed servlet methods)
 
 ;; Run current test
+(defun run-test ()
+  (interactive)
+  (message (concat "python " (test-file-name (buffer-file-name)))))
+
+(message (concat "python " (test-file-name "/media/pg/main/logic/ad_announcement.py")))
 
 ;; Graceful apache
 
