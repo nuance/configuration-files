@@ -207,16 +207,21 @@ point."
 	  (concat branch-dir "/tests/" (file-name-sans-extension current-file)
 			  "_test" (file-name-extension current-file t)))))
 
+(defun nontest-file-name (file-name)
+  (if (not (split-branch "tests"))
+	  file-name
+	(let* ((buffer-file (split-branch "tests" file-name))
+		   (folder (file-name-nondirectory (directory-file-name (car buffer-file))))
+		   (branch-dir (file-name-directory (directory-file-name (file-name-directory (directory-file-name (car buffer-file))))))
+		   (current-file (cadr buffer-file)))
+	  (concat branch-dir folder (substring (file-name-sans-extension current-file) 0 -5)
+			  (file-name-extension current-file t)))))
+
 (defun switch-to-test ()
-	(find-file (test-file-name (buffer-file-name))))
+  (find-file (test-file-name (buffer-file-name))))
 
 (defun switch-from-test ()
-  (let* ((buffer-file (split-branch "tests"))
-		 (folder (file-name-nondirectory (directory-file-name (car buffer-file))))
-		 (branch-dir (file-name-directory (directory-file-name (file-name-directory (directory-file-name (car buffer-file))))))
-		 (current-file (cadr buffer-file)))
-	(find-file (concat branch-dir folder (substring (file-name-sans-extension current-file) 0 -5)
-					   (file-name-extension current-file t)))))
+  (find-file (nontest-file-name (buffer-file-name))))
 
 (defun toggle-test-file ()
   (interactive)
@@ -241,9 +246,7 @@ point."
 ;; Run current test
 (defun run-test ()
   (interactive)
-  (message (concat "python " (test-file-name (buffer-file-name)))))
-
-(message (concat "python " (test-file-name "/media/pg/main/logic/ad_announcement.py")))
+  (compile (test-file-name (buffer-file-name))))
 
 ;; Graceful apache
 
