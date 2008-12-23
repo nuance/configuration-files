@@ -42,13 +42,13 @@
 ;;load path set to folder ~/emacs for .el files
 (setq load-path (cons "~/emacs" load-path))
 
-;; bell gets really annoying
-(setq visible-bell t)
-(setq ring-bell-function (lambda ()))   ;get rid of bell completely
-
 ;;-----------------------------------------------------------------------------
 ;; Global Defaults
 ;;-----------------------------------------------------------------------------
+
+;; bell gets really annoying
+(setq visible-bell t)
+(setq ring-bell-function (lambda ()))   ;get rid of bell completely
 
 ;; Some better defaults
 (fset 'yes-or-no-p 'y-or-n-p)           ;replace y-e-s by y
@@ -68,9 +68,6 @@
 (setq transient-mark-mode t)               ;highlights selections
 (setq comment-style 'plain)
 (setq frame-title-format (list '("emacs ") '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
-(tool-bar-mode 0)
-(global-font-lock-mode t)
-(setq font-lock-maximum-decoration t)
 (interactive)
 
 ;;-----------------------------------------------------------------------------
@@ -130,6 +127,15 @@ point."
 ;;-----------------------------------------------------------------------------
 ;; Major modes
 ;;-----------------------------------------------------------------------------
+
+;;-----------------------------------------------------------------------------
+;; MMM modes (allows a buffer to use multiple major modes)
+;;-----------------------------------------------------------------------------
+
+(setq load-path (cons "~/emacs/mmm-mode" load-path))
+(require 'mmm-auto)
+(setq mmm-global-mode 'maybe)
+(setq mmm-submode-decoration-level 0)
 
 ;;-----------------------------------------------------------------------------
 ;; Tramp mode
@@ -563,15 +569,6 @@ checking if unsaved buffers should be saved."
 ;;(add-hook 'find-file-hook 'flymake-find-file-hook)
 
 ;;-----------------------------------------------------------------------------
-;; MMM modes (allows a buffer to use multiple major modes)
-;;-----------------------------------------------------------------------------
-
-(setq load-path (cons "~/emacs/mmm-mode" load-path))
-(require 'mmm-auto)
-(setq mmm-global-mode 'maybe)
-(setq mmm-submode-decoration-level 0)
-
-;;-----------------------------------------------------------------------------
 ;; Cheetah mode - mix of html-mode and a basic cheetah keyword highlighter
 ;;-----------------------------------------------------------------------------
 
@@ -580,11 +577,18 @@ checking if unsaved buffers should be saved."
   (font-lock-add-keywords
    nil
    '(
-     ("\\(#\\(attr\\|from\\|else\\|else if\\|include\\|extends\\|implements\\|set\\|import\\|for\\|if\\|end\\|block\\)+\\)\\>" 1 font-lock-type-face)
+	 ;; #(symbol) lines
+     ("\\(#\\(attr\\|from\\|else\\|else if\\|include\\|extends\\|implements\\|set\\|import\\|for\\|if\\|end\\|block\\)\\)\\>" 1 font-lock-type-face)
+	 ;; PSP-style
      ("\\(#\\(from\\|for\\|end\\)\\).*\\<\\(for\\|import\\|def\\|if\\|in\\)\\>" 3 font-lock-type-face)
+	 ;; One-line #if EXPR1 then EXPR2 else EXPR3(# or eol)
+	 ("#if[^$#]*then[^$#]*else[^$#]*\\(#\\|$\\)" 1 font-lock-builtin-face)
+	 ;; Comments
      ("\\(^##.*\\)\n" 1 font-lock-comment-face)
 	 ;; $var
      ("\\(\\$\\(?:\\sw\\|}\\|{\\|\\s_\\)+\\)" 1 font-lock-variable-name-face)
+	 ;; #set var
+	 ()
 	 ;; Methods
 	 ("[ \t]*\\(#def[^(#]*\\)\\(\(\\|#\\)*" 1 font-lock-variable-name-face)
 	 ("^#.*\\(True\\|False\\|None\\)" 1 font-lock-builtin-face)
@@ -636,16 +640,6 @@ checking if unsaved buffers should be saved."
     :face mmm-code-submode-face
     :front "\\bon\\w+=\\s-*\""
     :back "\"")
-;;   (python-chunks
-;;     :submode python-mode
-;;     :face mmm-code-submode-face
-;;     :front "#"
-;;     :back "#")
-;;    (python-lines
-;;     :submode python-mode
-;;     :face mmm-code-submode-face
-;;     :front "#"
-;;     :back "[^#]*\n")
    )
  )
 
@@ -658,4 +652,4 @@ checking if unsaved buffers should be saved."
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "unknown" :family "Consolas")))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width normal :foundry "unknown" :family "Consolas")))))
