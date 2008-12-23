@@ -2,6 +2,7 @@
 require("awful")
 require("beautiful")
 require("wicked")
+require("naughty")
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
@@ -17,7 +18,7 @@ beautiful.init(theme_path)
 terminal = "gnome-terminal"
 editor = os.getenv("EDITOR") or "emacs"
 editor_cmd = editor
-browser = "firefox -no-remote"
+browser = "firefox"
 lock_screen = "xlock"
 
 -- Default modkey.
@@ -62,8 +63,10 @@ floatapps =
 -- Use the screen and tags indices.
 apptags =
 {
-    -- ["Firefox"] = { screen = 1, tag = 2 },
-    -- ["mocp"] = { screen = 2, tag = 4 },
+    ["Firefox"] = { screen = 1, tag = 3 },
+	["emacs"] = { screen = 1, tag = 2},
+	["gnome-terminal"] = { screen = 1, tag = 1},
+	["pidgin"] = { screen = 1, tag = 4},
 }
 
 -- Define if we want to use titlebar on all applications.
@@ -87,30 +90,114 @@ for s = 1, screen.count() do
 end
 -- }}}
 
+-- {{{ Naughty boxes
+val = nil
+keybinding({ modkey}, "c", 
+		   function ()
+			  awful.prompt.run({ prompt = "Calc: "
+							   }, mypromptbox[mouse.screen],
+							   function(expr)
+								  val = awful.util.eval(expr)
+								  naughty.notify({ text = expr .. ' = <span color="white">' .. val .. "</span>",
+													timeout = 5,
+													run = function() 
+															 io.popen("echo ".. val .. " | xsel -i"):close()
+														  end, })
+							   end,
+							   nil, 
+							   awful.util.getdir("cache") .. "/calc")
+		   end):add()
+-- }}}
+
 -- {{{ Wibox
 
 -- Create a systray
 mysystray = widget({ type = "systray", align = "right" })
 
--- Create a textbox widget
-mytextbox = widget({ type = "textbox", align = "right" })
--- Set the default text in textbox
--- mytextbox.text = "<b><small> " .. AWESOME_RELEASE .. " </small></b>"
-
 -- Create wicked widgets
 mpdbox = widget({ type = 'textbox', name = 'mpdbox', align = 'right'})
-datebox = widget({ type = 'textbox', name = 'datebox', align = 'right'})
 
+mpdbox:buttons({  button({ }, 1, function() 
+									awful.util.pread("mpc toggle") 
+								 end),
+				  button({ }, 3, function()
+									awful.util.pread("mpc next")
+									mpdbox.mouse_leave()
+									mpdbox.mouse_enter()
+								 end),
+				  button({ modkey }, 3, function()
+										   awful.util.pread("mpc prev")
+										   mpdbox.mouse_leave()
+										   mpdbox.mouse_enter()
+										end),
+				  button({ }, 4, function()
+									awful.util.pread("amixer sset 'Master',0 3+")
+									mpdbox.mouse_leave()
+									mpdbox.mouse_enter()
+								 end),
+				  button({ }, 5, function()
+									awful.util.pread("amixer sset 'Master',0 3-")
+									mpdbox.mouse_leave()
+									mpdbox.mouse_enter()
+								 end),
+			   })
+									
 wicked.register(mpdbox, wicked.widgets.mpd, 
 						function (widget, args)
-								 if args[1]:find("volume:") == nil then
-								   return '  <span color="white">Now Playing:</span> ' .. args[1] .. '  '
+						         if args[1] ~= '' and args[1]:find("volume:") == nil then
+								   return '  <span color="white">Now Playing:</span> ' .. args[1] .. ' '
 								 else
-								   return ''
+								   return '  <span color="white">MPD Stopped</span> '
 								 end
 						end)
+
+local playlist = nil
+
+mpdbox.mouse_enter = function () 
+		local status = awful.util.pread("amixer sget 'Master',0")
+		local playing = ""
+
+		for volume_string in string.gmatch(status, "%d+%%") do
+		   playing = '<span color="white">Volume:</span> ' .. volume_string .. '\n'
+		end
+
+		local f = io.popen("mpc playlist | egrep '^>' -A3 -B3")
+
+		playing = playing .. '<span color="white">Playlist:</span>\n'
+
+		for line in f:lines() do
+			playing = playing .. line .. '\n' 
+		end
+		f:close()
+	        playlist = naughty.notify({ 
+                    text = playing,
+                    timeout = 0, hover_timeout = 0.5,
+                })
+end
+mpdbox.mouse_leave = function () naughty.destroy(playlist) end
 		
+datebox = widget({ type = 'textbox', name = 'datebox', align = 'right'})
 wicked.register(datebox, wicked.widgets.date, '  <span color="white">Date: </span> %l:%M %P %a %D  ')
+
+local calendar = nil
+datebox.mouse_enter = function () 
+		local f = io.popen("cal -m")
+		local cal = "\n"
+		local i = 1
+		for line in f:lines() do
+			if i > 1 then
+			cal = cal .. "\n" .. line 
+			end
+			i = i + 1
+		end
+		f:close()
+	        calendar = naughty.notify({ 
+                    text = os.date("%a, %d %B %Y") .. cal, 
+                    timeout = 0, hover_timeout = 0.5,
+                    width = 150, 
+                })
+end
+datebox.mouse_leave = function () naughty.destroy(calendar) end
 
 -- Create a launcher widget and a main menu
 myawesomemenu = {
@@ -120,8 +207,18 @@ myawesomemenu = {
    { "quit", awesome.quit }
 }
 
+-- yelp dev stuff
+yelp_site_menu = {
+   { "dev", browser .. " http://mattj.dev.yelp.com" },
+   { "dev admin", browser .. " http://admin.mattj.dev.yelp.com" },
+   { "live admin", browser .. " http://admin.yelp.com" },
+   { "live", browser .. " http://yelp.com" },
+   { "stage", browser .. " http://stage.yelp.com" }
+}
+
 mymainmenu = awful.menu.new({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
 		   	 				  		    { "pydoc", browser .. " http://www.python.org/doc/2.5.2/lib/lib.html" },
+										{ "yelp", yelp_site_menu },
 										{ "lock", lock_screen },
                                         { "open terminal", terminal }
                                       }
@@ -236,6 +333,7 @@ keybinding({ modkey }, "Escape", awful.tag.history.restore):add()
 
 -- Standard program
 keybinding({ modkey }, "Return", function () awful.util.spawn(terminal) end):add()
+keybinding({ modkey }, "Backspace", function () awful.util.spawn(editor) end):add()
 
 keybinding({ modkey, "Control" }, "r", function ()
                                            mypromptbox[mouse.screen].text =
@@ -271,13 +369,15 @@ keybinding({ modkey }, "space", function () awful.layout.inc(layouts, 1) end):ad
 keybinding({ modkey, "Shift" }, "space", function () awful.layout.inc(layouts, -1) end):add()
 
 -- Prompt
-keybinding({ modkey }, "F1", function ()
-                                 awful.prompt.run({ prompt = "Run: " }, mypromptbox[mouse.screen], awful.util.spawn, awful.completion.bash,
-                                                  awful.util.getdir("cache") .. "/history")
+keybinding({ modkey }, "F2", function ()
+								awful.prompt.run({ prompt = "Run: " },
+												 mypromptbox[mouse.screen], 
+												 awful.util.spawn, awful.completion.bash,
+												 awful.util.getdir("cache") .. "/history")
                              end):add()
 keybinding({ modkey }, "F4", function ()
-                                 awful.prompt.run({ prompt = "Run Lua code: " }, mypromptbox[mouse.screen], awful.util.eval, awful.prompt.bash,
-                                                  awful.util.getdir("cache") .. "/history_eval")
+								awful.prompt.run({ prompt = "Run Lua code: " }, mypromptbox[mouse.screen], awful.util.eval, awful.prompt.bash,
+												 awful.util.getdir("cache") .. "/history_eval")
                              end):add()
 
 keybinding({ modkey, "Ctrl" }, "i", function ()
@@ -430,11 +530,4 @@ awful.hooks.arrange.register(function (screen)
     ]]
 end)
 
--- Hook called every second
-awful.hooks.timer.register(1, function ()
-    -- For unix time_t lovers
-	--    mytextbox.text = " " .. os.time() .. " time_t "
-    -- Otherwise use:
-    mytextbox.text = " " .. os.date() .. " "
-end)
 -- }}}
