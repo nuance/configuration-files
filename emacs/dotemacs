@@ -125,6 +125,14 @@ point."
 (add-hook 'java-mode-hook       'my-java-tab-fix)
 (add-hook 'objc-mode-hook       'my-tab-fix)
 
+(defun hl-warn-keywords ()
+  (font-lock-add-keywords nil
+						  '(("\\<\\(FIXME\\|TODO\\|BUG\\):" 1 font-lock-warning-face t))))
+  
+
+(add-hook 'c-mode-common-hook 'hl-warn-keywords)
+(add-hook 'python-mode-hook 'hl-warn-keywords)
+
 ;;-----------------------------------------------------------------------------
 ;; Major modes
 ;;-----------------------------------------------------------------------------
@@ -290,6 +298,23 @@ point."
   (show-paren-mode 1)
 					; higlight current line
   ;;  (highline-mode)
+  )
+
+(add-to-list 'auto-mode-alist '("\\.pyx\\'" . cython-mode))
+
+(define-derived-mode cython-mode python-mode "Cython"
+  (make-face 'cython-variable-face)
+  (font-lock-add-keywords
+   nil
+   '(
+	 ("\\<\\(NULL\\|c\\(def\\|har\\|typedef\\)\\|double\\|e\\(num\\|xtern\\)\\|float\\|in\\(clude|t\\)\\|object\\|public\\|readonly\\|struct\\|type\\|union\\|void\\)\\>" 1 font-lock-builtin-face)
+	 )
+   )
+  (font-lock-mode 1)
+  (setq outline-regexp "[ \t]*\\(def\\|class\\|cdef\\)[^:]*:\\|[ \t]*\\@")
+  (setq outline-level 'py-outline-level)
+  (outline-minor-mode t)
+  (hide-body)
   )
 
 ;;-----------------------------------------------------------------------------
@@ -748,6 +773,8 @@ checking if unsaved buffers should be saved."
 (add-to-list 'mmm-mode-ext-classes-alist '(cheetah-mode nil fancy-cheetah))
 
 (setq auto-mode-alist (cons '( "\\.tmpl\\'" . cheetah-mode ) auto-mode-alist ))
+
+(server-start)
 
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
