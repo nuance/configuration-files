@@ -237,8 +237,6 @@ point."
   (interactive)
   (message (concat "python " (test-file-name (buffer-file-name)))))
 
-(message (concat "python " (test-file-name "/media/pg/main/logic/ad_announcement.py")))
-
 ;; Graceful apache
 
 ;; Start/Stop lucene
