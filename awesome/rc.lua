@@ -19,7 +19,7 @@ terminal = "gnome-terminal"
 editor = os.getenv("EDITOR") or "emacs"
 editor_cmd = editor
 browser = "firefox"
-lock_screen = "xlock"
+lock_screen = "gnome-screensaver-command -l"
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
