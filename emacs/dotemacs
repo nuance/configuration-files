@@ -43,13 +43,13 @@
 ;;load path set to folder ~/emacs for .el files
 (setq load-path (cons "~/emacs" load-path))
 
-;; bell gets really annoying
-(setq visible-bell t)
-(setq ring-bell-function (lambda ()))   ;get rid of bell completely
-
 ;;-----------------------------------------------------------------------------
 ;; Global Defaults
 ;;-----------------------------------------------------------------------------
+
+;; bell gets really annoying
+(setq visible-bell t)
+(setq ring-bell-function (lambda ()))   ;get rid of bell completely
 
 ;; Some better defaults
 (fset 'yes-or-no-p 'y-or-n-p)           ;replace y-e-s by y
@@ -69,9 +69,6 @@
 (setq transient-mark-mode t)               ;highlights selections
 (setq comment-style 'plain)
 (setq frame-title-format (list '("emacs ") '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
-(tool-bar-mode 0)
-(global-font-lock-mode t)
-(setq font-lock-maximum-decoration t)
 (interactive)
 
 ;;-----------------------------------------------------------------------------
@@ -128,9 +125,26 @@ point."
 (add-hook 'java-mode-hook       'my-java-tab-fix)
 (add-hook 'objc-mode-hook       'my-tab-fix)
 
+(defun hl-warn-keywords ()
+  (font-lock-add-keywords nil
+						  '(("\\<\\(FIXME\\|TODO\\|BUG\\):" 1 font-lock-warning-face t))))
+  
+
+(add-hook 'c-mode-common-hook 'hl-warn-keywords)
+(add-hook 'python-mode-hook 'hl-warn-keywords)
+
 ;;-----------------------------------------------------------------------------
 ;; Major modes
 ;;-----------------------------------------------------------------------------
+
+;;-----------------------------------------------------------------------------
+;; MMM modes (allows a buffer to use multiple major modes)
+;;-----------------------------------------------------------------------------
+
+(setq load-path (cons "~/emacs/mmm-mode" load-path))
+(require 'mmm-auto)
+(setq mmm-global-mode 'maybe)
+(setq mmm-submode-decoration-level 0)
 
 ;;-----------------------------------------------------------------------------
 ;; Tramp mode
@@ -201,16 +215,21 @@ point."
 	  (concat branch-dir "/tests/" (file-name-sans-extension current-file)
 			  "_test" (file-name-extension current-file t)))))
 
+(defun nontest-file-name (file-name)
+  (if (not (split-branch "tests"))
+	  file-name
+	(let* ((buffer-file (split-branch "tests" file-name))
+		   (folder (file-name-nondirectory (directory-file-name (car buffer-file))))
+		   (branch-dir (file-name-directory (directory-file-name (file-name-directory (directory-file-name (car buffer-file))))))
+		   (current-file (cadr buffer-file)))
+	  (concat branch-dir folder (substring (file-name-sans-extension current-file) 0 -5)
+			  (file-name-extension current-file t)))))
+
 (defun switch-to-test ()
-	(find-file (test-file-name (buffer-file-name))))
+  (find-file (test-file-name (buffer-file-name))))
 
 (defun switch-from-test ()
-  (let* ((buffer-file (split-branch "tests"))
-		 (folder (file-name-nondirectory (directory-file-name (car buffer-file))))
-		 (branch-dir (file-name-directory (directory-file-name (file-name-directory (directory-file-name (car buffer-file))))))
-		 (current-file (cadr buffer-file)))
-	(find-file (concat branch-dir folder (substring (file-name-sans-extension current-file) 0 -5)
-					   (file-name-extension current-file t)))))
+  (find-file (nontest-file-name (buffer-file-name))))
 
 (defun toggle-test-file ()
   (interactive)
@@ -235,7 +254,7 @@ point."
 ;; Run current test
 (defun run-test ()
   (interactive)
-  (message (concat "python " (test-file-name (buffer-file-name)))))
+  (compile (concat "python " (test-file-name (buffer-file-name)))))
 
 ;; Graceful apache
 
@@ -279,6 +298,23 @@ point."
   (show-paren-mode 1)
 					; higlight current line
   ;;  (highline-mode)
+  )
+
+(add-to-list 'auto-mode-alist '("\\.pyx\\'" . cython-mode))
+
+(define-derived-mode cython-mode python-mode "Cython"
+  (make-face 'cython-variable-face)
+  (font-lock-add-keywords
+   nil
+   '(
+	 ("\\<\\(NULL\\|c\\(def\\|har\\|typedef\\)\\|double\\|e\\(num\\|xtern\\)\\|float\\|in\\(clude|t\\)\\|object\\|public\\|readonly\\|struct\\|type\\|union\\|void\\)\\>" 1 font-lock-builtin-face)
+	 )
+   )
+  (font-lock-mode 1)
+  (setq outline-regexp "[ \t]*\\(def\\|class\\|cdef\\)[^:]*:\\|[ \t]*\\@")
+  (setq outline-level 'py-outline-level)
+  (outline-minor-mode t)
+  (hide-body)
   )
 
 ;;-----------------------------------------------------------------------------
@@ -444,68 +480,72 @@ point."
 
 (define-key mode-specific-map [?a] 'org-agenda)
 
-;;; (eval-after-load "org"
-;;;   '(progn
-;;;      (define-prefix-command 'org-todo-state-map)
+(add-hook 'org-mode-hook
+		  '(lambda ()
+			 (define-key org-mode-map (kbd "C-c C-l") 'my-org-insert-link)))
 
-;;;      (define-key org-mode-map "\C-cx" 'org-todo-state-map)
+(setq org-paper-directory "~/org-papers/")
 
-;;;      (define-key org-todo-state-map "x"
-;;;        #'(lambda nil (interactive) (org-todo "CANCELLED")))
-;;;      (define-key org-todo-state-map "d"
-;;;        #'(lambda nil (interactive) (org-todo "DONE")))
-;;;      (define-key org-todo-state-map "f"
-;;;        #'(lambda nil (interactive) (org-todo "DEFERRED")))
-;;;      (define-key org-todo-state-map "l"
-;;;        #'(lambda nil (interactive) (org-todo "DELEGATED")))
-;;;      (define-key org-todo-state-map "s"
-;;;        #'(lambda nil (interactive) (org-todo "STARTED")))
-;;;      (define-key org-todo-state-map "w"
-;;;        #'(lambda nil (interactive) (org-todo "WAITING")))
+(defun paper-get-buffer ()
+  (let (time-now buffer)
+    (setq time-now (current-time))
+    (get-buffer-create (format "*%s<%s-%s-%s>*"
+                               "papers"
+                               (nth 0 time-now) (nth 1 time-now) (nth 2 time-now)))))
 
-;;;      (define-key org-agenda-mode-map "\C-n" 'next-line)
-;;;      (define-key org-agenda-keymap "\C-n" 'next-line)
-;;;      (define-key org-agenda-mode-map "\C-p" 'previous-line)
-;;;      (define-key org-agenda-keymap "\C-p" 'previous-line)))
+(defun download-paper (url)
+  "Download a paper url in the background when referenced from an
+  org-mode link, returning the new (local) url"
+  (interactive)
+  ;; Check for the directory
+  (unless (file-exists-p org-paper-directory)
+    (make-directory org-paper-directory)
+    (message "Created directory %s for downloaded papers." org-paper-directory))
+  ;; Download.
+  (let* ((url-request-method "GET")
+         (url-request-extra-headers nil)
+         (url-mime-accept-string "*/*")
+         (parsed-url (url-generic-parse-url url))
+         (download-buffer (paper-get-buffer))
+         (download-buffer-name (buffer-name download-buffer)))
+    (with-current-buffer (get-buffer download-buffer-name)
+      ;; Bind download url with local buffer.
+      (setq paper-url url)
+      ;; Bind download buffer with local buffer.
+      (setq download-buffer
+            (url-retrieve-synchronously parsed-url))
+	  ;; Now save the buffer in the papers directory
+	  (setq file-path (concat org-paper-directory (file-name-nondirectory paper-url)))
+	  ;; Save file.
+	  (with-current-buffer download-buffer
+		(if (or (not (file-exists-p file-path))
+				(yes-or-no-p (format "Do you want replace file: '%s' ?" file-path)))
+			(progn
+			  (write-file file-path)))))
+	  ;; return the file name
+	(concat "file:" (file-truename file-path))))
 
-;;(add-hook 'remember-mode-hook 'org-remember-apply-template)
+(defun downloadable-pdf (url)
+  (if (and url
+		   (or (string-equal (file-name-extension url) "pdf")
+			   (string-equal (file-name-extension url) "ps")
+			   (string-equal (file-name-extension url) "eps"))
+		   (or (string-equal (car (split-string url ":")) "http")
+			   (string-equal (car (split-string url ":")) "https")))
+	  t
+	nil))
 
-;;(define-key global-map [(control meta ?r)] 'remember)
-
-;;; (custom-set-variables
-;;;  '(org-agenda-files (quote ("~/todo.org")))
-;;;  '(org-default-notes-file "~/notes.org")
-;;;  '(org-agenda-ndays 7)
-;;;  '(org-deadline-warning-days 14)
-;;;  '(org-agenda-show-all-dates t)
-;;;  '(org-agenda-skip-deadline-if-done t)
-;;;  '(org-agenda-skip-scheduled-if-done t)
-;;;  '(org-agenda-start-on-weekday nil)
-;;;  '(org-reverse-note-order t)
-;;;  '(org-fast-tag-selection-single-key (quote expert))
-;;;  '(org-agenda-custom-commands
-;;;    (quote (("d" todo "DELEGATED" nil)
-;;;        ("c" todo "DONE|DEFERRED|CANCELLED" nil)
-;;;        ("w" todo "WAITING" nil)
-;;;        ("W" agenda "" ((org-agenda-ndays 21)))
-;;;        ("A" agenda ""
-;;;         ((org-agenda-skip-function
-;;;           (lambda nil
-;;;         (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]")))
-;;;          (org-agenda-ndays 1)
-;;;          (org-agenda-overriding-header "Today's Priority #A tasks: ")))
-;;;        ("u" alltodo ""
-;;;         ((org-agenda-skip-function
-;;;           (lambda nil
-;;;         (org-agenda-skip-entry-if (quote scheduled) (quote deadline)
-;;;                       (quote regexp) "<[^>\n]+>")))
-;;;          (org-agenda-overriding-header "Unscheduled TODO entries: "))))))
-;;;  '(org-remember-store-without-prompt t)
-;;;  '(org-remember-templates
-;;;    (quote ((116 "* TODO %?\n  %u" "~/todo.org" "Tasks")
-;;;        (110 "* %u %?" "~/notes.org" "Notes"))))
-;;;  '(remember-annotation-functions (quote (org-remember-annotation)))
-;;;  '(remember-handler-functions (quote (org-remember-handler))))
+(defun my-org-insert-link (&optional COMPLETE-FILE LINK-LOCATION)
+ ;;(before org-insert-link (&optional COMPLETE-FILE LINK-LOCATION))
+  "Rewrite remote pdf references to local files, prompting for the
+link location as usual then calling the insert link function with a
+link to the fetched pdf"
+  (interactive)
+  (let ((url (if LINK-LOCATION LINK-LOCATION (read-from-minibuffer
+											 "Link: "))))
+	(if (downloadable-pdf url)
+		(org-insert-link COMPLETE-FILE (download-paper url))
+	  (org-insert-link COMPLETE-FILE url))))
 
 ;;-----------------------------------------------------------------------------
 ;; Minor modes
@@ -660,15 +700,6 @@ checking if unsaved buffers should be saved."
 ;;(add-hook 'find-file-hook 'flymake-find-file-hook)
 
 ;;-----------------------------------------------------------------------------
-;; MMM modes (allows a buffer to use multiple major modes)
-;;-----------------------------------------------------------------------------
-
-(setq load-path (cons "~/emacs/mmm-mode" load-path))
-(require 'mmm-auto)
-(setq mmm-global-mode 'maybe)
-(setq mmm-submode-decoration-level 0)
-
-;;-----------------------------------------------------------------------------
 ;; Cheetah mode - mix of html-mode and a basic cheetah keyword highlighter
 ;;-----------------------------------------------------------------------------
 
@@ -677,11 +708,18 @@ checking if unsaved buffers should be saved."
   (font-lock-add-keywords
    nil
    '(
-     ("\\(#\\(attr\\|from\\|else\\|else if\\|include\\|extends\\|implements\\|set\\|import\\|for\\|if\\|end\\|block\\)+\\)\\>" 1 font-lock-type-face)
+	 ;; #(symbol) lines
+     ("\\(#\\(attr\\|from\\|else\\|else if\\|include\\|extends\\|implements\\|set\\|import\\|for\\|if\\|end\\|block\\)\\)\\>" 1 font-lock-type-face)
+	 ;; PSP-style
      ("\\(#\\(from\\|for\\|end\\)\\).*\\<\\(for\\|import\\|def\\|if\\|in\\)\\>" 3 font-lock-type-face)
+	 ;; One-line #if EXPR1 then EXPR2 else EXPR3(# or eol)
+	 ("#if[^$#]*then[^$#]*else[^$#]*\\(#\\|$\\)" 1 font-lock-builtin-face)
+	 ;; Comments
      ("\\(^##.*\\)\n" 1 font-lock-comment-face)
 	 ;; $var
      ("\\(\\$\\(?:\\sw\\|}\\|{\\|\\s_\\)+\\)" 1 font-lock-variable-name-face)
+	 ;; #set var
+	 ()
 	 ;; Methods
 	 ("[ \t]*\\(#def[^(#]*\\)\\(\(\\|#\\)*" 1 font-lock-variable-name-face)
 	 ("^#.*\\(True\\|False\\|None\\)" 1 font-lock-builtin-face)
@@ -733,16 +771,6 @@ checking if unsaved buffers should be saved."
     :face mmm-code-submode-face
     :front "\\bon\\w+=\\s-*\""
     :back "\"")
-;;   (python-chunks
-;;     :submode python-mode
-;;     :face mmm-code-submode-face
-;;     :front "#"
-;;     :back "#")
-;;    (python-lines
-;;     :submode python-mode
-;;     :face mmm-code-submode-face
-;;     :front "#"
-;;     :back "[^#]*\n")
    )
  )
 
@@ -750,9 +778,11 @@ checking if unsaved buffers should be saved."
 
 (setq auto-mode-alist (cons '( "\\.tmpl\\'" . cheetah-mode ) auto-mode-alist ))
 
+(server-start)
+
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "unknown" :family "Consolas")))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width normal :foundry "unknown" :family "Consolas")))))
