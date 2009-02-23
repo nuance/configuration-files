@@ -19,7 +19,7 @@ terminal = "gnome-terminal"
 editor = os.getenv("EDITOR") or "emacs"
 editor_cmd = editor
 browser = "firefox"
-lock_screen = "xlock"
+lock_screen = "gnome-screensaver-command -l"
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
@@ -27,6 +27,9 @@ lock_screen = "xlock"
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
 modkey = "Mod4"
+
+main_screen = 2
+side_screen = 1
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 layouts =
@@ -63,10 +66,11 @@ floatapps =
 -- Use the screen and tags indices.
 apptags =
 {
-    ["Firefox"] = { screen = 1, tag = 3 },
-	["emacs"] = { screen = 1, tag = 2},
-	["gnome-terminal"] = { screen = 1, tag = 1},
-	["pidgin"] = { screen = 1, tag = 4},
+	["pidgin"] = { screen = side_screen, tag = 1},
+	["gmpc"] = { screen = side_screen, tag = 2},
+	["gnome-terminal"] = { screen = main_screen, tag = 1},
+	["emacs"] = { screen = main_screen, tag = 2},
+    ["Firefox"] = { screen = main_screen, tag = 3 },
 }
 
 -- Define if we want to use titlebar on all applications.
@@ -75,15 +79,22 @@ use_titlebar = false
 
 -- {{{ Tags
 -- Define tags table.
+main_screen_tags = {"shell", "emacs", "web"}
+side_screen_tags = {"chat", "music"}
+custom_tag_names_by_screen = {}
+custom_tag_names_by_screen[main_screen] = main_screen_tags
+custom_tag_names_by_screen[side_screen] = side_screen_tags
+
 tags = {}
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
     tags[s] = {}
     -- Create 9 tags per screen.
-    for tagnumber = 1, 9 do
-        tags[s][tagnumber] = tag({ name = tagnumber, layout = layouts[1] })
-        -- Add tags to screen one by one
-        tags[s][tagnumber].screen = s
+    for tagnumber = 1, #custom_tag_names_by_screen[s] do
+	   tagname = custom_tag_names_by_screen[s][tagnumber]
+	   tags[s][tagnumber] = tag({ name = tagname, layout = layouts[1] })
+	   -- Add tags to screen one by one
+	   tags[s][tagnumber].screen = s
     end
     -- I'm sure you want to see at least one tag.
     tags[s][1].selected = true
@@ -91,11 +102,13 @@ end
 -- }}}
 
 -- {{{ Naughty boxes
+
+-- Calculator
 val = nil
 keybinding({ modkey}, "c", 
 		   function ()
 			  awful.prompt.run({ prompt = "Calc: "
-							   }, mypromptbox[mouse.screen],
+							   }, mainpromptbox,
 							   function(expr)
 								  val = awful.util.eval(expr)
 								  naughty.notify({ text = expr .. ' = <span color="white">' .. val .. "</span>",
@@ -117,6 +130,8 @@ mysystray = widget({ type = "systray", align = "right" })
 -- Create wicked widgets
 mpdbox = widget({ type = 'textbox', name = 'mpdbox', align = 'right'})
 
+-- {{{ 
+-- Fancy mpd control widget
 mpdbox:buttons({  button({ }, 1, function() 
 									awful.util.pread("mpc toggle") 
 								 end),
@@ -169,13 +184,18 @@ mpdbox.mouse_enter = function ()
 			playing = playing .. line .. '\n' 
 		end
 		f:close()
-	        playlist = naughty.notify({ 
-                    text = playing,
-                    timeout = 0, hover_timeout = 0.5,
-                })
+
+		playlist = naughty.notify({ text = playing,
+									 timeout = 0, hover_timeout = 0.5,
+									 screen = main_screen
+								  })
 end
 mpdbox.mouse_leave = function () naughty.destroy(playlist) end
+
+--}}}
 		
+--{{{ Calendar
+
 datebox = widget({ type = 'textbox', name = 'datebox', align = 'right'})
 wicked.register(datebox, wicked.widgets.date, '  <span color="white">Date: </span> %l:%M %P %a %D  ')
 
@@ -191,13 +211,14 @@ datebox.mouse_enter = function ()
 			i = i + 1
 		end
 		f:close()
-	        calendar = naughty.notify({ 
-                    text = os.date("%a, %d %B %Y") .. cal, 
-                    timeout = 0, hover_timeout = 0.5,
-                    width = 150, 
-                })
+		calendar = naughty.notify({ text = os.date("%a, %d %B %Y") .. cal, 
+									 timeout = 0, hover_timeout = 0.5,
+									 width = 150, screen = main_screen
+								  })
 end
 datebox.mouse_leave = function () naughty.destroy(calendar) end
+
+--}}}
 
 -- Create a launcher widget and a main menu
 myawesomemenu = {
@@ -247,6 +268,7 @@ mytasklist.buttons = { button({ }, 1, function (c) client.focus = c; c:raise() e
 for s = 1, screen.count() do
     -- Create a promptbox for each screen
     mypromptbox[s] = widget({ type = "textbox", align = "left" })
+
     -- Create an imagebox widget which will contains an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
     mylayoutbox[s] = widget({ type = "imagebox", align = "right" })
@@ -265,17 +287,18 @@ for s = 1, screen.count() do
     -- Create the wibox
     mywibox[s] = wibox({ position = "top", fg = beautiful.fg_normal, bg = beautiful.bg_normal })
     -- Add widgets to the wibox - order matters
-    mywibox[s].widgets = { mylauncher,
-                           mytaglist[s],
-                           mytasklist[s],
-                           mypromptbox[s],
-						   mpdbox,
-						   datebox,
-                           s == 1 and mysystray or nil,
-                           mylayoutbox[s]}
+	if s == main_screen then
+	   mywibox[s].widgets = { mylauncher, mytaglist[s], mytasklist[s],
+		  mypromptbox[s], mpdbox, datebox, mysystray, mylayoutbox[s] }
+	else
+	   mywibox[s].widgets = { mytaglist[s], mytasklist[s], mypromptbox[s], mylayoutbox[s] }
+	end
+
     mywibox[s].screen = s
 end
 -- }}}
+
+mainpromptbox = mypromptbox[main_screen]
 
 -- {{{ Mouse bindings
 awesome.buttons({
@@ -333,7 +356,7 @@ keybinding({ modkey }, "Escape", awful.tag.history.restore):add()
 
 -- Standard program
 keybinding({ modkey }, "Return", function () awful.util.spawn(terminal) end):add()
-keybinding({ modkey }, "Backspace", function () awful.util.spawn(editor) end):add()
+keybinding({ modkey }, "BackSpace", function () awful.util.spawn(editor) end):add()
 
 keybinding({ modkey, "Control" }, "r", function ()
                                            mypromptbox[mouse.screen].text =

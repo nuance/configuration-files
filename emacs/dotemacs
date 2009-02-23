@@ -252,7 +252,7 @@ point."
 ;; Run current test
 (defun run-test ()
   (interactive)
-  (compile (test-file-name (buffer-file-name))))
+  (compile (concat "python " (test-file-name (buffer-file-name)))))
 
 ;; Graceful apache
 
