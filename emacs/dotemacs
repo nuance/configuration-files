@@ -361,12 +361,7 @@ point."
 (add-hook 'java-mode-hook
           (lambda ()
             (local-set-key [(return)] 'newline-and-indent)
-            (custom-set-variables '(tab-width 4))
-            (add-to-list 'load-path (expand-file-name "~/emacs/jde/lisp"))
-            (add-to-list 'load-path (expand-file-name "~/emacs/cedet/common"))
-            (load-file (expand-file-name "~/emacs/cedet/common/cedet.el"))
-            (add-to-list 'load-path (expand-file-name "~/emacs/elib"))
-            (require 'jde)))
+            (custom-set-variables '(tab-width 4))))
 
 ;;-----------------------------------------------------------------------------
 ;; Erlang mode
