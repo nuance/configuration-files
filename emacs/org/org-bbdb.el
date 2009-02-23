@@ -1,12 +1,13 @@
 ;;; org-bbdb.el --- Support for links to BBDB entries from within Org-mode
 
-;; Copyright (C) 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+;; Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009
+;;   Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten at orgmode dot org>,
 ;;         Thomas Baumann <thomas dot baumann at ch dot tum dot de>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.05b
+;; Version: 6.22b
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -259,8 +260,8 @@ The anniversaries are assumed to be stored `org-bbdb-anniversary-field'."
           (multiple-value-bind (m d y)
               (funcall org-bbdb-extract-date-fun (car split))
             (setq tmp (gethash (list m d) org-bbdb-anniv-hash))
-            (puthash (list m d) (cons (list y 
-                                            (bbdb-record-name rec) 
+            (puthash (list m d) (cons (list y
+                                            (bbdb-record-name rec)
                                             (cadr split))
                                       tmp)
                      org-bbdb-anniv-hash))))))
@@ -276,6 +277,7 @@ This is used by Org to re-create the anniversary hash table."
 ;;;###autoload
 (defun org-bbdb-anniversaries()
   "Extract anniversaries from BBDB for display in the agenda."
+  (require 'bbdb)
   (require 'diary-lib)
   (unless (hash-table-p org-bbdb-anniv-hash)
     (setq org-bbdb-anniv-hash
@@ -290,15 +292,19 @@ This is used by Org to re-create the anniversary hash table."
          (y (nth 2 date))  ; year
          (annivs (gethash (list m d) org-bbdb-anniv-hash))
          (text ())
-         split class form rec)
-    
+         rec recs)
+
     ;; we don't want to miss people born on Feb. 29th
-    (when (and (= m 3) (= d 1) (not (calendar-leap-year-p y)))
-      (setq annivs (cons annivs (gethash (list 2 29) org-bbdb-anniv-hash))))
+    (when (and (= m 3) (= d 1)
+               (not (null (gethash (list 2 29) org-bbdb-anniv-hash)))
+               (not (calendar-leap-year-p y)))
+      (setq recs (gethash (list 2 29) org-bbdb-anniv-hash))
+      (while (setq rec (pop recs))
+        (push rec annivs)))
 
     (when annivs
       (while (setq rec (pop annivs))
-        (when rec 
+        (when rec
           (let* ((class (or (nth 2 rec)
                             org-bbdb-default-anniversary-format))
                  (form (or (cdr (assoc class
