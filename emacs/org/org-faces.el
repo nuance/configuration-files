@@ -1,11 +1,12 @@
 ;;; org-faces.el --- Face definitions for Org-mode.
 
-;; Copyright (C) 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+;; Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009
+;;   Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.05b
+;; Version: 6.22b
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -25,7 +26,7 @@
 ;;
 ;;; Commentary:
 
-;; This file contains the face definitons for Org.
+;; This file contains the face definitions for Org.
 
 ;;; Code:
 
@@ -163,7 +164,7 @@ This is actually only part of the face definition for the text in column view.
 The following faces apply, with this priority.
 
 1. The color of the reference face.  This is normally the level fact that
-   is used in the outline.  In agenda-mode, it will be the face of the 
+   is used in the outline.  In agenda-mode, it will be the face of the
    first character in the line.  The color is explicitly retained to
    make sure that the column line still looks a bit like the structure
    line it is masking.
@@ -203,6 +204,12 @@ column view defines special faces for each outline level.  See the file
 		      :height (face-attribute 'default :height)
 		      :family (face-attribute 'default :family)))
 
+(defface org-agenda-column-dateline
+  (org-compatible-face 'org-column
+    '((t nil)))
+  "Face used in agenda column view for datelines with summaries."
+  :group 'org-faces)
+
 (defface org-warning
   (org-compatible-face 'font-lock-warning-face
     '((((class color) (min-colors 16) (background light)) (:foreground "Red1" :bold t))
@@ -227,6 +234,13 @@ column view defines special faces for each outline level.  See the file
   :group 'org-faces)
 
 (defface org-link
+  '((((class color) (background light)) (:foreground "Purple" :underline t))
+    (((class color) (background dark)) (:foreground "Cyan" :underline t))
+    (t (:underline t)))
+  "Face for links."
+  :group 'org-faces)
+
+(defface org-footnote
   '((((class color) (background light)) (:foreground "Purple" :underline t))
     (((class color) (background dark)) (:foreground "Cyan" :underline t))
     (t (:underline t)))
@@ -263,7 +277,9 @@ column view defines special faces for each outline level.  See the file
 
 (defface org-tag
   '((t (:bold t)))
-  "Face for tags."
+  "Default face for tags.
+Note that the variable `org-tag-faces' can be used to overrule this face for
+specific tags."
   :group 'org-faces)
 
 (defface org-todo ; font-lock-warning-face
@@ -306,6 +322,31 @@ list of attributes, like (:foreground \"blue\" :weight bold :underline t)."
 	  (cons
 	   (string :tag "keyword")
 	   (sexp :tag "face"))))
+
+(defvar org-tags-special-faces-re nil)
+(defun org-set-tag-faces (var value)
+  (set var value)
+  (if (not value)
+      (setq org-tags-special-faces-re nil)
+    (setq org-tags-special-faces-re
+	  (concat ":\\(" (mapconcat 'car value "\\|") "\\):"))))
+
+(defcustom org-tag-faces nil
+  "Faces for specific tags.
+This is a list of cons cells, with tags in the car and faces in the cdr.
+The face can be a symbol, or a property list of attributes,
+like (:foreground \"blue\" :weight bold :underline t).
+If you set this variable through customize, it will immediately be effective
+in new buffers and in modified lines.
+If you set it with Lisp, a restart of Emacs is required to activate the
+changes."
+  :group 'org-faces
+  :group 'org-tags
+  :set 'org-set-tag-faces
+  :type '(repeat
+	  (cons
+	   (string :tag "Tag")
+	   (sexp :tag "Face"))))
 
 (defface org-table ;; originally copied from font-lock-function-name-face
   (org-compatible-face nil
@@ -356,6 +397,22 @@ list of attributes, like (:foreground \"blue\" :weight bold :underline t)."
   :group 'org-faces
   :version "22.1")
 
+(defface org-clock-overlay ;; copied from secondary-selection
+  (org-compatible-face nil
+    '((((class color) (min-colors 88) (background light))
+       (:background "yellow1"))
+      (((class color) (min-colors 88) (background dark))
+       (:background "SkyBlue4"))
+      (((class color) (min-colors 16) (background light))
+       (:background "yellow"))
+      (((class color) (min-colors 16) (background dark))
+       (:background "SkyBlue4"))
+      (((class color) (min-colors 8))
+       (:background "cyan" :foreground "black"))
+      (t (:inverse-video t))))
+    "Basic face for displaying the secondary selection."
+    :group 'org-faces)
+
 (defface org-agenda-structure ;; originally copied from font-lock-function-name-face
   (org-compatible-face nil
     '((((class color) (min-colors 88) (background light)) (:foreground "Blue1"))
@@ -381,6 +438,15 @@ belong to the weekend.")
   (when (fboundp 'set-face-attribute)
     (set-face-attribute 'org-agenda-date-weekend nil :weight 'bold)))
 
+(defface org-scheduled
+  (org-compatible-face nil
+    '((((class color) (min-colors 88) (background light)) (:foreground "DarkGreen"))
+      (((class color) (min-colors 88) (background dark)) (:foreground "PaleGreen"))
+      (((class color) (min-colors 8)) (:foreground "green"))
+      (t (:bold t :italic t))))
+  "Face for items scheduled for a certain day."
+  :group 'org-faces)
+
 (defface org-scheduled-today
   (org-compatible-face nil
     '((((class color) (min-colors 88) (background light)) (:foreground "DarkGreen"))
@@ -388,6 +454,12 @@ belong to the weekend.")
       (((class color) (min-colors 8)) (:foreground "green"))
       (t (:bold t :italic t))))
   "Face for items scheduled for a certain day."
+  :group 'org-faces)
+
+(defface org-agenda-dimmed-todo-face
+  '((((background light)) (:foreground "grey50"))
+    (((background dark)) (:foreground "grey50")))
+  "Face used to dimm blocked tasks in the agenda."
   :group 'org-faces)
 
 (defface org-scheduled-previously

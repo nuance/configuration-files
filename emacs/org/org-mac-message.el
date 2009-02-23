@@ -1,9 +1,9 @@
 ;;; org-mac-message.el --- Support for links to Apple Mail messages from within Org-mode
 
-;; Copyright (C) 2008 Free Software Foundation, Inc.
+;; Copyright (C) 2008, 2009 Free Software Foundation, Inc.
 
 ;; Author: John Wiegley <johnw@gnu.org>
-;; Version: 6.05b
+;; Version: 6.22b
 ;; Keywords: outlines, hypermedia, calendar, wp
 
 ;; This file is part of GNU Emacs.
@@ -32,7 +32,8 @@
 
 (org-add-link-type "message" 'org-mac-message-open)
 
-(declare-function do-applescript "mac.c" (string))
+;; In mac.c, removed in Emacs 23.
+(declare-function do-applescript "org-mac-message" (script))
 (unless (fboundp 'do-applescript)
   ;; Need to fake this using shell-command-to-string
   (defun do-applescript (script)
