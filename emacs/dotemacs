@@ -2,7 +2,6 @@
 ;;-----------------------------------------------------------------------------
 ;; Global keyBindings
 ;;-----------------------------------------------------------------------------
-
 (global-set-key "\C-x\C-m" 'execute-extended-command)
 (global-set-key "\C-c\C-m" 'execute-extended-command)
 
@@ -25,12 +24,12 @@
 (global-set-key [(control r)] 'isearch-backward-regexp)
 
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
-;; '(flymake-errline ((((class color)) (:background "LightPink" :foreground "black"))))
-;; '(flymake-warnline ((((class color)) (:background "LightBlue2" :foreground "black"))))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ ;; '(flymake-errline ((((class color)) (:background "LightPink" :foreground "black"))))
+ ;; '(flymake-warnline ((((class color)) (:background "LightBlue2" :foreground "black"))))
  '(py-indent-offset 4)
  '(py-smart-indentation nil)
  '(speedbar-default-position (quote left))
@@ -69,7 +68,6 @@
 (setq transient-mark-mode t)               ;highlights selections
 (setq comment-style 'plain)
 (setq frame-title-format (list '("emacs ") '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
-(interactive)
 
 ;;-----------------------------------------------------------------------------
 ;; Host Name (for conditional module loading / path settings)
@@ -127,8 +125,8 @@ point."
 
 (defun hl-warn-keywords ()
   (font-lock-add-keywords nil
-						  '(("\\<\\(FIXME\\|TODO\\|BUG\\):" 1 font-lock-warning-face t))))
-  
+                          '(("\\<\\(FIXME\\|TODO\\|BUG\\):" 1 font-lock-warning-face t))))
+
 
 (add-hook 'c-mode-common-hook 'hl-warn-keywords)
 (add-hook 'python-mode-hook 'hl-warn-keywords)
@@ -174,23 +172,23 @@ point."
 ;; at each step pull off top directory and prepend it to file-relative
 ;; return when the next directory down is named pg or nil
 (defun split-branch-h (base parent relative)
-  (cond 
+  (cond
    ;; Found the pg dir as parent, so return our arguments
    ((string-equal (file-name-nondirectory (directory-file-name (file-name-directory parent))) base)
-	(list parent relative))
+    (list parent relative))
    ;; Found /, so return nil
    ((string-equal parent "/") nil)
    ;; Otherwise, recurse
    (t (split-branch-h base (directory-file-name (file-name-directory parent))
-					  (concat (file-name-nondirectory parent) "/" relative)))))
+                      (concat (file-name-nondirectory parent) "/" relative)))))
 
 ;; return the branch folder (eg ~/pg/loc/) and the relative path
 ;; so (current-branch .../pg/happy_faces/logic/reviews.py) will return '(.../pg/happy_faces logic/reviews.py)
 (defun split-branch (base &optional filename)
   (let ((current-file (if filename filename (buffer-file-name))))
-	(if current-file
-		(split-branch-h base (file-name-directory current-file) (file-name-nondirectory current-file))
-	  nil)))
+    (if current-file
+        (split-branch-h base (file-name-directory current-file) (file-name-nondirectory current-file))
+      nil)))
 
 ;;=====================================
 ;; File navigation
@@ -202,28 +200,28 @@ point."
   (ido-find-file-in-dir "/media/pg/"))
 
 ;; Switch to tests / switch from tests
-;; Basic idea - find the current branch, append tests to the relative dir, 
+;; Basic idea - find the current branch, append tests to the relative dir,
 ;; and modify the file name from (.*)\.py to $1-test.py
 (defun test-file-name (file-name)
   (if (split-branch "tests")
-	  ;; It's a test, so just return the file
-	  file-name
-	;; find the correct file
-	(let* ((buffer-file (split-branch "pg" file-name))
-		   (branch-dir (car buffer-file))
-		   (current-file (cadr buffer-file)))
-	  (concat branch-dir "/tests/" (file-name-sans-extension current-file)
-			  "_test" (file-name-extension current-file t)))))
+      ;; It's a test, so just return the file
+      file-name
+    ;; find the correct file
+    (let* ((buffer-file (split-branch "pg" file-name))
+           (branch-dir (car buffer-file))
+           (current-file (cadr buffer-file)))
+      (concat branch-dir "/tests/" (file-name-sans-extension current-file)
+              "_test" (file-name-extension current-file t)))))
 
 (defun nontest-file-name (file-name)
   (if (not (split-branch "tests"))
-	  file-name
-	(let* ((buffer-file (split-branch "tests" file-name))
-		   (folder (file-name-nondirectory (directory-file-name (car buffer-file))))
-		   (branch-dir (file-name-directory (directory-file-name (file-name-directory (directory-file-name (car buffer-file))))))
-		   (current-file (cadr buffer-file)))
-	  (concat branch-dir folder (substring (file-name-sans-extension current-file) 0 -5)
-			  (file-name-extension current-file t)))))
+      file-name
+    (let* ((buffer-file (split-branch "tests" file-name))
+           (folder (file-name-nondirectory (directory-file-name (car buffer-file))))
+           (branch-dir (file-name-directory (directory-file-name (file-name-directory (directory-file-name (car buffer-file))))))
+           (current-file (cadr buffer-file)))
+      (concat branch-dir folder (substring (file-name-sans-extension current-file) 0 -5)
+              (file-name-extension current-file t)))))
 
 (defun switch-to-test ()
   (find-file (test-file-name (buffer-file-name))))
@@ -234,8 +232,8 @@ point."
 (defun toggle-test-file ()
   (interactive)
   (if (split-branch "tests")
-	  (switch-from-test)
-	(switch-to-test)))
+      (switch-from-test)
+    (switch-to-test)))
 
 ;;=====================================
 ;; Playground commands
@@ -273,6 +271,30 @@ point."
                                          '(tab-width 4)
                                          '(py-smart-indentation nil))))
 
+(defun python-auto-fill-comments-only ()
+  (auto-fill-mode 1)
+  (set (make-local-variable 'fill-nobreak-predicate)
+       (lambda ()
+         (not (python-in-string/comment)))))
+
+(add-hook 'python-mode-hook
+          (lambda ()
+            (python-auto-fill-comments-only)))
+
+;;(add-hook 'python-mode-hook
+;;		  '(lambda () 
+;;			 (eldoc-mode 1)
+;;			 (set (make-local-variable 'eldoc-documentation-function)
+;;				  'py-eldoc-function) t)
+
+(defun py-eldoc-function (&optional word)
+  "Launch PyDOC on the Word at Point"
+  (interactive)
+  (let* ((word (if word word (thing-at-point 'symbol)))
+		 (docs (shell-command-to-string (concat "/usr/bin/python" " -c \"from pydoc import help;help(\'" word "\')\"")))
+		 (split-docs (split-string docs "|  ")))
+	(if (> (length split-docs) 1) (car (split-string (cadr split-docs) "\n")) nil)))
+
 ;; Outline mode
 ;; setup python mode
                                         ; add my customization
@@ -296,7 +318,7 @@ point."
   (hide-body)
                                         ; make paren matches visible
   (show-paren-mode 1)
-					; higlight current line
+                                        ; higlight current line
   ;;  (highline-mode)
   )
 
@@ -307,8 +329,8 @@ point."
   (font-lock-add-keywords
    nil
    '(
-	 ("\\<\\(NULL\\|c\\(def\\|har\\|typedef\\)\\|double\\|e\\(num\\|xtern\\)\\|float\\|in\\(clude|t\\)\\|object\\|public\\|readonly\\|struct\\|type\\|union\\|void\\)\\>" 1 font-lock-builtin-face)
-	 )
+     ("\\<\\(NULL\\|c\\(def\\|har\\|typedef\\)\\|double\\|e\\(num\\|xtern\\)\\|float\\|in\\(clude|t\\)\\|object\\|public\\|readonly\\|struct\\|type\\|union\\|void\\)\\>" 1 font-lock-builtin-face)
+     )
    )
   (font-lock-mode 1)
   (setq outline-regexp "[ \t]*\\(def\\|class\\|cdef\\)[^:]*:\\|[ \t]*\\@")
@@ -323,28 +345,23 @@ point."
 (defun objc-outline-level ()
   0)
 
-(add-hook 'objc-mode-hook 
-	  (lambda ()
-	    (pair-mode)
-	    (setq outline-regexp "[ \t]*\\(@interface\\|@implementation\\)\\|[ \t]*\\(\\-\\|\\+\\)[ \t]*([^\)]*)")
-	    (setq outline-level 'objc-outline-level)
-	    (outline-minor-mode t)
-	    (hide-body)
-	    (show-paren-mode 1)
-	    (local-set-key [(return)] 'newline-and-indent)))
+(add-hook 'objc-mode-hook
+          (lambda ()
+            (pair-mode)
+            (setq outline-regexp "[ \t]*\\(@interface\\|@implementation\\)\\|[ \t]*\\(\\-\\|\\+\\)[ \t]*([^\)]*)")
+            (setq outline-level 'objc-outline-level)
+            (outline-minor-mode t)
+            (hide-body)
+            (show-paren-mode 1)
+            (local-set-key [(return)] 'newline-and-indent)))
 
 ;;-----------------------------------------------------------------------------
 ;; Java mode
 ;;-----------------------------------------------------------------------------
-(add-hook 'java-mode-hook 
-		  (lambda () 
-			(local-set-key [(return)] 'newline-and-indent) 
-			(custom-set-variables '(tab-width 4))
-			(add-to-list 'load-path (expand-file-name "~/emacs/jde/lisp"))
-			(add-to-list 'load-path (expand-file-name "~/emacs/cedet/common"))
-			(load-file (expand-file-name "~/emacs/cedet/common/cedet.el"))
-			(add-to-list 'load-path (expand-file-name "~/emacs/elib"))
-			(require 'jde)))
+(add-hook 'java-mode-hook
+          (lambda ()
+            (local-set-key [(return)] 'newline-and-indent)
+            (custom-set-variables '(tab-width 4))))
 
 ;;-----------------------------------------------------------------------------
 ;; Erlang mode
@@ -366,7 +383,7 @@ point."
   "Invoke luac with '-p' to get syntax checking"
   (let* ((temp-file   (flymake-init-create-temp-buffer-copy
                        'flymake-create-temp-inplace))
-		 (local-file  (file-relative-name
+         (local-file  (file-relative-name
                        temp-file
                        (file-name-directory buffer-file-name))))
     (list "luac" (list "-p" local-file))))
@@ -377,10 +394,10 @@ point."
 
 (add-hook 'lua-mode-hook
           '(lambda ()
-			 "Don't want flymake mode for lua regions in rhtml
-	      files and also on read only files"
-			 (if (and (not (null buffer-file-name)) (file-writable-p buffer-file-name))
-				 (flymake-mode))))
+             "Don't want flymake mode for lua regions in rhtml
+          files and also on read only files"
+             (if (and (not (null buffer-file-name)) (file-writable-p buffer-file-name))
+                 (flymake-mode))))
 
 ;;-----------------------------------------------------------------------------
 ;; Haskell mode
@@ -403,9 +420,9 @@ point."
 
 (add-hook 'ido-define-mode-map-hook 'ido-my-keys)
 (defun ido-my-keys ()
-  (define-key ido-mode-map "\t" 'ido-complete)
-  (define-key ido-mode-map "\C-t" 'ido-toggle-regexp) ; same as in isearch
-  (define-key ido-mode-map "\C-d" 'ido-enter-dired))  ; cool
+  (define-key 'ido-mode-map "\t" 'ido-complete)
+  (define-key 'ido-mode-map "\C-t" 'ido-toggle-regexp) ; same as in isearch
+  (define-key 'ido-mode-map "\C-d" 'ido-enter-dired))  ; cool
 
 ;; Completion for all commands (eg M-x completion)
 
@@ -418,16 +435,16 @@ point."
      "M-x "
      (progn
        (unless ido-execute-command-cache
-	 (mapatoms (lambda (s)
-		     (when (commandp s)
-		       (setq ido-execute-command-cache
-			     (cons (format "%S" s) ido-execute-command-cache))))))
+         (mapatoms (lambda (s)
+                     (when (commandp s)
+                       (setq ido-execute-command-cache
+                             (cons (format "%S" s) ido-execute-command-cache))))))
        ido-execute-command-cache)))))
 
 (add-hook 'ido-setup-hook
-	  (lambda ()
-	    (setq ido-enable-flex-matching t)
-	    (global-set-key "\M-x" 'ido-execute-command)))
+          (lambda ()
+            (setq ido-enable-flex-matching t)
+            (global-set-key "\M-x" 'ido-execute-command)))
 
 (defun ido-find-file-in-tag-files ()
   (interactive)
@@ -435,8 +452,8 @@ point."
     (let ((enable-recursive-minibuffers t))
       (visit-tags-table-buffer))
     (ido-completing-read "Project file: "
-			 (tags-table-files)
-			 nil t)))
+                         (tags-table-files)
+                         nil t)))
 
 ;;(global-set-key "\C-x\C-f" 'ido-find-file-in-tag-files)
 
@@ -459,8 +476,8 @@ point."
   (save-restriction
     (widen)
     (format " %s line %d"
-	    (or (buffer-file-name) (buffer-name))
-	    (line-number-at-pos))))
+            (or (buffer-file-name) (buffer-name))
+            (line-number-at-pos))))
 
 (eval-after-load 'remember
   '(progn
@@ -481,10 +498,12 @@ point."
 (define-key mode-specific-map [?a] 'org-agenda)
 
 (add-hook 'org-mode-hook
-		  '(lambda ()
-			 (define-key org-mode-map (kbd "C-c C-l") 'my-org-insert-link)))
+          '(lambda ()
+             (define-key org-mode-map (kbd "C-c C-l") 'my-org-insert-link)))
 
 (setq org-paper-directory "~/org-papers/")
+
+(setq org-export-with-LaTeX-fragments t)
 
 (defun paper-get-buffer ()
   (let (time-now buffer)
@@ -507,45 +526,44 @@ point."
          (url-mime-accept-string "*/*")
          (parsed-url (url-generic-parse-url url))
          (download-buffer (paper-get-buffer))
-         (download-buffer-name (buffer-name download-buffer)))
+         (download-buffer-name (buffer-name download-buffer))
+         (paper-url url)
+         (file-path (concat org-paper-directory (file-name-nondirectory paper-url))))
     (with-current-buffer (get-buffer download-buffer-name)
-      ;; Bind download url with local buffer.
-      (setq paper-url url)
       ;; Bind download buffer with local buffer.
       (setq download-buffer
             (url-retrieve-synchronously parsed-url))
-	  ;; Now save the buffer in the papers directory
-	  (setq file-path (concat org-paper-directory (file-name-nondirectory paper-url)))
-	  ;; Save file.
-	  (with-current-buffer download-buffer
-		(if (or (not (file-exists-p file-path))
-				(yes-or-no-p (format "Do you want replace file: '%s' ?" file-path)))
-			(progn
-			  (write-file file-path)))))
-	  ;; return the file name
-	(concat "file:" (file-truename file-path))))
+      ;; Now save the buffer in the papers directory
+      ;; Save file.
+      (with-current-buffer download-buffer
+        (if (or (not (file-exists-p file-path))
+                (yes-or-no-p (format "Do you want replace file: '%s' ?" file-path)))
+            (progn
+              (write-file file-path)))))
+    ;; return the file name
+    (concat "file:" (file-truename file-path))))
 
 (defun downloadable-pdf (url)
   (if (and url
-		   (or (string-equal (file-name-extension url) "pdf")
-			   (string-equal (file-name-extension url) "ps")
-			   (string-equal (file-name-extension url) "eps"))
-		   (or (string-equal (car (split-string url ":")) "http")
-			   (string-equal (car (split-string url ":")) "https")))
-	  t
-	nil))
+           (or (string-equal (file-name-extension url) "pdf")
+               (string-equal (file-name-extension url) "ps")
+               (string-equal (file-name-extension url) "eps"))
+           (or (string-equal (car (split-string url ":")) "http")
+               (string-equal (car (split-string url ":")) "https")))
+      t
+    nil))
 
 (defun my-org-insert-link (&optional COMPLETE-FILE LINK-LOCATION)
- ;;(before org-insert-link (&optional COMPLETE-FILE LINK-LOCATION))
+  ;;(before org-insert-link (&optional COMPLETE-FILE LINK-LOCATION))
   "Rewrite remote pdf references to local files, prompting for the
 link location as usual then calling the insert link function with a
 link to the fetched pdf"
   (interactive)
   (let ((url (if LINK-LOCATION LINK-LOCATION (read-from-minibuffer
-											 "Link: "))))
-	(if (downloadable-pdf url)
-		(org-insert-link COMPLETE-FILE (download-paper url))
-	  (org-insert-link COMPLETE-FILE url))))
+                                              "Link: "))))
+    (if (downloadable-pdf url)
+        (org-insert-link COMPLETE-FILE (download-paper url))
+      (org-insert-link COMPLETE-FILE url))))
 
 ;;-----------------------------------------------------------------------------
 ;; Minor modes
@@ -592,7 +610,7 @@ link to the fetched pdf"
 
 (defun load-dark-settings ()
   (interactive)
-  (color-theme-colorful-obsolescence)
+  (color-theme-twilight)
   ;;  (highline-mode)
   )
 
@@ -655,7 +673,7 @@ checking if unsaved buffers should be saved."
   (let* ((file (buffer-file-name (current-buffer)))
          (command (concat "pylint --output-format=parseable \"" file "\"")))
     (save-some-buffers (not compilation-ask-about-save) nil) ; save files.
-    (compile-internal command "No more errors or warnings" "pylint")))
+    (compilation-start command)))
 
 ;;(when (load "flymake" t)
 (defun flymake-pylint-init ()
@@ -708,22 +726,22 @@ checking if unsaved buffers should be saved."
   (font-lock-add-keywords
    nil
    '(
-	 ;; #(symbol) lines
+     ;; #(symbol) lines
      ("\\(#\\(attr\\|from\\|else\\|else if\\|include\\|extends\\|implements\\|set\\|import\\|for\\|if\\|end\\|block\\)\\)\\>" 1 font-lock-type-face)
-	 ;; PSP-style
+     ;; PSP-style
      ("\\(#\\(from\\|for\\|end\\)\\).*\\<\\(for\\|import\\|def\\|if\\|in\\)\\>" 3 font-lock-type-face)
-	 ;; One-line #if EXPR1 then EXPR2 else EXPR3(# or eol)
-	 ("#if[^$#]*then[^$#]*else[^$#]*\\(#\\|$\\)" 1 font-lock-builtin-face)
-	 ;; Comments
+     ;; One-line #if EXPR1 then EXPR2 else EXPR3(# or eol)
+     ("#if[^$#]*then[^$#]*else[^$#]*\\(#\\|$\\)" 1 font-lock-builtin-face)
+     ;; Comments
      ("\\(^##.*\\)\n" 1 font-lock-comment-face)
-	 ;; $var
+     ;; $var
      ("\\(\\$\\(?:\\sw\\|}\\|{\\|\\s_\\)+\\)" 1 font-lock-variable-name-face)
-	 ;; #set var
-	 ()
-	 ;; Methods
-	 ("[ \t]*\\(#def[^(#]*\\)\\(\(\\|#\\)*" 1 font-lock-variable-name-face)
-	 ("^#.*\\(True\\|False\\|None\\)" 1 font-lock-builtin-face)
-	 )
+     ;; #set var
+     ()
+     ;; Methods
+     ("[ \t]*\\(#def[^(#]*\\)\\(\(\\|#\\)*" 1 font-lock-variable-name-face)
+     ("^#.*\\(True\\|False\\|None\\)" 1 font-lock-builtin-face)
+     )
    )
   (font-lock-mode 1)
   )
@@ -781,6 +799,7 @@ checking if unsaved buffers should be saved."
 (server-start)
 
 (custom-set-faces
+<<<<<<< HEAD:emacs/dotemacs
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
