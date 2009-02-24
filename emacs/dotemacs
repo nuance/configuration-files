@@ -799,7 +799,6 @@ checking if unsaved buffers should be saved."
 (server-start)
 
 (custom-set-faces
-<<<<<<< HEAD:emacs/dotemacs
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
