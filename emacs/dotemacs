@@ -240,6 +240,12 @@ point."
 ;;=====================================
 
 ;; Switch loc
+(defun switch-loc ()
+  (interactive)
+  (let* ((branch (car (split-branch "pg")))
+		 (pg (file-name-directory branch)))
+;; this doesn't work for some strange reason..
+	(make-symbolic-link branch (concat pg "loc") 1)))
 
 ;; Make templates
 
@@ -757,8 +763,9 @@ checking if unsaved buffers should be saved."
 (setq cssm-indent-level '2)
 
 ;; javascript-generic-mode
+(autoload 'js2-mode "js2" nil t)
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 (autoload 'javascript-mode "javascript" nil t)
-(add-to-list 'auto-mode-alist '("\\.js\\'" . javascript-mode))
 
 ;; Set up an mmm group for fancy html editing
 (mmm-add-group
@@ -803,4 +810,4 @@ checking if unsaved buffers should be saved."
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Consolas")))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 160 :width normal :foundry "unknown" :family "Monaco")))))
