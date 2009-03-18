@@ -12,6 +12,7 @@
 (global-set-key [f5] 'flymake-goto-prev-error)
 (global-set-key [f6] 'flymake-goto-next-error)
 (global-set-key [f7] 'flymake-start-syntax-check)
+(global-set-key [f12] 'open-plan)
 
 ;; Go to binding
 (global-set-key "\M-g" 'goto-line)
@@ -68,6 +69,20 @@
 (setq transient-mark-mode t)               ;highlights selections
 (setq comment-style 'plain)
 (setq frame-title-format (list '("emacs ") '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
+
+(defun open-plan ()
+  (interactive)
+  (find-file "~/.plan")
+  (goto-line 1)
+  (move-end-of-line nil)
+  (newline)
+  (time-stamp)
+  (newline))
+
+(defun time-stamp ()
+  "Insert a time stamp."
+  (insert
+   (concat "* [" (format-time-string "%c" (current-time)) "] ")))
 
 ;;-----------------------------------------------------------------------------
 ;; Host Name (for conditional module loading / path settings)
@@ -260,7 +275,8 @@ point."
 (add-hook 'java-mode-hook
           (lambda ()
             (local-set-key [(return)] 'newline-and-indent)
-            (custom-set-variables '(tab-width 4))))
+            (custom-set-variables '(tab-width 4))
+			(flymake-mode 0)))
 
 ;;-----------------------------------------------------------------------------
 ;; Erlang mode
@@ -468,6 +484,7 @@ link to the fetched pdf"
 ;; Minor modes
 ;;-----------------------------------------------------------------------------
 
+;; Yelp customizations
 (require 'yelp)
 
 ;; Electric pairs
@@ -564,7 +581,7 @@ link to the fetched pdf"
 
 (add-hook 'find-file-hook 'flymake-find-file-hook)
 
-(load-library "flymake-cursor")
+;;(load-library "flymake-cursor")
 
 (defun pylint ()
   "Run pylint against the file behind the current buffer after
@@ -705,4 +722,4 @@ checking if unsaved buffers should be saved."
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 160 :width normal :foundry "unknown" :family "Monaco")))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width normal :foundry "unknown" :family "Monaco")))))
