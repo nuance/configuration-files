@@ -27,8 +27,14 @@
         (split-branch-h base (file-name-directory current-file) (file-name-nondirectory current-file))
       nil)))
 
-(defun current-branch (base &optional filename)
-  (car (split-branch base filename)))
+(defun current-branch (&optional base filename)
+  (if (not base) (car (split-branch "pg" filename))
+	(car (split-branch base filename))))
+
+(defun current-branchname (&optional base filename)
+  (let* ((bse (if base base "pg"))
+		 (branch (car (split-branch "pg" filename))))
+	(if branch (file-name-nondirectory branch) nil)))
 
 ;;=====================================
 ;; File navigation
@@ -84,7 +90,8 @@
   (interactive)
   (let* ((branch (current-branch "pg"))
 		 (pg (file-name-directory (directory-file-name branch))))
-	(make-symbolic-link branch (concat pg "loc"))))
+	(message (format "cd %s && rm loc" pg))
+	(message (format "ln -s %s %sloc" branch pg))))
 
 ;; Make templates
 (defun make-branch (&optional branch)
@@ -97,13 +104,20 @@
 ;; Misc
 ;;=====================================
 
+(defun yelp-local-name (filename)
+   ;; Found / on a tramp connection
+   (if (tramp-tramp-file-p filename) 
+	   (tramp-file-name-localname (tramp-dissect-file-name filename))
+	 filename))
+
 ;; Open current document in firefox (should work for static, templates & exposed servlet methods)
 
 ;; Run current test
 (defun run-test ()
   (interactive)
-  (cd (current-branch "pg"))
-  (compile (concat "python " (test-file-name (buffer-file-name)))))
+  (cd (current-branch))
+  (compile (format "PYTHONPATH=%s python %s" (yelp-local-name (current-branch))
+				   (yelp-local-name (test-file-name (buffer-file-name))))))
 
 ;; Graceful apache
 (defun apache-graceful ()
@@ -111,5 +125,33 @@
   (shell-command "myapachectl -k graceful"))
 
 ;; Start/Stop lucene
+
+(define-minor-mode yelp-mode
+  "Yelp-specific customizations"
+  :lighter yelp-mode-text)
+
+(defvar yelp-mode-text 
+  (format " [yelp%s]" (if (current-branchname)
+						  (concat " " (current-branchname))
+						"")))
+
+(add-hook 'find-file-hook
+		  (lambda ()
+			(when (current-branch)
+			  (yelp-set-modeline))))
+
+(defun yelp-set-modeline ()
+  (setq yelp-mode-text (format " [yelp %s]" (current-branchname))))
+
+(defvar yelp-mode-keymap nil
+  "Keymap for yelp minor mode.")
+
+(if yelp-mode-keymap
+    nil
+  (progn
+    (setq yelp-mode-keymap (make-sparse-keymap))
+    (define-key yelp-mode-keymap (kbd "C-c t") 'toggle-test-file)
+    (define-key yelp-mode-keymap (kbd "C-c m") 'make-branch)
+	(define-key yelp-mode-keymap (kbd "C-c f") 'open-from-pg)))
 
 (provide 'yelp)
