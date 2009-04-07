@@ -8,11 +8,14 @@
 (global-set-key [f1] 'find-tag)
 (global-set-key [f2] 'pop-tag-mark)
 (global-set-key [f3] 'show-subtree)
+(global-set-key [(shift f3)] 'show-all)
 (global-set-key [f4] 'hide-subtree)
+(global-set-key [(shift f4)] 'hide-sublevels)
 (global-set-key [f5] 'flymake-goto-prev-error)
 (global-set-key [f6] 'flymake-goto-next-error)
 (global-set-key [f7] 'flymake-start-syntax-check)
-(global-set-key [f12] 'open-plan)
+(global-set-key [f12] 'open-diary)
+(global-set-key [C-f12] 'save-diary)
 
 ;; Go to binding
 (global-set-key "\M-g" 'goto-line)
@@ -25,16 +28,16 @@
 (global-set-key [(control r)] 'isearch-backward-regexp)
 
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- ;; '(flymake-errline ((((class color)) (:background "LightPink" :foreground "black"))))
- ;; '(flymake-warnline ((((class color)) (:background "LightBlue2" :foreground "black"))))
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(newsticker-url-list-defaults (quote (("NY Times: Technology" "http://partners.userland.com/nytRss/technology.xml") ("NY Times" "http://partners.userland.com/nytRss/nytHomepage.xml"))))
  '(py-indent-offset 4)
  '(py-smart-indentation nil)
  '(speedbar-default-position (quote left))
- '(tab-width 4))
+ '(tab-width 4)
+ '(uniquify-buffer-name-style (quote forward) nil (uniquify)))
 
 ;;-----------------------------------------------------------------------------
 ;; Load Path
@@ -70,14 +73,19 @@
 (setq comment-style 'plain)
 (setq frame-title-format (list '("emacs ") '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
 
-(defun open-plan ()
+(defun open-diary ()
   (interactive)
-  (find-file "~/.plan")
-  (goto-line 1)
+  (find-file "~/.diary")
+  (goto-line 2)
   (move-end-of-line nil)
   (newline)
   (time-stamp)
   (newline))
+
+(defun save-diary ()
+  (interactive)
+  (cd "~/diary")
+  (shell-command (format "/usr/local/bin/git commit -am\"%s\"" (format-time-string "%c" (current-time)))))
 
 (defun time-stamp ()
   "Insert a time stamp."
@@ -99,6 +107,12 @@
     ;; system-name is host-name
     (setq host-name system-name
           domain-name (getenv "DOMAINNAME"))))
+
+;;-----------------------------------------------------------------------------
+;; Gnus gmail
+;;-----------------------------------------------------------------------------
+
+(require 'nnir)
 
 ;;-----------------------------------------------------------------------------
 ;; Smarter Tab Behavior
