@@ -7,7 +7,7 @@
 ;;	   Bastien Guerry <bzg AT altern DOT org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.22b
+;; Version: 6.25d
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -48,6 +48,7 @@
 (declare-function org-get-indentation "org" (&optional line))
 (declare-function org-timer-item "org-timer" (&optional arg))
 (declare-function org-combine-plists "org" (&rest plists))
+(declare-function org-entry-get "org" (pom property &optional inherit))
 
 (defgroup org-plain-lists nil
   "Options concerning plain lists in Org-mode."
@@ -208,7 +209,9 @@ Return t when things worked, nil when we are not in an item."
 					descp))))
 	   (eow (save-excursion (beginning-of-line 1) (looking-at "[ \t]*")
 				(match-end 0)))
-	   (blank-a (cdr (assq 'plain-list-item org-blank-before-new-entry)))
+	   (blank-a (if org-empty-line-terminates-plain-lists
+			nil
+		      (cdr (assq 'plain-list-item org-blank-before-new-entry))))
 	   (blank (if (eq blank-a 'auto) empty-line-p blank-a))
 	   pos)
       (if descp (setq checkbox nil))
@@ -251,6 +254,7 @@ Return t when things worked, nil when we are not in an item."
 (defun org-toggle-checkbox (&optional toggle-presence)
   "Toggle the checkbox in the current line.
 With prefix arg TOGGLE-PRESENCE, add or remove checkboxes.
+With double prefix, set checkbox to [-].
 When there is an active region, toggle status or presence of the checkbox
 in the first line, and make every item in the region have the same
 status or presence, respectively.
@@ -258,24 +262,27 @@ If the cursor is in a headline, apply this to all checkbox items in the
 text below the heading."
   (interactive "P")
   (catch 'exit
-    (let (beg end status first-present first-status)
+    (let (beg end status first-present first-status blocked)
       (cond
        ((org-region-active-p)
 	(setq beg (region-beginning) end (region-end)))
        ((org-on-heading-p)
 	(setq beg (point) end (save-excursion (outline-next-heading) (point))))
        ((org-at-item-checkbox-p)
-	(let ((pos (point)))
-	  (if toggle-presence
+	(save-excursion
+	  (if (equal toggle-presence '(4))
 	      (progn
 		(replace-match "")
 		(goto-char (match-beginning 0))
 		(just-one-space))
+	    (when (setq blocked (org-checkbox-blocked-p))
+	      (error "Checkbox blocked because of unchecked box in line %d"
+		     blocked))
 	    (replace-match
-	     (cond ((member (match-string 0) '("[ ]" "[-]")) "[X]")
+	     (cond ((equal toggle-presence '(16)) "[-]")
+		   ((member (match-string 0) '("[ ]" "[-]")) "[X]")
 		   (t "[ ]"))
-	     t t))
-	  (goto-char pos))
+	     t t)))
 	(throw 'exit t))
        ((org-at-item-p)
 	;; add a checkbox
@@ -311,6 +318,28 @@ text below the heading."
 	       (if first-status "[ ]" "[X]") t t)))
 	  (beginning-of-line 2)))))
   (org-update-checkbox-count-maybe))
+
+(defun org-checkbox-blocked-p ()
+  "Is the current checkbox blocked from for being checked now?
+A checkbox is blocked if all of the following conditions are fulfilled:
+
+1. The checkbox is not checked already.
+2. The current entry has the ORDERED property set.
+3. There is an unchecked checkbox in this entry before the current line."
+  (catch 'exit
+    (save-match-data
+      (save-excursion
+	(unless (org-at-item-checkbox-p) (throw 'exit nil))
+	(when (equal (match-string 0) "[X]")
+	  ;; the box is already checked!
+	  (throw 'exit nil))
+	(let ((end (point-at-bol)))
+	  (condition-case nil (org-back-to-heading t)
+	    (error (throw 'exit nil)))
+	  (unless (org-entry-get nil "ORDERED") (throw 'exit nil))
+	  (if (re-search-forward "^[ \t]*[-+*0-9.)] \\[[- ]\\]" end t)
+	      (org-current-line)
+	    nil))))))
 
 (defun org-update-checkbox-count-maybe ()
   "Update checkbox statistics unless turned off by user."
@@ -705,7 +734,7 @@ with something like \"1.\" or \"2)\"."
     (org-beginning-of-item-list)
     (setq bobp (bobp))
     (looking-at "[ \t]*[0-9]+\\([.)]\\)")
-    (setq fmt (concat "%d" (match-string 1)))
+    (setq fmt (concat "%d" (or (match-string 1) ".")))
     (beginning-of-line 0)
     ;; walk forward and replace these numbers
     (catch 'exit
@@ -759,7 +788,7 @@ Also, fix the indentation."
 	  (skip-chars-forward " \t")
 	  (looking-at "\\S-+ *")
 	  (setq oldbullet (match-string 0))
-	  (replace-match bullet)
+	  (unless (equal bullet oldbullet) (replace-match bullet))
 	  (org-shift-item-indentation (- (length bullet) (length oldbullet))))))
     (goto-line line)
     (org-move-to-column col)
@@ -845,17 +874,19 @@ I.e. to the text after the last item."
 (defun org-indent-item (arg)
   "Indent a local list item."
   (interactive "p")
+  (and (org-region-active-p) (org-cursor-to-region-beginning))
   (unless (org-at-item-p)
     (error "Not on an item"))
   (save-excursion
     (let (beg end ind ind1 tmp delta ind-down ind-up)
+      (setq end (and (org-region-active-p) (region-end)))
       (if (memq last-command '(org-shiftmetaright org-shiftmetaleft))
 	  (setq beg org-last-indent-begin-marker
 		end org-last-indent-end-marker)
 	(org-beginning-of-item)
 	(setq beg (move-marker org-last-indent-begin-marker (point)))
 	(org-end-of-item)
-	(setq end (move-marker org-last-indent-end-marker (point))))
+	(setq end (move-marker org-last-indent-end-marker (or end (point)))))
       (goto-char beg)
       (setq tmp (org-item-indent-positions)
 	    ind (car tmp)

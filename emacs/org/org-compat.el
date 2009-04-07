@@ -6,7 +6,7 @@
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.22b
+;; Version: 6.25d
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -184,6 +184,11 @@ Works on both Emacs and XEmacs."
       (if (fboundp 'use-region-p)
 	  (use-region-p)
 	(and transient-mark-mode mark-active))))) ; Emacs 22 and before
+
+(defun org-cursor-to-region-beginning ()
+  (when (and (org-region-active-p)
+	     (> (point) (region-beginning)))
+    (exchange-point-and-mark)))
 
 ;; Invisibility compatibility
 
