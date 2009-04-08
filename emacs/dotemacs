@@ -24,12 +24,10 @@
 (global-set-key [(control r)] 'isearch-backward-regexp)
 
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- ;; '(flymake-errline ((((class color)) (:background "LightPink" :foreground "black"))))
- ;; '(flymake-warnline ((((class color)) (:background "LightBlue2" :foreground "black"))))
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
  '(py-indent-offset 4)
  '(py-smart-indentation nil)
  '(speedbar-default-position (quote left))
@@ -208,7 +206,7 @@ point."
 (defun my-python-hook ()
                                         ; outline uses this regexp to find headers. I match lines with indented "class"
                                         ; and "def" lines and lines with @ (attribute)
-  (setq outline-regexp "[ \t]*\\(def\\|class\\) \\|[\t]*\\@[A-Za-z]+")
+  (setq outline-regexp "[ \t]*\\(def\\|class\\)\\|[\t]*\\@[A-Za-z]+\\|[A-Za-z]+")
                                         ; enable our level computation
   (setq outline-level 'py-outline-level)
                                         ; turn on outline mode
@@ -619,6 +617,14 @@ checking if unsaved buffers should be saved."
 ;;(add-hook 'find-file-hook 'flymake-find-file-hook)
 
 ;;-----------------------------------------------------------------------------
+;; Mako mode (MMM derived mode)
+;;-----------------------------------------------------------------------------
+
+(require 'mmm-mako)
+(add-to-list 'auto-mode-alist '("\\.mako\\'" . html-mode))
+(mmm-add-mode-ext-class 'html-mode "\\.mako\\'" 'mako)
+
+;;-----------------------------------------------------------------------------
 ;; Cheetah mode - mix of html-mode and a basic cheetah keyword highlighter
 ;;-----------------------------------------------------------------------------
 
@@ -705,4 +711,5 @@ checking if unsaved buffers should be saved."
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 160 :width normal :foundry "unknown" :family "Monaco")))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "unknown" :family "Monaco"))))
+ '(highline-face ((t (:background "gray15")))))
