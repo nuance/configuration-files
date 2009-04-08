@@ -135,14 +135,14 @@
 	  (group (or
 	  ;; callable built-ins, fontified when not appearing as
 	  ;; object attributes
-	  "abs" "all" "any" "apply" "basestring" "bool" "buffer" "callable"
+	  "abs" "all" "any" "apply" "basestring" "bin" "bool" "buffer" "callable"
 	  "chr" "classmethod" "cmp" "coerce" "compile" "complex"
-	  "copyright" "credits" "delattr" "dict" "dir" "divmod"
-	  "enumerate" "eval" "execfile" "exit" "file" "filter" "float"
+	  "delattr" "dict" "dir" "divmod"
+	  "enumerate" "eval" "execfile" "file" "filter" "float" "format"
 	  "frozenset" "getattr" "globals" "hasattr" "hash" "help"
 	  "hex" "id" "input" "int" "intern" "isinstance" "issubclass"
-	  "iter" "len" "license" "list" "locals" "long" "map" "max"
-	  "min" "object" "oct" "open" "ord" "pow" "property" "quit"
+	  "iter" "len" "list" "locals" "long" "map" "max"
+	  "min" "next" "object" "oct" "open" "ord" "pow" "print" "property"
 	  "range" "raw_input" "reduce" "reload" "repr" "reversed"
 	  "round" "set" "setattr" "slice" "sorted" "staticmethod"
 	  "str" "sum" "super" "tuple" "type" "unichr" "unicode" "vars"
