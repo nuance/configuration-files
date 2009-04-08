@@ -2,6 +2,12 @@
 ;; Yelp helper code
 ;;-----------------------------------------------------------------------------
 
+(defun yelp-local-name (filename)
+   ;; Found / on a tramp connection
+   (if (tramp-tramp-file-p filename) 
+	   (tramp-file-name-localname (tramp-dissect-file-name filename))
+	 filename))
+
 ;;=====================================
 ;; Helper functions
 ;;=====================================
@@ -14,7 +20,7 @@
    ((string-equal (file-name-nondirectory (directory-file-name (file-name-directory parent))) base)
     (list parent relative))
    ;; Found /, so return nil
-   ((string-equal parent "/") nil)
+   ((string-equal (yelp-local-name parent) "/") nil)
    ;; Otherwise, recurse
    (t (split-branch-h base (directory-file-name (file-name-directory parent))
                       (concat (file-name-nondirectory parent) "/" relative)))))
@@ -27,8 +33,14 @@
         (split-branch-h base (file-name-directory current-file) (file-name-nondirectory current-file))
       nil)))
 
-(defun current-branch (base &optional filename)
-  (car (split-branch base filename)))
+(defun current-branch (&optional base filename)
+  (if (not base) (car (split-branch "pg" filename))
+	(car (split-branch base filename))))
+
+(defun current-branchname (&optional base filename)
+  (let* ((bse (if base base "pg"))
+		 (branch (car (split-branch "pg" filename))))
+	(if branch (file-name-nondirectory branch) nil)))
 
 ;;=====================================
 ;; File navigation
@@ -37,7 +49,7 @@
 ;; Default open to playground
 (defun open-from-pg ()
   (interactive)
-  (ido-find-file-in-dir "/media/pg/"))
+  (ido-find-file-in-dir (current-branch)))
 
 ;; Switch to tests / switch from tests
 ;; Basic idea - find the current branch, append tests to the relative dir,
@@ -79,12 +91,22 @@
 ;; Playground commands
 ;;=====================================
 
+(defun yelp-branch-is-loc-p ()
+  "Return t if loc points to the current branch"
+  (let ((branch (current-branch "pg")))
+	(if (not branch) nil
+	  (let ((loc-dir (concat (file-name-directory (directory-file-name branch)) "loc")))
+		(string-equal (yelp-local-name (file-symlink-p loc-dir)) (yelp-local-name branch))))))
+
 ;; Switch loc
 (defun switch-loc ()
+  "Change the loc pointer to point to the branch associated with the current buffer"
   (interactive)
   (let* ((branch (current-branch "pg"))
 		 (pg (file-name-directory (directory-file-name branch))))
-	(make-symbolic-link branch (concat pg "loc"))))
+	(shell-command (format "cd %s && rm loc" (yelp-local-name pg)))
+	(shell-command (format "ln -s %s %sloc" (yelp-local-name branch) (yelp-local-name pg)))
+	(yelp-update-buffers)))
 
 ;; Make templates
 (defun make-branch (&optional branch)
@@ -102,14 +124,72 @@
 ;; Run current test
 (defun run-test ()
   (interactive)
-  (cd (current-branch "pg"))
-  (compile (concat "python " (test-file-name (buffer-file-name)))))
+  (cd (current-branch))
+  (compile (format "PYTHONPATH=%s python %s" (yelp-local-name (current-branch))
+				   (yelp-local-name (test-file-name (buffer-file-name))))))
 
 ;; Graceful apache
 (defun apache-graceful ()
   (interactive)
-  (shell-command "myapachectl -k graceful"))
+  (compile "myapachectl -k graceful"))
 
 ;; Start/Stop lucene
+
+
+;;=====================================
+;; Mode definition
+;;=====================================
+
+(defun yelp-update-buffers (&optional start buffers)
+  (interactive)
+  (let ((rem (if (and (null buffers) (null start)) (buffer-list) buffers)))
+	(unless (null rem)
+	  (yelp-update-buffer (car rem))
+	  (yelp-update-buffers t (cdr rem)))))
+
+(defun yelp-update-buffer (buffer)
+  (with-current-buffer buffer
+	(yelp-set-mode-text)
+	(force-mode-line-update)))
+
+(make-variable-buffer-local 'yelp-minor-mode)
+(make-variable-buffer-local 'yelp-mode-text)
+
+(defvar yelp-mode-keymap nil
+  "Keymap for yelp minor mode.")
+
+(if yelp-mode-keymap
+    nil
+  (progn
+    (setq yelp-mode-keymap (make-sparse-keymap))
+    (define-key yelp-mode-keymap (kbd "C-c s") 'switch-loc)
+    (define-key yelp-mode-keymap (kbd "C-c r") 'run-test)
+    (define-key yelp-mode-keymap (kbd "C-c t") 'toggle-test-file)
+    (define-key yelp-mode-keymap (kbd "C-c m") 'make-branch)
+	(define-key yelp-mode-keymap (kbd "C-c f") 'open-from-pg)))
+
+(defun yelp-modeline () 
+  (format " [yelp%s%s]" (if (current-branchname)
+							(concat " " (current-branchname))	"")
+		  (if (yelp-branch-is-loc-p) "*" "")))
+
+(defvar yelp-mode-text (yelp-modeline))
+
+(defun yelp-set-mode-text ()
+  (interactive)
+  "Set's the modeline to [yelp (branch for current file)(* if the branch is loc)]"
+  (setq yelp-mode-text (yelp-modeline)))
+
+(define-minor-mode yelp-minor-mode
+  "Yelp-specific customizations"
+  :global t
+  :lighter yelp-mode-text
+  :keymap yelp-mode-keymap
+  (yelp-set-mode-text))
+
+(add-hook 'find-file-hook
+		  (lambda ()
+			(when (and yelp-minor-mode (current-branch))
+			  (yelp-set-mode-text))))
 
 (provide 'yelp)
