@@ -32,7 +32,6 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(newsticker-url-list-defaults (quote (("NY Times: Technology" "http://partners.userland.com/nytRss/technology.xml") ("NY Times" "http://partners.userland.com/nytRss/nytHomepage.xml"))))
  '(org-agenda-custom-commands (quote (("y" "iPhone and API Tickets" tags "iphone|api" nil))))
  '(org-agenda-files (quote ("~/.diary" "~/.tickets")))
  '(py-indent-offset 4)
@@ -239,7 +238,7 @@ point."
 (defun my-python-hook ()
                                         ; outline uses this regexp to find headers. I match lines with indented "class"
                                         ; and "def" lines and lines with @ (attribute)
-  (setq outline-regexp "[ \t]*\\(def\\|class\\) \\|[\t]*\\@[A-Za-z]+")
+  (setq outline-regexp "[ \t]*\\(def\\|class\\)\\|[\t]*\\@[A-Za-z]+\\|[A-Za-z]+")
                                         ; enable our level computation
   (setq outline-level 'py-outline-level)
                                         ; turn on outline mode
@@ -652,6 +651,14 @@ checking if unsaved buffers should be saved."
 ;;(add-hook 'find-file-hook 'flymake-find-file-hook)
 
 ;;-----------------------------------------------------------------------------
+;; Mako mode (MMM derived mode)
+;;-----------------------------------------------------------------------------
+
+(require 'mmm-mako)
+(add-to-list 'auto-mode-alist '("\\.mako\\'" . html-mode))
+(mmm-add-mode-ext-class 'html-mode "\\.mako\\'" 'mako)
+
+;;-----------------------------------------------------------------------------
 ;; Cheetah mode - mix of html-mode and a basic cheetah keyword highlighter
 ;;-----------------------------------------------------------------------------
 
@@ -738,4 +745,5 @@ checking if unsaved buffers should be saved."
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width normal :foundry "unknown" :family "Monaco")))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "unknown" :family "Monaco"))))
+ '(highline-face ((t (:background "gray15")))))
