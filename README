@@ -1,1 +1,7 @@
 My unix configuration files
+
+Includes configs for:
+- emacs (the big one, including a custom web development minor mode)
+- awesome3
+- zsh
+- screen
