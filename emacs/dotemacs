@@ -75,6 +75,7 @@
 (setq frame-title-format (list '("emacs ") '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
 
 (require 'printing)
+(require 'cool-stuff)
 
 (defun open-diary ()
   (interactive)
@@ -289,7 +290,6 @@ point."
 ;;-----------------------------------------------------------------------------
 ;; Java mode
 ;;-----------------------------------------------------------------------------
->>>>>>> cdc2f444ab08e1dba3daa692e0b618c4476c4ed2:emacs/dotemacs
 (add-hook 'java-mode-hook
           (lambda ()
             (local-set-key [(return)] 'newline-and-indent)
