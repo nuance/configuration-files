@@ -32,6 +32,7 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
+ '(org-agenda-files (quote ("~/dev/active-project/nlp-python/TODO")))
  '(py-indent-offset 4)
  '(py-smart-indentation nil)
  '(speedbar-default-position (quote left))
@@ -71,6 +72,8 @@
 (setq transient-mark-mode t)               ;highlights selections
 (setq comment-style 'plain)
 (setq frame-title-format (list '("emacs ") '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
+
+(require 'printing)
 
 (defun open-diary ()
   (interactive)
@@ -594,7 +597,7 @@ link to the fetched pdf"
 
 (add-hook 'find-file-hook 'flymake-find-file-hook)
 
-;;(load-library "flymake-cursor")
+(load-library "flymake-cursor")
 
 (defun pylint ()
   "Run pylint against the file behind the current buffer after
