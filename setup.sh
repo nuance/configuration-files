@@ -22,7 +22,6 @@ ln -s $CONFIG_DIR/dotfiles/dotscreenrc .screenrc
 # Add scripts
 mkdir bin
 ln -s $CONFIG_DIR/bin/epylint bin/
-ln -s $CONFIG_DIR/bin/adhoc-sql bin/
 
 # Add shell includes
 mkdir includes
