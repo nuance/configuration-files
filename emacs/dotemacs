@@ -32,6 +32,11 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
+ '(gnus-cache-enter-articles (quote (ticked dormant unread read)))
+ '(gnus-cache-remove-articles nil)
+ '(gnus-cacheable-groups nil)
+ '(gnus-fetch-old-headers t)
+ '(gnus-use-cache t)
  '(org-agenda-custom-commands (quote (("y" "iPhone and API Tickets" tags "iphone|api" nil))))
  '(org-agenda-files (quote ("~/.diary" "~/.tickets")))
  '(py-indent-offset 4)
@@ -88,6 +93,21 @@
   (cd "~/diary")
   (shell-command (format "/usr/local/bin/git commit -am\"%s\"" (format-time-string "%c" (current-time)))))
 
+(defvar my-diary-mode-keymap nil
+  "Keymap for my diary minor mode.")
+
+(if my-diary-mode-keymap
+    nil
+  (progn
+    (setq my-diary-mode-keymap (make-sparse-keymap))
+	(define-key my-diary-mode-keymap (kbd "C-c n") 'open-diary)))
+
+(define-minor-mode my-diary-mode
+  "diary niceties"
+  :global t
+  :lighter " Diary"
+  :keymap my-diary-mode-keymap)
+
 (defun time-stamp ()
   "Insert a time stamp."
   (insert
@@ -108,6 +128,13 @@
     ;; system-name is host-name
     (setq host-name system-name
           domain-name (getenv "DOMAINNAME"))))
+
+;;-----------------------------------------------------------------------------
+;; SQL customizations
+;;-----------------------------------------------------------------------------
+
+;;(eval-after-load "sql"
+;;      (load-library "sql-indent"))
 
 ;;-----------------------------------------------------------------------------
 ;; Gnus gmail
@@ -668,7 +695,7 @@ checking if unsaved buffers should be saved."
    nil
    '(
      ;; #(symbol) lines
-     ("\\(#\\(attr\\|from\\|else\\|else if\\|include\\|extends\\|implements\\|set\\|import\\|for\\|if\\|end\\|block\\)\\)\\>" 1 font-lock-type-face)
+     ("\\(#\\(attr\\|def\\|block\\|from\\|else\\|else if\\|include\\|extends\\|implements\\|set\\|import\\|for\\|if\\|end\\|block\\)\\)\\>" 1 font-lock-type-face)
      ;; PSP-style
      ("\\(#\\(from\\|for\\|end\\)\\).*\\<\\(for\\|import\\|def\\|if\\|in\\)\\>" 3 font-lock-type-face)
      ;; One-line #if EXPR1 then EXPR2 else EXPR3(# or eol)
@@ -680,12 +707,8 @@ checking if unsaved buffers should be saved."
      ;; #set var
      ()
      ;; Methods
-     ("[ \t]*\\(#def[^(#]*\\)\\(\(\\|#\\)*" 1 font-lock-variable-name-face)
-     ("^#.*\\(True\\|False\\|None\\)" 1 font-lock-builtin-face)
-     )
-   )
-  (font-lock-mode 1)
-  )
+     ("^#.*\\(True\\|False\\|None\\)" 1 font-lock-builtin-face)))
+  (font-lock-mode 1))
 
 ;;-----------------------------------------------------------------------------
 ;; Smart Cheetah (uses mmm for javascript, css)
@@ -706,6 +729,11 @@ checking if unsaved buffers should be saved."
 (mmm-add-group
  'fancy-cheetah
  '(
+   (html-cheetah-portion
+    :submode cheetah-mode
+    :face mmm-code-submode-face
+    :front "#"
+	:back "$")
    (html-css-embedded
     :submode css-mode
     :face mmm-declaration-submode-face
@@ -730,13 +758,11 @@ checking if unsaved buffers should be saved."
     :submode javascript-mode
     :face mmm-code-submode-face
     :front "\\bon\\w+=\\s-*\""
-    :back "\"")
-   )
- )
+    :back "\"")))
 
-(add-to-list 'mmm-mode-ext-classes-alist '(cheetah-mode nil fancy-cheetah))
+(add-to-list 'mmm-mode-ext-classes-alist '(html-mode nil fancy-cheetah))
 
-(setq auto-mode-alist (cons '( "\\.tmpl\\'" . cheetah-mode ) auto-mode-alist ))
+(setq auto-mode-alist (cons '( "\\.tmpl\\'" . html-mode ) auto-mode-alist ))
 
 (server-start)
 
@@ -745,5 +771,5 @@ checking if unsaved buffers should be saved."
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "unknown" :family "Monaco"))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "unknown" :family "Consolas"))))
  '(highline-face ((t (:background "gray15")))))
