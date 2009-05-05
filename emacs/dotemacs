@@ -38,7 +38,7 @@
  '(gnus-fetch-old-headers t)
  '(gnus-use-cache t)
  '(org-agenda-custom-commands (quote (("y" "iPhone and API Tickets" tags "iphone|api" nil))))
- '(org-agenda-files (quote ("~/.diary" "~/.tickets")))
+ '(org-agenda-files (quote ("~/.diary" "~/.tickets" "~/dev/active-project/nlp-python/TODO")))
  '(py-indent-offset 4)
  '(py-smart-indentation nil)
  '(speedbar-default-position (quote left))
@@ -78,6 +78,9 @@
 (setq transient-mark-mode t)               ;highlights selections
 (setq comment-style 'plain)
 (setq frame-title-format (list '("emacs ") '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
+
+(require 'printing)
+(require 'cool-stuff)
 
 (defun open-diary ()
   (interactive)
