@@ -52,6 +52,8 @@
 ;;load path set to folder ~/emacs for .el files
 (setq load-path (cons "~/emacs" load-path))
 
+(require 'byte-code-cache)
+
 ;;-----------------------------------------------------------------------------
 ;; Global Defaults
 ;;-----------------------------------------------------------------------------
