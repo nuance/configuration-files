@@ -190,6 +190,14 @@ point."
 ;;(add-to-list 'tramp-default-user-alist
 ;;             '("ssh2" "mhjones\\.org'" "matt"))
 
+
+;;-----------------------------------------------------------------------------
+;; ESS mode
+;;-----------------------------------------------------------------------------
+
+(add-to-list 'load-path "~/emacs/ess/lisp")
+(require 'ess-site)
+
 ;;-----------------------------------------------------------------------------
 ;; Python mode
 ;;-----------------------------------------------------------------------------
@@ -270,6 +278,13 @@ point."
   (outline-minor-mode t)
   (hide-body)
   )
+
+;;-----------------------------------------------------------------------------
+;; Scala mode
+;;-----------------------------------------------------------------------------
+
+(add-to-list 'load-path "~/emacs/scala-mode")
+(require 'scala-mode-auto)
 
 ;;-----------------------------------------------------------------------------
 ;; Objective-C mode
@@ -748,5 +763,5 @@ checking if unsaved buffers should be saved."
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "green" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "unknown" :family "Monaco"))))
+ '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Monaco"))))
  '(highline-face ((t (:background "gray15")))))
