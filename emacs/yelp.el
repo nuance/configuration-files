@@ -115,6 +115,12 @@
 	(cd branch)
 	(compile "make")))
 
+(defun yelp-up ()
+  (interactive)
+  (switch-loc)
+  (shell-command (format "cd %s && make -j8 && myapachectl -k graceful" 
+						 (yelp-local-name (current-branch)))))
+
 ;;=====================================
 ;; Misc
 ;;=====================================
@@ -136,6 +142,17 @@
 ;; Start/Stop lucene
 
 
+;;(setq load-path (append load-path  "/usr/share/emacs/site-lisp/w3m"))
+;;(require 'w3m)
+
+;; Screenshot
+(defun screenshot ()
+  (interactive)
+  (save-excursion
+	(pop-to-buffer "*gecko*")
+	(delete-region (point-min) (point-max))
+	(insert-image (w3m-create-image "http://localhost:4242/screenshot/http://www.mattj.dev.yelp.com/user_details_quicktips?userid=qjYYheQzd_K7_UjiRBvEpA"))))
+
 ;;=====================================
 ;; Mode definition
 ;;=====================================
@@ -152,7 +169,7 @@
 	(yelp-set-mode-text)
 	(force-mode-line-update)))
 
-(make-variable-buffer-local 'yelp-minor-mode)
+;;(make-variable-buffer-local 'yelp-mode)
 (make-variable-buffer-local 'yelp-mode-text)
 
 (defvar yelp-mode-keymap nil
@@ -166,6 +183,7 @@
     (define-key yelp-mode-keymap (kbd "C-c r") 'run-test)
     (define-key yelp-mode-keymap (kbd "C-c t") 'toggle-test-file)
     (define-key yelp-mode-keymap (kbd "C-c m") 'make-branch)
+    (define-key yelp-mode-keymap (kbd "C-c u") 'yelp-up)
 	(define-key yelp-mode-keymap (kbd "C-c f") 'open-from-pg)))
 
 (defun yelp-modeline () 
@@ -180,7 +198,7 @@
   "Set's the modeline to [yelp (branch for current file)(* if the branch is loc)]"
   (setq yelp-mode-text (yelp-modeline)))
 
-(define-minor-mode yelp-minor-mode
+(define-minor-mode yelp-mode
   "Yelp-specific customizations"
   :global t
   :lighter yelp-mode-text
@@ -189,7 +207,7 @@
 
 (add-hook 'find-file-hook
 		  (lambda ()
-			(when (and yelp-minor-mode (current-branch))
+			(when (and yelp-mode (current-branch))
 			  (yelp-set-mode-text))))
 
 (provide 'yelp)
