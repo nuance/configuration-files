@@ -1,0 +1,5 @@
+elpa
+*.elc
+byte-cache
+auto-save-list
+*~
