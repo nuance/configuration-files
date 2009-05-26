@@ -32,11 +32,16 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
+ '(erc-track-exclude-server-buffer t)
+ '(erc-track-minor-mode t)
+ '(erc-track-mode t)
+ '(erc-track-showcount t)
  '(gnus-cache-enter-articles (quote (ticked dormant unread read)))
  '(gnus-cache-remove-articles nil)
  '(gnus-cacheable-groups nil)
  '(gnus-fetch-old-headers t)
  '(gnus-use-cache t)
+ '(jabber-vcard-avatars-retrieve nil)
  '(org-agenda-custom-commands (quote (("y" "iPhone and API Tickets" tags "iphone|api" nil))))
  '(org-agenda-files (quote ("~/.diary" "~/.tickets" "~/dev/active-project/nlp-python/TODO")))
  '(py-indent-offset 4)
@@ -140,6 +145,24 @@
 
 ;;(eval-after-load "sql"
 ;;      (load-library "sql-indent"))
+
+;;-----------------------------------------------------------------------------
+;; Jabber (for google talk)
+;;-----------------------------------------------------------------------------
+
+;; adjust this path:
+(add-to-list 'load-path "~/emacs/jabber")
+;; For 0.7.90 and above:
+(require 'jabber-autoloads)
+(setq jabber-account-list
+	  '(("matt.h.jones@gmail.com"
+		 (:network-server . "talk.google.com")
+		 (:port . 443)
+		 (:connection-type . ssl))
+		("mattj@yelp.com"
+		 (:network-server . "talk.google.com")
+		 (:port . 443)
+		 (:connection-type . ssl))))
 
 ;;-----------------------------------------------------------------------------
 ;; Gnus gmail
@@ -299,6 +322,13 @@ point."
   (outline-minor-mode t)
   (hide-body)
   )
+
+;;-----------------------------------------------------------------------------
+;; Scala mode
+;;-----------------------------------------------------------------------------
+
+(add-to-list 'load-path "~/emacs/scala-mode")
+(require 'scala-mode-auto)
 
 ;;-----------------------------------------------------------------------------
 ;; Objective-C mode
@@ -628,7 +658,7 @@ link to the fetched pdf"
 
 (add-hook 'find-file-hook 'flymake-find-file-hook)
 
-;;(load-library "flymake-cursor")
+(load-library "flymake-cursor")
 
 (defun pylint ()
   "Run pylint against the file behind the current buffer after
