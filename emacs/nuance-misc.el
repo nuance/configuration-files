@@ -102,7 +102,10 @@
 (defvar coding-hook nil
   "Hook that gets run on activation of any programming mode.")
 
+;;-----------------------------------------------------------------------------
+;; dribbling (for future keyboard optimization)
+;;-----------------------------------------------------------------------------
 
-
+(open-dribble-file (format-time-string "~/.dribbles/%m%d-%R.dribble" (current-time)))
 
 (provide 'nuance-misc)
