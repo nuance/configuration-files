@@ -41,6 +41,10 @@
 	  smtpmail-smtp-server "smtp.gmail.com"
 	  smtpmail-smtp-service 587)
 
+;; Jabber
+
+(require 'jabber-autoloads)
+
 ;;-----------------------------------------------------------------------------
 ;; Yelp helper code
 ;;-----------------------------------------------------------------------------
