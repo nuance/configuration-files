@@ -41,14 +41,6 @@
 	  smtpmail-smtp-server "smtp.gmail.com"
 	  smtpmail-smtp-service 587)
 
-;; Chat
-
-(add-to-list jabber-account-list
-			 '("mattj@yelp.com"
-			   (:network-server . "talk.google.com")
-			   (:port . 443)
-			   (:connection-type . ssl)))
-
 ;;-----------------------------------------------------------------------------
 ;; Yelp helper code
 ;;-----------------------------------------------------------------------------
