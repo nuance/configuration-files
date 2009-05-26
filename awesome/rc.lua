@@ -66,11 +66,13 @@ floatapps =
 -- Use the screen and tags indices.
 apptags =
 {
-	["pidgin"] = { screen = side_screen, tag = 1},
+	["pidgin"] = { screen = side_screen, tag = 2},
 	["gmpc"] = { screen = side_screen, tag = 2},
+	["gnome-volume-control"] = { screen = side_screen, tag = 2},
 	["gnome-terminal"] = { screen = main_screen, tag = 1},
 	["emacs"] = { screen = main_screen, tag = 2},
     ["Firefox"] = { screen = main_screen, tag = 3 },
+    ["chromium-browser"] = { screen = main_screen, tag = 3 },
 }
 
 -- Define if we want to use titlebar on all applications.
@@ -80,7 +82,7 @@ use_titlebar = false
 -- {{{ Tags
 -- Define tags table.
 main_screen_tags = {"shell", "emacs", "web"}
-side_screen_tags = {"chat", "music"}
+side_screen_tags = {"emacs", "music"}
 custom_tag_names_by_screen = {}
 custom_tag_names_by_screen[main_screen] = main_screen_tags
 custom_tag_names_by_screen[side_screen] = side_screen_tags
@@ -126,6 +128,35 @@ keybinding({ modkey}, "c",
 
 -- Create a systray
 mysystray = widget({ type = "systray", align = "right" })
+
+-- Create wicked widgets
+
+twitterbox = widget({ type = 'textbox', name = 'twitterbox', align = 'right'})
+function last_tweet()
+   local filedescriptor = io.popen('/home/mattj/bin/tweets.py')
+   local value = filedescriptor:read()
+   filedescriptor:close()
+
+   return {value}
+end
+wicked.register(twitterbox, last_tweet, "$1", 120)
+
+-- twitterbox.mouse_enter = function () 
+-- 		local f = io.popen("mpc playlist | egrep '^>' -A3 -B3")
+
+-- 		playing = playing .. '<span color="white">Playlist:</span>\n'
+
+-- 		for line in f:lines() do
+-- 			playing = playing .. line .. '\n' 
+-- 		end
+-- 		f:close()
+
+-- 		tweets = naughty.notify({ text = playing,
+-- 									 timeout = 0, hover_timeout = 0.5,
+-- 									 screen = main_screen
+-- 								  })
+-- end
+-- twitterbox.mouse_leave = function () naughty.destroy(tweets) end
 
 -- Create wicked widgets
 mpdbox = widget({ type = 'textbox', name = 'mpdbox', align = 'right'})
@@ -291,7 +322,7 @@ for s = 1, screen.count() do
 	   mywibox[s].widgets = { mylauncher, mytaglist[s], mytasklist[s],
 		  mypromptbox[s], mpdbox, datebox, mysystray, mylayoutbox[s] }
 	else
-	   mywibox[s].widgets = { mytaglist[s], mytasklist[s], mypromptbox[s], mylayoutbox[s] }
+	   mywibox[s].widgets = { mytaglist[s], mytasklist[s], mypromptbox[s], twitterbox, mylayoutbox[s] }
 	end
 
     mywibox[s].screen = s
@@ -354,9 +385,10 @@ keybinding({ modkey }, "Left", awful.tag.viewprev):add()
 keybinding({ modkey }, "Right", awful.tag.viewnext):add()
 keybinding({ modkey }, "Escape", awful.tag.history.restore):add()
 
--- Standard program
+-- Standard programs
 keybinding({ modkey }, "Return", function () awful.util.spawn(terminal) end):add()
 keybinding({ modkey }, "BackSpace", function () awful.util.spawn(editor) end):add()
+keybinding({ modkey }, "l", function () awful.util.spawn(lock_screen) end):add()
 
 keybinding({ modkey, "Control" }, "r", function ()
                                            mypromptbox[mouse.screen].text =
