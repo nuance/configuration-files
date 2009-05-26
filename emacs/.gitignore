@@ -1,1 +1,6 @@
 yelp-private.el
+elpa
+*.elc
+byte-cache
+auto-save-list
+*~
