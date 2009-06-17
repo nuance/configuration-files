@@ -29,6 +29,7 @@
 
 (defun time-stamp ()
   "Insert a time stamp."
+  (interactive)
   (insert
    (concat "* [" (format-time-string "%c" (current-time)) "] ")))
    
