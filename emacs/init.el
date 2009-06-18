@@ -44,6 +44,9 @@
 ;; out-of-date js stuff. TODO: fix it to use ELPA dependencies
 (load "elpa-to-submit/nxhtml/autostart")
 
+;; private config variables, not stored in git
+(require 'private)
+
 ;; Load up ELPA, the package manager
 
 (require 'package)

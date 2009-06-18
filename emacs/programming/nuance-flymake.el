@@ -18,7 +18,7 @@
 
 (add-hook 'find-file-hook 'flymake-find-file-hook)
 
-;;(load-library "flymake-cursor")
+(load-library "flymake-cursor")
 
 (defun pylint ()
   "Run pylint against the file behind the current buffer after
