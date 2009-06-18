@@ -1,12 +1,14 @@
 (add-hook 'coding-hook 'hl-warn-keywords)
 (add-hook 'coding-hook 'my-tab-fix)
 
-(add-hook 'c-mode-hook          'my-tab-fix)
-(add-hook 'sh-mode-hook         'my-tab-fix)
-(add-hook 'emacs-lisp-mode-hook 'my-tab-fix)
-(add-hook 'python-mode-hook     'my-tab-fix)
-(add-hook 'java-mode-hook       'my-java-tab-fix)
-(add-hook 'objc-mode-hook       'my-tab-fix)
+(add-hook 'c-mode-hook          'run-coding-hook)
+(add-hook 'emacs-lisp-mode-hook 'run-coding-hook)
+(add-hook 'java-mode-hook       'run-coding-hook)
+(add-hook 'lua-mode-hook        'run-coding-hook)
+(add-hook 'objc-mode-hook       'run-coding-hook)
+(add-hook 'python-mode-hook     'run-coding-hook)
+(add-hook 'scala-mode-hook      'run-coding-hook)
+(add-hook 'sh-mode-hook         'run-coding-hook)
 
 (require 'mmm-auto)
 (setq mmm-global-mode 'maybe)
@@ -14,6 +16,7 @@
 
 (require 'nuance-js)
 (require 'nuance-python)
+(require 'nuance-templating)
 
 ;;-----------------------------------------------------------------------------
 ;; ESS mode
@@ -74,6 +77,7 @@
 ;;-----------------------------------------------------------------------------
 ;; Java mode
 ;;-----------------------------------------------------------------------------
+(add-hook 'java-mode-hook       'my-java-tab-fix)
 (add-hook 'java-mode-hook
           (lambda ()
             (local-set-key [(return)] 'newline-and-indent)

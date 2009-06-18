@@ -1,4 +1,4 @@
--------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 ;; Flymake - error checking as you type
 ;;-----------------------------------------------------------------------------
 
@@ -71,6 +71,5 @@ checking if unsaved buffers should be saved."
             (message err)))))))
 
 ;;(add-hook 'find-file-hook 'flymake-find-file-hook)
-
 
 (provide 'nuance-flymake)
