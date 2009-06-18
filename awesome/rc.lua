@@ -131,15 +131,15 @@ mysystray = widget({ type = "systray", align = "right" })
 
 -- Create wicked widgets
 
-twitterbox = widget({ type = 'textbox', name = 'twitterbox', align = 'right'})
-function last_tweet()
-   local filedescriptor = io.popen('/home/mattj/bin/tweets.py')
-   local value = filedescriptor:read()
-   filedescriptor:close()
+--twitterbox = widget({ type = 'textbox', name = 'twitterbox', align = 'right'})
+-- function last_tweet()
+--    local filedescriptor = io.popen('/home/mattj/bin/tweets.py')
+--    local value = filedescriptor:read()
+--    filedescriptor:close()
 
-   return {value}
-end
-wicked.register(twitterbox, last_tweet, "$1", 120)
+--    return {value}
+-- end
+-- wicked.register(twitterbox, last_tweet, "$1", 120)
 
 -- twitterbox.mouse_enter = function () 
 -- 		local f = io.popen("mpc playlist | egrep '^>' -A3 -B3")
@@ -200,12 +200,7 @@ wicked.register(mpdbox, wicked.widgets.mpd,
 local playlist = nil
 
 mpdbox.mouse_enter = function () 
-		local status = awful.util.pread("amixer sget 'Master',0")
 		local playing = ""
-
-		for volume_string in string.gmatch(status, "%d+%%") do
-		   playing = '<span color="white">Volume:</span> ' .. volume_string .. '\n'
-		end
 
 		local f = io.popen("mpc playlist | egrep '^>' -A3 -B3")
 
@@ -322,7 +317,7 @@ for s = 1, screen.count() do
 	   mywibox[s].widgets = { mylauncher, mytaglist[s], mytasklist[s],
 		  mypromptbox[s], mpdbox, datebox, mysystray, mylayoutbox[s] }
 	else
-	   mywibox[s].widgets = { mytaglist[s], mytasklist[s], mypromptbox[s], twitterbox, mylayoutbox[s] }
+	   mywibox[s].widgets = { mytaglist[s], mytasklist[s], mypromptbox[s], mylayoutbox[s] } --twitterbox, mylayoutbox[s] }
 	end
 
     mywibox[s].screen = s
