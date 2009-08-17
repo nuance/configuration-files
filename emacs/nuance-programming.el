@@ -30,6 +30,29 @@
 
 (require 'scala-mode-auto)
 
+(require 'compile)
+(require 'flymake)
+(require 'font-lock)
+
+(defvar scala-build-command nil)
+(make-variable-buffer-local 'scala-build-command)
+
+(add-hook 'scala-mode-hook (lambda () (flymake-mode-on)))
+
+(defun flymake-scala-init ()
+  (let* ((text-of-first-line (buffer-substring-no-properties (point-min) (min 20 (point-max)))))
+    (progn
+      (remove-hook 'after-save-hook 'flymake-after-save-hook t)
+      (save-buffer)
+      (add-hook 'after-save-hook 'flymake-after-save-hook nil t)
+      (if (string-match "^//script" text-of-first-line)
+	  (list "fsc" (list "-Xscript" "MainScript" "-d" "/tmp" buffer-file-name))
+	(or scala-build-command (list "fsc" (list "-d" "/tmp" buffer-file-name))))
+      )))
+
+(push '(".+\\.scala$" flymake-scala-init) flymake-allowed-file-name-masks)
+(push '("^\\(.*\\):\\([0-9]+\\): error: \\(.*\\)$" 1 2 nil 3) flymake-err-line-patterns)
+
 ;;-----------------------------------------------------------------------------
 ;; Thrift mode
 ;;-----------------------------------------------------------------------------
