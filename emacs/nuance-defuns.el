@@ -33,6 +33,13 @@ point."
                             '(("\\<\\(FIXME\\|TODO\\|BUG\\):" 1 font-lock-warning-face t))))
 
 
+;;-----------------------------------------------------------------------------
+;; programming
+;;-----------------------------------------------------------------------------
+
+(defvar coding-hook nil
+  "Hook that gets run on activation of any programming mode.")
+
 (defun run-coding-hook ()
   "Enable things that are convenient across all coding buffers."
   (run-hooks 'coding-hook))
@@ -53,6 +60,10 @@ point."
 					   (setq ido-execute-command-cache
 							 (cons (format "%S" s) ido-execute-command-cache))))))
 	   ido-execute-command-cache)))))
+
+(defun ido-reset-command-cache ()
+  (interactive)
+  (setq ido-execute-command-cache nil))
 
 (add-hook 'ido-setup-hook
 		  (lambda ()

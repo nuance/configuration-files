@@ -45,7 +45,7 @@
 (load "elpa-to-submit/nxhtml/autostart")
 
 ;; private config variables, not stored in git
-(require 'private)
+(require 'yelp-private)
 
 ;; Load up ELPA, the package manager
 
