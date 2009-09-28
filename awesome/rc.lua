@@ -71,7 +71,7 @@ apptags =
 	["gnome-volume-control"] = { screen = side_screen, tag = 2},
 	["gnome-terminal"] = { screen = main_screen, tag = 1},
 	["emacs"] = { screen = main_screen, tag = 2},
-    ["Firefox"] = { screen = main_screen, tag = 3 },
+    ["Firefox"] = { screen = main_screen, tag = 4 },
     ["chromium-browser"] = { screen = main_screen, tag = 3 },
 }
 
@@ -81,7 +81,7 @@ use_titlebar = false
 
 -- {{{ Tags
 -- Define tags table.
-main_screen_tags = {"shell", "emacs", "web"}
+main_screen_tags = {"shell", "emacs", "web", "selenium"}
 side_screen_tags = {"emacs", "music"}
 custom_tag_names_by_screen = {}
 custom_tag_names_by_screen[main_screen] = main_screen_tags
