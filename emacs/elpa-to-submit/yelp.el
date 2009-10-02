@@ -100,21 +100,21 @@
 ;; Basic idea - find the current branch, append tests to the relative dir,
 ;; and modify the file name from (.*)\.py to $1-test.py
 (defun test-file-name (file-name)
-  (if (split-branch "tests")
+  (if (split-branch "yelp")
       ;; It's a test, so just return the file
       file-name
     ;; find the correct file
     (let* ((buffer-file (split-branch "pg" file-name))
            (current-branch (car buffer-file))
            (current-file (cadr buffer-file)))
-      (concat current-branch "/tests/" (file-name-sans-extension current-file)
+      (concat current-branch "/yelp/tests/" (file-name-sans-extension current-file)
               "_test" (file-name-extension current-file t)))))
 
 (defun nontest-file-name (file-name)
-  (if (not (split-branch "tests"))
+  (if (not (split-branch "pg"))
       file-name
-    (let* ((buffer-file (split-branch "tests" file-name))
-           (folder (file-name-nondirectory (directory-file-name (car buffer-file))))
+    (let* ((buffer-file (split-branch "yelp" file-name))
+           (folder (file-name-nondirectory (directory-file-name (file-name-nondirectory (directory-file-name (car buffer-file))))))
            (current-branch (file-name-directory (directory-file-name (file-name-directory (directory-file-name (car buffer-file))))))
            (current-file (cadr buffer-file)))
       (concat current-branch folder (substring (file-name-sans-extension current-file) 0 -5)
@@ -128,7 +128,7 @@
 
 (defun toggle-test-file ()
   (interactive)
-  (if (split-branch "tests")
+  (if (split-branch "yelp")
       (switch-from-test)
     (switch-to-test)))
 

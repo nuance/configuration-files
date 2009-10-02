@@ -89,6 +89,9 @@
 
 (setq org-export-with-LaTeX-fragments t)
 
+(setq org-todo-keywords
+	  '((sequence "DESIGN(d)" "CODE(c!)" "TEST(t!)" "REVIEW(r!)" "PUSH(p!)" "|" "DONE(d!)")))
+
 ;;-----------------------------------------------------------------------------
 ;; Gnus gmail
 ;;-----------------------------------------------------------------------------

@@ -3,6 +3,7 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
+ '(diff-switches "-u")
  '(display-time-day-and-date t)
  '(erc-track-exclude-server-buffer t)
  '(erc-track-minor-mode t)
@@ -20,7 +21,7 @@
  '(py-smart-indentation nil)
  '(speedbar-default-position (quote left))
  '(tab-width 4)
- '(uniquify-buffer-name-style (quote forward) nil (uniquify)))
+ '(uniquify-buffer-name-style (quote post-forward) nil (uniquify)))
 
 
 (custom-set-faces
@@ -28,6 +29,6 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "unknown" :family "Monaco"))))
+ '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Monaco"))))
  '(highline-face ((t (:background "gray15")))))
 
