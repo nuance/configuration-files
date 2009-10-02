@@ -49,11 +49,10 @@
     (insert msg)
     (toggle-read-only t)))
 
-(defun pomodoro-finished ()
-  (cancel-timer pomodoro-current-timer)
-  (setq pomodoro-current-timer nil)
-  (pomodoro-display-message "Pomodoro Finished")
-  (run-hooks 'pomodoro-finished-hook))
+(defun pomodoro-toggle ()
+  "Toggle a pomodoro timer"
+  (interactive)
+  (if pomodoro-current-timer (pomodoro-start) (pomodoro-void)))
 
 (defun pomodoro-start ()
   "Start a pomodoro timer"
@@ -65,11 +64,20 @@
   (pomodoro-start-display)
   (message "Pomodoro started"))
 
+(defun pomodoro-finished ()
+  (cancel-timer pomodoro-current-timer)
+  (setq pomodoro-current-timer nil)
+  (pomodoro-display-message "Pomodoro Finished")
+  (run-hooks 'pomodoro-finished-hook))
+
 (defun pomodoro-void ()
   "Stops the current pomodoro timer"
   (interactive)
   (cancel-timer pomodoro-current-timer)
   (setq pomodoro-current-timer nil)
   (message "Pomodoro voided"))
+
+(global-set-key [f5] 'pomodoro-start)
+(global-set-key [f6] 'pomodoro-void)
 
 (provide 'pomodoro)
