@@ -4,15 +4,14 @@
 ;;
 ;; Emacs Lisp Archive Entry
 ;; Filename: org-docbook.el
-;; Version: 6.25d
+;; Version: 6.31a
 ;; Author: Baoqiu Cui <cbaoqiu AT yahoo DOT com>
 ;; Maintainer: Baoqiu Cui <cbaoqiu AT yahoo DOT com>
 ;; Keywords: org, wp, docbook
 ;; Description: Converts an org-mode buffer into DocBook
-;; $Id: org-docbook.el 35 2009-03-23 01:03:21Z baoqiu $
 ;; URL:
 
-;; This file is NOT part of GNU Emacs.
+;; This file is part of GNU Emacs.
 
 ;; GNU Emacs is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -76,6 +75,7 @@
 (require 'footnote)
 (require 'org)
 (require 'org-exp)
+(require 'org-html)
 
 ;;; Variables:
 
@@ -232,6 +232,21 @@ the variable to
   :group 'org-export-docbook
   :type 'string)
 
+(defcustom org-export-docbook-keywords-markup "<literal>%s</literal>"
+  "A printf format string to be applied to keywords by DocBook exporter."
+  :group 'org-export-docbook
+  :type 'string)
+
+(defcustom org-export-docbook-timestamp-markup "<emphasis>%s</emphasis>"
+  "A printf format string to be applied to time stamps by DocBook exporter."
+  :group 'org-export-docbook
+  :type 'string)
+
+;;; Hooks
+
+(defvar org-export-docbook-final-hook nil
+  "Hook run at the end of DocBook export, in the new buffer.")
+
 ;;; Autoload functions:
 
 ;;;###autoload
@@ -252,7 +267,8 @@ $ emacs --batch
 No file is created."
   (interactive)
   (org-export-as-docbook nil nil "*Org DocBook Export*")
-  (switch-to-buffer-other-window "*Org DocBook Export*"))
+  (when org-export-show-temporary-export-buffer
+    (switch-to-buffer-other-window "*Org DocBook Export*")))
 
 ;;;###autoload
 (defun org-replace-region-by-docbook (beg end)
@@ -294,7 +310,7 @@ could call this function in the following way:
   (setq docbook (org-export-region-as-docbook beg end t 'string))
 
 When called interactively, the output buffer is selected, and shown
-in a window.  A non-interactive call will only retunr the buffer."
+in a window.  A non-interactive call will only return the buffer."
   (interactive "r\nP")
   (when (interactive-p)
     (setq buffer "*Org DocBook Export*"))
@@ -358,7 +374,7 @@ in a window.  A non-interactive call will only retunr the buffer."
 					to-buffer body-only pub-dir)
   "Export the current buffer as a DocBook file.
 If there is an active region, export only the region.  When
-HIDDEN is non-nil, don't display the HTML buffer.  EXT-PLIST is a
+HIDDEN is obsolete and does nothing.  EXT-PLIST is a
 property list with external parameters overriding org-mode's
 default settings, but still inferior to file-local settings.
 When TO-BUFFER is non-nil, create a buffer with that name and
@@ -376,7 +392,7 @@ publishing directory."
 	(org-set-local 'buffer-file-name
 		       (with-current-buffer (buffer-base-buffer)
 			 buffer-file-name))
-      (error "Need a file name to be able to export.")))
+      (error "Need a file name to be able to export")))
 
   (message "Exporting...")
   (setq-default org-todo-line-regexp org-todo-line-regexp)
@@ -408,9 +424,10 @@ publishing directory."
 			     (+ (funcall outline-level)
 				(if org-odd-levels-only 1 0)))
 			 0))
-	 (opt-plist (if subtree-p
-			(org-export-add-subtree-options opt-plist rbeg)
-		      opt-plist))
+	 (opt-plist (setq org-export-opt-plist
+			  (if subtree-p
+			      (org-export-add-subtree-options opt-plist rbeg)
+			    opt-plist)))
 	 ;; The following two are dynamically scoped into other
 	 ;; routines below.
 	 (org-current-export-dir
@@ -556,6 +573,7 @@ publishing directory."
     (set-buffer buffer)
     (let ((inhibit-read-only t)) (erase-buffer))
     (fundamental-mode)
+    (org-install-letbind)
 
     (and (fboundp 'set-buffer-file-coding-system)
 	 (set-buffer-file-coding-system coding-system-for-write))
@@ -606,6 +624,7 @@ publishing directory."
 	  ;; End of quote section?
 	  (when (and inquote (string-match "^\\*+ " line))
 	    (insert "]]>\n</programlisting>\n")
+	    (org-export-docbook-open-para)
 	    (setq inquote nil))
 	  ;; Inside a quote section?
 	  (when inquote
@@ -624,18 +643,24 @@ publishing directory."
 		      (not (string-match "^[ \t]*\\(:.*\\)"
 					 (car lines))))
 	      (setq infixed nil)
-	      (insert "]]>\n</programlisting>\n"))
+	      (insert "]]>\n</programlisting>\n")
+	      (org-export-docbook-open-para))
 	    (throw 'nextline nil))
+
+	  (org-export-docbook-close-lists-maybe line)
 
 	  ;; Protected HTML
 	  (when (get-text-property 0 'org-protected line)
-	    (let (par)
+	    (let (par (ind (get-text-property 0 'original-indentation line)))
 	      (when (re-search-backward
 		     "\\(<para>\\)\\([ \t\r\n]*\\)\\=" (- (point) 100) t)
 		(setq par (match-string 1))
 		(replace-match "\\2\n"))
 	      (insert line "\n")
 	      (while (and lines
+			  (or (= (length (car lines)) 0)
+			      (not ind)
+			      (equal ind (get-text-property 0 'original-indentation (car lines))))
 			  (or (= (length (car lines)) 0)
 			      (get-text-property 0 'org-protected (car lines))))
 		(insert (pop lines) "\n"))
@@ -681,11 +706,13 @@ publishing directory."
 	  (when (equal "ORG-BLOCKQUOTE-END" line)
 	    (org-export-docbook-close-para-maybe)
 	    (insert "</blockquote>\n")
+	    (org-export-docbook-open-para)
 	    (throw 'nextline nil))
 
 	  ;; End of verses
 	  (when (equal "ORG-VERSE-END" line)
 	    (insert "</literallayout>\n</blockquote>\n")
+	    (org-export-docbook-open-para)
 	    (setq inverse nil)
 	    (throw 'nextline nil))
 
@@ -704,6 +731,7 @@ publishing directory."
 	    (org-export-docbook-close-para-maybe)
 	    (insert "</entry></row></tbody>\n"
 		    "</tgroup>\n</informaltable>\n")
+	    (org-export-docbook-open-para)
 	    (throw 'nextline nil))
 
 	  ;; Make targets to anchors.  Note that currently FOP does not
@@ -722,9 +750,13 @@ publishing directory."
 				  (org-solidify-link-text (match-string 1 line)))
 			  t t line)))))
 
-	  ;; Replace "&" by "&amp;", "<" and ">" by "&lt;" and "&gt;"
-	  ;; handle @<..> HTML tags (replace "@&gt;..&lt;" by "<..>")
-	  ;; Also handle sub_superscripts and checkboxes
+	  ;; Put time stamps and related keywords into special mark-up
+	  ;; elements.
+	  (setq line (org-export-docbook-handle-time-stamps line))
+
+	  ;; Replace "&", "<" and ">" by "&amp;", "&lt;" and "&gt;".
+	  ;; Handle @<..> HTML tags (replace "@&gt;..&lt;" by "<..>").
+	  ;; Also handle sub_superscripts and check boxes.
 	  (or (string-match org-table-hline-regexp line)
 	      (setq line (org-docbook-expand line)))
 
@@ -766,12 +798,13 @@ publishing directory."
 		   (setq id-file (org-id-find-id-file path)))
 	      ;; This is an id: link to another file (if it was the same file,
 	      ;; it would have become an internal link...)
-	      (setq id-file (file-relative-name
-			     id-file (file-name-directory org-current-export-file)))
-	      (setq id-file (concat (file-name-sans-extension id-file)
-				    org-export-docbook-extension))
-	      (setq rpl (format "<link xlink:href=\"%s#%s\">%s</link>"
-				id-file path (org-export-docbook-format-desc desc))))
+	      (save-match-data
+		(setq id-file (file-relative-name
+			       id-file (file-name-directory org-current-export-file)))
+		(setq id-file (concat (file-name-sans-extension id-file)
+				      org-export-docbook-extension))
+		(setq rpl (format "<link xlink:href=\"%s#%s\">%s</link>"
+				  id-file path (org-export-docbook-format-desc desc)))))
 	     ((member type '("http" "https"))
 	      ;; Standard URL, just check if we need to inline an image
 	      (if (and (or (eq t org-export-docbook-inline-images)
@@ -950,7 +983,8 @@ publishing directory."
 		    ((= llt ?\)) "^\\([ \t]*\\)\\(\\([-+*] \\)\\|\\([0-9]+)\\) \\)?\\( *[^ \t\n\r]\\|[ \t]*$\\)")
 		    (t (error "Invalid value of `org-plain-list-ordered-item-terminator'")))
 		   line)
-	      (setq ind (org-get-string-indentation line)
+	      (setq ind (or (get-text-property 0 'original-indentation line)
+			    (org-get-string-indentation line))
 		    item-type (if (match-beginning 4) "o" "u")
 		    starter (if (match-beginning 2)
 				(substring (match-string 2 line) 0 -1))
@@ -1072,7 +1106,7 @@ publishing directory."
 
       (unless (plist-get opt-plist :buffer-will-be-killed)
 	(normal-mode)
-	(if (eq major-mode default-major-mode)
+	(if (eq major-mode (default-value 'major-mode))
 	    (nxml-mode)))
 
       ;; Remove empty paragraphs and lists.  Replace them with a
@@ -1094,9 +1128,11 @@ publishing directory."
       (goto-char (point-max))
       (unless body-only
 	(insert "</article>"))
+      (run-hooks 'org-export-docbook-final-hook)
       (or to-buffer (save-buffer))
       (goto-char (point-min))
-      (message "Exporting... done")
+      (or (org-export-push-to-kill-ring "DocBook")
+	  (message "Exporting... done"))
       (if (eq to-buffer 'string)
 	  (prog1 (buffer-substring (point-min) (point-max))
 	    (kill-buffer (current-buffer)))
@@ -1120,6 +1156,28 @@ publishing directory."
   (if (equal type "d")
       (insert "</listitem></varlistentry>\n")
     (insert "</listitem>\n")))
+
+(defvar in-local-list)
+(defvar local-list-indent)
+(defvar local-list-type)
+(defun org-export-docbook-close-lists-maybe (line)
+  (let ((ind (or (get-text-property 0 'original-indentation line)))
+;		 (and (string-match "\\S-" line)
+;		      (org-get-indentation line))))
+	didclose)
+    (when ind
+      (while (and in-local-list
+		  (<= ind (car local-list-indent)))
+	(setq didclose t)
+	(let ((listtype (car local-list-type)))
+	  (org-export-docbook-close-li listtype)
+	  (insert (cond
+		   ((equal listtype "o") "</orderedlist>\n")
+		   ((equal listtype "u") "</itemizedlist>\n")
+		   ((equal listtype "d") "</variablelist>\n"))))
+	(pop local-list-type) (pop local-list-indent)
+	(setq in-local-list local-list-indent))
+      (and didclose (org-export-docbook-open-para)))))
 
 (defun org-export-docbook-level-start (level title)
   "Insert a new level in DocBook export.
@@ -1315,6 +1373,39 @@ TABLE is a string containing the HTML code generated by
       (setq string (replace-match (match-string 1 string) t t string)))
     string))
 
+(defun org-export-docbook-protect-tags (string)
+  "Change ``<...>'' in string STRING into ``@<...>''.
+This is normally needed when STRING contains DocBook elements
+that need to be preserved in later phase of DocBook exporting."
+  (let ((start 0))
+    (while (string-match "<\\([^>]*\\)>" string start)
+      (setq string (replace-match
+		    "@<\\1>" t nil string)
+	    start (match-end 0)))
+    string))
+
+(defun org-export-docbook-handle-time-stamps (line)
+  "Format time stamps in string LINE."
+  (let (replaced
+	(kw-markup (org-export-docbook-protect-tags
+		    org-export-docbook-keywords-markup))
+	(ts-markup (org-export-docbook-protect-tags
+		    org-export-docbook-timestamp-markup)))
+    (while (string-match org-maybe-keyword-time-regexp line)
+      (setq replaced
+	    (concat replaced
+		    (substring line 0 (match-beginning 0))
+		    (if (match-end 1)
+			(format kw-markup
+				(match-string 1 line)))
+		    " "
+		    (format ts-markup
+			    (substring (org-translate-time
+					(match-string 3 line)) 1 -1)))
+	    line (substring line (match-end 0))))
+    (concat replaced line)))
+
 (provide 'org-docbook)
 
+;; arch-tag: a24a127c-d365-4c2a-9e9b-f7dcb0ebfdc3
 ;;; org-docbook.el ends here

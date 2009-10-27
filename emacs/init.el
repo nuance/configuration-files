@@ -22,6 +22,7 @@
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/ess/lisp"))
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/scala-mode"))
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/org"))
+(add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/org-contrib/lisp"))
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/remember"))
 
 ;; All my programming mode customizations

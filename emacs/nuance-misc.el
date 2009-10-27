@@ -92,6 +92,35 @@
 (setq org-todo-keywords
 	  '((sequence "DESIGN(d)" "CODE(c!)" "TEST(t!)" "REVIEW(r!)" "PUSH(p!)" "|" "DONE(d!)")))
 
+(require 'org-babel-init)
+(require 'org-babel-python)
+(require 'org-babel-R)
+(require 'org-babel-ditaa)
+(require 'org-babel-sql)
+(require 'org-babel-javascript)
+(org-babel-load-library-of-babel)
+
+(defun export-for-candidate ()
+  (interactive)
+  (let ((old-tags org-export-select-tags)
+		(old-excludes org-export-exclude-tags)
+		(candidate-type (ido-completing-read "Tag: " '("webdev" "search" "backend"))))
+	(setq org-export-select-tags '("candidate"))
+	(setq org-export-exclude-tags (remove candidate-type '("webdev" "search" "backend")))
+	(org-export)
+	(setq org-export-select-tags old-tags)
+	(setq org-export-exclude-tags old-excludes)))
+
+(defun export-for-interview ()
+  (interactive)
+  (let ((old-tags org-export-select-tags)
+		(old-excludes org-export-exclude-tags)
+		(candidate-type (ido-completing-read "Tag: " '("webdev" "search" "backend"))))
+	(setq org-export-exclude-tags (remove candidate-type '("webdev" "search" "backend")))
+	(org-export)
+	(setq org-export-select-tags old-tags)
+	(setq org-export-exclude-tags old-excludes)))
+
 ;;-----------------------------------------------------------------------------
 ;; Gnus gmail
 ;;-----------------------------------------------------------------------------
@@ -103,5 +132,18 @@
 ;;-----------------------------------------------------------------------------
 
 (open-dribble-file (format-time-string "~/.dribbles/%m%d-%R.dribble" (current-time)))
+
+;;-----------------------------------------------------------------------------
+;; auto-hide
+;;-----------------------------------------------------------------------------
+
+(autoload 'hide-lines "hide-lines" "Hide lines based on a regexp" t)
+(global-set-key "\C-ch" 'hide-lines)
+
+(defadvice show-hidden-lines
+  (after show-all activate)
+  """ Show invisible lines """
+  (message "calling show invisible")
+  (show-all-invisible))
 
 (provide 'nuance-misc)
