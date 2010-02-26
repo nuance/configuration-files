@@ -41,7 +41,7 @@
 
 ;; Jabber
 
-(require 'jabber-autoloads)
+;; (require 'jabber-autoloads)
 
 ;;-----------------------------------------------------------------------------
 ;; Yelp helper code

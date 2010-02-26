@@ -14,7 +14,6 @@
  '(gnus-cacheable-groups nil)
  '(gnus-fetch-old-headers t)
  '(gnus-use-cache t)
- '(jabber-vcard-avatars-retrieve nil)
  '(org-agenda-custom-commands (quote (("y" "iPhone and API Tickets" tags "iphone|api" nil))))
  '(org-agenda-files (quote ("~/.diary" "~/.tickets" "~/dev/active-project/nlp-python/TODO")))
  '(py-indent-offset 4)
@@ -29,6 +28,7 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Monaco"))))
- '(highline-face ((t (:background "gray15")))))
+ '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width normal :foundry "unknown" :family "Inconsolata"))))
+ '(highline-face ((t (:background "gray15"))))
+ '(mode-line ((t (:background "grey20" :foreground "grey85")))))
 

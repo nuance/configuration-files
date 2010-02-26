@@ -1,17 +1,19 @@
 ;;; org-inlinetask.el --- Tasks independent of outline hierarchy
+
 ;; Copyright (C) 2009 Free Software Foundation, Inc.
 ;;
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.25d
-;;
-;; This file is not yet part of GNU Emacs.
-;;
-;; GNU Emacs is free software; you can redistribute it and/or modify
+;; Version: 6.31a
+
+;; This file is part of GNU Emacs.
+
+;; GNU Emacs is free software: you can redistribute it and/or modify
+
 ;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 3, or (at your option)
-;; any later version.
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
 
 ;; GNU Emacs is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,9 +21,8 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs; see the file COPYING.  If not, write to the
-;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-;; Boston, MA 02110-1301, USA.
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;; Commentary:
@@ -65,8 +66,18 @@
 ;;                     :END:
 ;;                     And here is some extra text
 ;;    **************** END
+;;
+;; Also, if you want to use refiling and archiving for inline tasks,
+;; The END line must be present to make things work properly.
+;;
+;; This package installs one new comand:
+;;
+;; C-c C-x t      Insert a new inline task with END line
+
 
 ;;; Code
+
+(require 'org)
 
 (defgroup org-inlinetask nil
   "Options concerning inline tasks in Org mode."
@@ -82,30 +93,23 @@ the value of this variable."
   :group 'org-inlinetask
   :type 'boolean)
 
-(defcustom org-inlinetask-export 'arrow+content
-  "What should be done with inlinetasks upon export?
-Possible values:
-
-nil            Remove entirely, headline and \"content\"
-arrow          Insert heading in bold, preceeded by an arrow
-arrow+content  Insert arrow and headline, add content below in an
-               #+begin_example box (ugly, but works for now)
-
-The \"content\" of an inline task is the material below the planning
-line and any drawers, up to a lines wit the same number of stars,
-but containing only the word END."
-  :group 'org-inlinetask
-  :group 'org-export-general
-  :type '(choice
-	  (const :tag "Remove entirely" nil)
-	  (const :tag "Headline preceeded by arrow" arrow)
-	  (const :tag "Arrow, headline, + content" arrow+content)))
-
 (defvar org-odd-levels-only)
 (defvar org-keyword-time-regexp)
 (defvar org-drawer-regexp)
 (defvar org-complex-heading-regexp)
 (defvar org-property-end-re)
+
+(defun org-inlinetask-insert-task ()
+  "Insert an inline task."
+  (interactive)
+  (or (bolp) (newline))
+  (insert (make-string org-inlinetask-min-level ?*) " \n"
+	  (make-string org-inlinetask-min-level ?*) " END\n")
+  (end-of-line -1))
+(define-key org-mode-map "\C-c\C-xt" 'org-inlinetask-insert-task)
+
+(defvar htmlp)  ; dynamically scoped into the next function
+(defvar latexp) ; dynamically scoped into the next function
 (defun org-inlinetask-export-handler ()
   "Handle headlines with level larger or equal to `org-inlinetask-min-level'.
 Either remove headline and meta data, or do special formatting."
@@ -115,7 +119,7 @@ Either remove headline and meta data, or do special formatting."
 		   (or org-inlinetask-min-level 200)))
 	 (re1 (format "^\\(\\*\\{%d,\\}\\) .*\n" nstars))
 	 (re2 (concat "^[ \t]*" org-keyword-time-regexp))
-	 headline beg end stars content)
+	 headline beg end stars content indent)
     (while (re-search-forward re1 nil t)
       (setq headline (match-string 0)
 	    stars (match-string 1)
@@ -135,15 +139,24 @@ Either remove headline and meta data, or do special formatting."
 	(setq content (buffer-substring beg (1- (point-at-bol))))
 	(delete-region beg (1+ (match-end 0))))
       (goto-char beg)
-      (when (and org-inlinetask-export
-		 (string-match org-complex-heading-regexp headline))
-	(when (memq org-inlinetask-export '(arrow+content arrow))
-	  (insert "\n\n\\Rightarrow\\Rightarrow\\Rightarrow *"
-		  (if (match-end 2) (concat (match-string 2 headline) " ") "")
-		  (match-string 4 headline) "*\n"))
-	(when (and content (eq org-inlinetask-export 'arrow+content))
-	  (insert "#+BEGIN_EXAMPLE\n" content "\n#+END_EXAMPLE\n"))
-	(insert "\n")))))
+      (when (string-match org-complex-heading-regexp headline)
+	(setq headline (concat
+			(if (match-end 2)
+			    (concat (match-string 2 headline) " ") "")
+			(match-string 4 headline)))
+	(if (not (string-match "\\S-" content))
+	    (setq content nil)
+	  (if (string-match "[ \t\n]+\\'" content)
+	      (setq content (substring content 0 (match-beginning 0))))
+	  (setq content (org-remove-indentation content))
+	  (if latexp (setq content (concat "\\quad \\\\\n" content))))
+	(insert "- ")
+	(setq indent (make-string (current-column) ?\ ))
+	(insert headline " ::")
+	(when content
+	  (insert (if htmlp " " (concat "\n" indent))
+		  (mapconcat 'identity (org-split-string content "\n")
+			     (concat "\n" indent)) "\n"))))))
 
 (defun org-inlinetask-fontify (limit)
   "Fontify the inline tasks."
@@ -161,6 +174,12 @@ Either remove headline and meta data, or do special formatting."
       (add-text-properties (match-beginning 3) (match-end 3)
 			   '(face shadow font-lock-fontified t)))))
 
+(defun org-inlinetask-remove-END-maybe ()
+  "Remove an END line when present."
+  (when (looking-at (format "\\([ \t]*\n\\)*\\*\\{%d,\\}[ \t]+END[ \t]*$"
+			    org-inlinetask-min-level))
+    (replace-match "")))
+
 (eval-after-load "org-exp"
   '(add-hook 'org-export-preprocess-after-tree-selection-hook
 	     'org-inlinetask-export-handler))
@@ -170,4 +189,3 @@ Either remove headline and meta data, or do special formatting."
 (provide 'org-inlinetask)
 
 ;;; org-inlinetask.el ends here
-

@@ -1,36 +1,30 @@
 ;;; org-protocol.el --- Intercept calls from emacsclient to trigger custom actions.
 ;;
-;; Copyright (c) 2008, 2009
-;;          Bastien Guerry <bzg AT altern DOT org>,
-;;          Daniel German <dmg AT uvic DOT org>,
-;;          Sebastian Rose <sebastian_rose AT gmx DOT de>,
-;;          Ross Patterson <me AT rpatterson DOT net>
-;;          David Moffat
-;;          (will be FSF when done)
+;; Copyright (C) 2008, 2009
+;;          Free Software Foundation, Inc.
 ;;
-;;
-;; Filename: org-protocol.el
-;; Version: 6.25d
 ;; Author: Bastien Guerry <bzg AT altern DOT org>
 ;; Author: Daniel M German <dmg AT uvic DOT org>
 ;; Author: Sebastian Rose <sebastian_rose AT gmx DOT de>
 ;; Author: Ross Patterson <me AT rpatterson DOT net>
 ;; Maintainer: Sebastian Rose <sebastian_rose AT gmx DOT de>
 ;; Keywords: org, emacsclient, wp
+;; Version: 6.31a
 
-;; This file is not part of GNU Emacs.
-
-;; This program is free software: you can redistribute it and/or modify
+;; This file is part of GNU Emacs.
+;;
+;; GNU Emacs is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 
-;; This program is distributed in the hope that it will be useful,
+;; GNU Emacs is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
-;; See <http://www.gnu.org/licenses/>.
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Commentary:
@@ -124,7 +118,6 @@
 ;;; Code:
 
 (require 'org)
-(require 'url)
 (eval-when-compile
   (require 'cl))
 
@@ -132,7 +125,8 @@
 		  (&optional refresh))
 (declare-function org-publish-get-project-from-filename "org-publish"
 		  (filename &optional up))
-(declare-function server-delete-client proc "server" (&optional noframe))
+(declare-function server-edit "server" (&optional arg))
+
 
 (defgroup org-protocol nil
   "Intercept calls from emacsclient to trigger custom actions.
@@ -254,6 +248,11 @@ Here is an example:
   :group 'org-protocol
   :type '(alist))
 
+(defcustom org-protocol-default-template-key "w"
+  "The default org-remember-templates key to use."
+  :group 'org-protocol
+  :type 'string)
+
 
 ;;; Helper functions:
 
@@ -271,13 +270,71 @@ Slashes are sanitized to double slashes here."
 data is that one argument. Data is splitted at each occurrence of separator
  (regexp). If no separator is specified or separator is nil, assume \"/+\".
 The results of that splitting are return as a list. If unhexify is non-nil,
-hex-decode each split part."
+hex-decode each split part. If unhexify is a function, use that function to
+decode each split part."
   (let* ((sep (or separator "/+"))
          (split-parts (split-string data sep)))
     (if unhexify
-        (mapcar 'url-unhex-string split-parts)
+	(if (fboundp unhexify)
+	    (mapcar unhexify split-parts)
+	  (mapcar 'org-protocol-unhex-string split-parts))
       split-parts)))
 
+(defun org-protocol-unhex-string(str)
+  "Unhex hexified unicode strings as returned from the JavaScript function
+encodeURIComponent. E.g. `%C3%B6' is the german Umlaut `ü'."
+  (setq str (or str ""))
+  (let ((tmp "")
+	(case-fold-search t))
+    (while (string-match "\\(%[0-9a-f][0-9a-f]\\)+" str)
+      (let* ((start (match-beginning 0))
+	     (end (match-end 0))
+	     (hex (match-string 0 str))
+	     (replacement (org-protocol-unhex-compound hex)))
+	(setq tmp (concat tmp (substring str 0 start) replacement))
+	(setq str (substring str end))))
+    (setq tmp (concat tmp str))
+    tmp))
+
+
+(defun org-protocol-unhex-compound (hex)
+  "Unhexify unicode hex-chars. E.g. `%C3%B6' is the german Umlaut `ü'."
+  (let* ((bytes (remove "" (split-string hex "%")))
+	 (ret "")
+	 (eat 0)
+	 (sum 0))
+    (while bytes
+      (let* ((b (pop bytes))
+	     (a (elt b 0))
+	     (b (elt b 1))
+	     (c1 (if (> a ?9) (+ 10 (- a ?A)) (- a ?0)))
+	     (c2 (if (> b ?9) (+ 10 (- b ?A)) (- b ?0)))
+	     (val (+ (lsh c1 4) c2))
+	     (shift
+	      (if (= 0 eat) ;; new byte
+		  (if (>= val 252) 6
+		    (if (>= val 248) 5
+		      (if (>= val 240) 4
+			(if (>= val 224) 3
+			  (if (>= val 192) 2 0)))))
+		6))
+	     (xor
+	      (if (= 0 eat) ;; new byte
+		  (if (>= val 252) 252
+		    (if (>= val 248) 248
+		      (if (>= val 240) 240
+			(if (>= val 224) 224
+			  (if (>= val 192) 192 0)))))
+		128)))
+	(if (>= val 192) (setq eat shift))
+	(setq val (logxor val xor))
+	(setq sum (+ (lsh sum shift) val))
+	(if (> eat 0) (setq eat (- eat 1)))
+	(when (= 0 eat)
+	  (setq ret (concat ret (char-to-string sum)))
+	  (setq sum 0))
+	)) ;; end (while bytes
+    ret ))
 
 (defun org-protocol-flatten-greedy (param-list &optional strip-path replacement)
   "Greedy handlers might recieve a list like this from emacsclient:
@@ -313,7 +370,7 @@ returned list."
       (progn
        (dolist (e l ret)
          (setq ret
-               (append ret 
+               (append ret
                        (list
                         (if (stringp e)
                             (if (stringp replacement)
@@ -365,7 +422,6 @@ The sub-protocol used to reach this function is set in
              uri))
   nil)
 
-
 (defun org-protocol-remember  (info)
   "Process an org-protocol://remember:// style url.
 
@@ -376,12 +432,13 @@ This function detects an URL, title and optinal text, separated by '/'
 The location for a browser's bookmark has to look like this:
 
   javascript:location.href='org-protocol://remember://'+ \\
-        encodeURIComponent(location.href)+ \\
+        encodeURIComponent(location.href)+'/' \\
         encodeURIComponent(document.title)+'/'+ \\
         encodeURIComponent(window.getSelection())
 
-By default the template character ?w is used. But you may prepend the encoded
-URL with a character and a slash like so:
+By default, it uses the character `org-protocol-default-template-key',
+which should be associated with a template in `org-remember-templates'.
+But you may prepend the encoded URL with a character and a slash like so:
 
   javascript:location.href='org-protocol://org-store-link://b/'+ ...
 
@@ -390,7 +447,8 @@ Now template ?b will be used."
   (if (and (boundp 'org-stored-links)
            (fboundp 'org-remember))
       (let* ((parts (org-protocol-split-data info t))
-             (template (or (and (= 1 (length (car parts))) (pop parts)) "w"))
+             (template (or (and (= 1 (length (car parts))) (pop parts))
+			   org-protocol-default-template-key))
              (url (org-protocol-sanitize-uri (car parts)))
              (type (if (string-match "^\\([a-z]+\\):" url)
                        (match-string 1 url)))
@@ -407,10 +465,9 @@ Now template ?b will be used."
                               :initial region)
         (raise-frame)
         (org-remember nil (string-to-char template)))
-    
+
     (message "Org-mode not loaded."))
   nil)
-
 
 (defun org-protocol-open-source (fname)
   "Process an org-protocol://open-source:// style url.
@@ -426,7 +483,7 @@ The location for a browser's bookmark should look like this:
   ;; As we enter this function for a match on our protocol, the return value
   ;; defaults to nil.
   (let ((result nil)
-        (f (url-unhex-string fname)))
+        (f (org-protocol-unhex-string fname)))
     (catch 'result
       (dolist (prolist org-protocol-project-alist)
         (let* ((base-url (plist-get (cdr prolist) :base-url))
@@ -477,8 +534,9 @@ as filename."
                        (greedy (plist-get (cdr prolist) :greedy))
                        (splitted (split-string fname proto))
                        (result (if greedy restoffiles (cadr splitted))))
-                  (if (plist-get (cdr prolist) :kill-client)
-                      (server-delete-client client t))
+                  (when (plist-get (cdr prolist) :kill-client)
+		    (message "Greedy org-protocol handler. Killing client.")
+		    (server-edit))
                   (when (fboundp func)
                     (unless greedy
                       (throw 'fname (funcall func result)))
@@ -521,7 +579,6 @@ most of the work."
     (if all (org-protocol-create (cdr all))
       (message "Not in an org-project. Did mean %s?"
                (substitute-command-keys"\\[org-protocol-create]")))))
-
 
 
 (defun org-protocol-create(&optional project-plist)
@@ -571,8 +628,9 @@ project-plist is the CDR of an element in `org-publish-project-alist', reuse
                                  :online-suffix ,strip-suffix
                                  :working-suffix ,working-suffix))
                   org-protocol-project-alist))
-      (customize-save-variable 'org-protocol-project-alist org-protocol-project-alist))
-))
+      (customize-save-variable 'org-protocol-project-alist org-protocol-project-alist))))
 
 (provide 'org-protocol)
+
+;; arch-tag: b5c5c2ac-77cf-4a94-a649-2163dff95846
 ;;; org-protocol.el ends here

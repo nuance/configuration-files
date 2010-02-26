@@ -6,7 +6,7 @@
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.25d
+;; Version: 6.31a
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -32,6 +32,18 @@
 
 (require 'org-macs)
 (require 'org-compat)
+
+(defun org-copy-face (old-face new-face docstring &rest attributes)
+  (unless (facep new-face)
+    (if (fboundp 'set-face-attribute)
+	(progn
+	  (make-face new-face)
+	  (set-face-attribute new-face nil :inherit old-face)
+	  (apply 'set-face-attribute new-face nil attributes)
+	  (set-face-doc-string new-face docstring))
+      (copy-face old-face new-face)
+      (if (fboundp 'set-face-doc-string)
+	  (set-face-doc-string new-face docstring)))))
 
 (defgroup org-faces nil
   "Faces in Org-mode."
@@ -258,21 +270,21 @@ column view defines special faces for each outline level.  See the file
   '((((class color) (background light)) (:underline t))
     (((class color) (background dark)) (:underline t))
     (t (:underline t)))
-  "Face for links."
+  "Face for link targets."
   :group 'org-faces)
 
 (defface org-date
   '((((class color) (background light)) (:foreground "Purple" :underline t))
     (((class color) (background dark)) (:foreground "Cyan" :underline t))
     (t (:underline t)))
-  "Face for links."
+  "Face for date/time stamps."
   :group 'org-faces)
 
 (defface org-sexp-date
   '((((class color) (background light)) (:foreground "Purple"))
     (((class color) (background dark)) (:foreground "Cyan"))
     (t (:underline t)))
-  "Face for links."
+  "Face for diary-like sexp date specifications."
   :group 'org-faces)
 
 (defface org-tag
@@ -363,6 +375,13 @@ list of attributes, like (:foreground \"blue\" :weight bold :underline t)."
   "Face for checkboxes"
   :group 'org-faces)
 
+
+(org-copy-face 'org-todo 'org-checkbox-statistics-todo
+	       "Face used for unfinished checkbox statistics.")
+
+(org-copy-face 'org-done 'org-checkbox-statistics-done
+	       "Face used for finished checkbox statistics.")
+
 (defcustom org-tag-faces nil
   "Faces for specific tags.
 This is a list of cons cells, with tags in the car and faces in the cdr.
@@ -402,7 +421,7 @@ changes."
   :group 'org-faces)
 
 (defface org-code
-  (org-compatible-face nil
+  (org-compatible-face 'shadow
     '((((class color grayscale) (min-colors 88) (background light))
        (:foreground "grey50"))
       (((class color grayscale) (min-colors 88) (background dark))
@@ -415,8 +434,28 @@ changes."
   :group 'org-faces
   :version "22.1")
 
+(defface org-meta-line
+  (org-compatible-face 'font-lock-comment-face nil)
+  "Face for meta lines startin with \"#+\"."
+  :group 'org-faces
+  :version "22.1")
+
+(defface org-block
+  (org-compatible-face 'shadow
+    '((((class color grayscale) (min-colors 88) (background light))
+       (:foreground "grey50"))
+      (((class color grayscale) (min-colors 88) (background dark))
+       (:foreground "grey70"))
+      (((class color) (min-colors 8) (background light))
+       (:foreground "green"))
+      (((class color) (min-colors 8) (background dark))
+       (:foreground "yellow"))))
+  "Face text in #+begin ... #+end blocks."
+  :group 'org-faces
+  :version "22.1")
+
 (defface org-verbatim
-  (org-compatible-face nil
+  (org-compatible-face 'shadow
     '((((class color grayscale) (min-colors 88) (background light))
        (:foreground "grey50" :underline t))
       (((class color grayscale) (min-colors 88) (background dark))
@@ -456,19 +495,21 @@ changes."
   "Face used in agenda for captions and dates."
   :group 'org-faces)
 
-(unless (facep 'org-agenda-date)
-  (copy-face 'org-agenda-structure 'org-agenda-date)
-  (set-face-doc-string 'org-agenda-date
-		       "Face used in agenda for normal days."))
+(org-copy-face 'org-agenda-structure 'org-agenda-date
+	       "Face used in agenda for normal days.")
 
-(unless (facep 'org-agenda-date-weekend)
-  (copy-face 'org-agenda-date 'org-agenda-date-weekend)
-  (set-face-doc-string 'org-agenda-date-weekend
-		       "Face used in agenda for weekend days.
+(org-copy-face 'org-agenda-date 'org-agenda-date-today
+	       "Face used in agenda for today."
+	       :weight 'bold :italic 't)
+
+(org-copy-face 'secondary-selection 'org-agenda-clocking
+	       "Face marking the current clock item in the agenda.")
+
+(org-copy-face 'org-agenda-date 'org-agenda-date-weekend
+	       "Face used in agenda for weekend days.
 See the variable `org-agenda-weekend-days' for a definition of which days
-belong to the weekend.")
-  (when (fboundp 'set-face-attribute)
-    (set-face-attribute 'org-agenda-date-weekend nil :weight 'bold)))
+belong to the weekend."
+	       :weight 'bold)
 
 (defface org-scheduled
   (org-compatible-face nil
@@ -585,6 +626,9 @@ If it is less than 8, the level-1 face gets re-used for level N+1 etc."
       (t (,@font))))
   "Face used to highlight math latex and other special exporter stuff."
   :group 'org-faces)
+
+(org-copy-face 'modeline 'org-mode-line-clock
+	       "Face used for clock display in mode line.")
 
 (provide 'org-faces)
 

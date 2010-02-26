@@ -58,45 +58,49 @@
 ;; Remember mode
 ;;-----------------------------------------------------------------------------
 
-(require 'remember-autoloads)
-(setq remember-data-file "~/notes.txt")
-(global-set-key (kbd "C-c r") 'remember)
+;; (require 'remember-autoloads)
+;; (setq remember-data-file "~/notes.txt")
+;; (global-set-key (kbd "C-c r") 'remember)
 
 
 
-(eval-after-load 'remember
-  '(progn
-     (add-to-list 'remember-annotation-functions
-                  'wicked/remember-line-numbers-and-file-names)))
+;; (eval-after-load 'remember
+;;   '(progn
+;;      (add-to-list 'remember-annotation-functions
+;;                   'wicked/remember-line-numbers-and-file-names)))
 
-(global-set-key (kbd "C-c R") 'wicked/remember-review-file)
+;; (global-set-key (kbd "C-c R") 'wicked/remember-review-file)
 
 ;;-----------------------------------------------------------------------------
 ;; Org mode
 ;;-----------------------------------------------------------------------------
 
-(require 'org-install)
+;; (require 'org-install)
 
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+;; (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
-(define-key mode-specific-map [?a] 'org-agenda)
+;; (define-key mode-specific-map [?a] 'org-agenda)
 
-(add-hook 'org-mode-hook
-          '(lambda ()
-             (define-key org-mode-map (kbd "C-c C-l") 'my-org-insert-link)))
+;; (add-hook 'org-mode-hook
+;;           '(lambda ()
+;;              (define-key org-mode-map (kbd "C-c C-l") 'my-org-insert-link)))
 
-(setq org-paper-directory "~/org-papers/")
+;; (setq org-paper-directory "~/org-papers/")
 
-(setq org-export-with-LaTeX-fragments t)
+;; (setq org-export-with-LaTeX-fragments t)
 
-(setq org-todo-keywords
-	  '((sequence "DESIGN(d)" "CODE(c!)" "TEST(t!)" "REVIEW(r!)" "PUSH(p!)" "|" "DONE(d!)")))
+;; (setq org-todo-keywords
+;; 	  '((sequence "DESIGN(d)" "CODE(c!)" "TEST(t!)" "REVIEW(r!)" "PUSH(p!)" "|" "DONE(d!)")))
+
+;; (require 'org-babel-init)
+;; (require 'org-babel-python)
+;; (org-babel-load-library-of-babel)
 
 ;;-----------------------------------------------------------------------------
 ;; Gnus gmail
 ;;-----------------------------------------------------------------------------
 
-(require 'nnir)
+;; (require 'nnir)
 
 ;;-----------------------------------------------------------------------------
 ;; dribbling (for future keyboard optimization)
