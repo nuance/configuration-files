@@ -77,4 +77,13 @@
   (hide-body)
   )
 
+(require 'hide-lines)
+
+(defun mr-focus ()
+  (interactive)
+  (hide-non-matching-lines "\\(yield\\|def\\|class\\)"))
+
+(add-hook 'python-mode-hook 
+		  '(lambda () (define-key python-mode-map "\C-cm" 'mr-focus)))
+
 (provide 'nuance-python)

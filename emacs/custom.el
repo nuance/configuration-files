@@ -16,6 +16,7 @@
  '(gnus-use-cache t)
  '(org-agenda-custom-commands (quote (("y" "iPhone and API Tickets" tags "iphone|api" nil))))
  '(org-agenda-files (quote ("~/.diary" "~/.tickets" "~/dev/active-project/nlp-python/TODO")))
+ '(org-export-select-tags (quote ("export")))
  '(py-indent-offset 4)
  '(py-smart-indentation nil)
  '(speedbar-default-position (quote left))

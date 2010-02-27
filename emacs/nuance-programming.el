@@ -148,7 +148,7 @@
 ;;  '(lambda ()
 ;;     (if (not (null buffer-file-name)) (flymake-mode))))
 
-(push '(".+\\.go$" flymake-go-init  flymake-simple-java-cleanup)
-      flymake-allowed-file-name-masks)
+;; (push '(".+\\.go$" flymake-go-init  flymake-simple-java-cleanup)
+;;      flymake-allowed-file-name-masks)
 
 (provide 'nuance-programming)
