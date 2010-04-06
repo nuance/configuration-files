@@ -17,7 +17,8 @@
 (global-set-key [C-f12] 'save-diary)
 
 ;; Go to binding
-(global-set-key "\M-g" 'goto-line)
+(require 'nuance-defuns)
+(global-set-key "\M-g" 'smarter-goto-line)
 
 ;; Smarter centering
 (global-set-key [(control l)]  'centerer)

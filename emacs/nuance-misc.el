@@ -92,13 +92,13 @@
 (setq org-todo-keywords
 	  '((sequence "DESIGN(d)" "CODE(c!)" "TEST(t!)" "REVIEW(r!)" "PUSH(p!)" "|" "DONE(d!)")))
 
-(require 'org-babel-init)
-(require 'org-babel-python)
-(require 'org-babel-R)
-(require 'org-babel-ditaa)
-(require 'org-babel-sql)
-(require 'org-babel-javascript)
-(org-babel-load-library-of-babel)
+;; (require 'org-babel-init)
+;; (require 'org-babel-python)
+;; (require 'org-babel-R)
+;; (require 'org-babel-ditaa)
+;; (require 'org-babel-sql)
+;; (require 'org-babel-javascript)
+;; (org-babel-load-library-of-babel)
 
 (defun export-for-candidate ()
   (interactive)
@@ -137,13 +137,13 @@
 ;; auto-hide
 ;;-----------------------------------------------------------------------------
 
-(autoload 'hide-lines "hide-lines" "Hide lines based on a regexp" t)
-(global-set-key "\C-ch" 'hide-lines)
+;; (autoload 'hide-lines "hide-lines" "Hide lines based on a regexp" t)
+;; (global-set-key "\C-ch" 'hide-lines)
 
-(defadvice show-hidden-lines
-  (after show-all activate)
-  """ Show invisible lines """
-  (message "calling show invisible")
-  (show-all-invisible))
+;; (defadvice show-hidden-lines
+;;   (after show-all activate)
+;;   """ Show invisible lines """
+;;   (message "calling show invisible")
+;;   (show-all-invisible))
 
 (provide 'nuance-misc)
