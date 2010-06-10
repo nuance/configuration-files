@@ -25,6 +25,12 @@
 (setq comment-style 'plain)
 (setq frame-title-format (list '("emacs ") '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
 
+(setenv "PATH" (concat "/usr/local/bin:/usr/local/git/bin:" (getenv "PATH")))
+
+(require 'egg)
+;; Make egg usable
+(setq egg-auto-update nil)
+
 (require 'printing)
 (require 'cool-stuff)
 

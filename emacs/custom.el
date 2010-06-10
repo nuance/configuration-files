@@ -32,7 +32,8 @@
  '(py-smart-indentation nil)
  '(speedbar-default-position (quote left))
  '(tab-width 4)
- '(uniquify-buffer-name-style (quote post-forward) nil (uniquify)))
+ '(uniquify-buffer-name-style (quote post-forward) nil (uniquify))
+ '(exec-path (quote ("/usr/bin" "/bin" "/usr/sbin" "/sbin" "/Applications/Utilities/Emacs.app/Contents/MacOS/bin" "/usr/local/bin" "/usr/local/git/bin"))))
 
 (set-default-font "-apple-Inconsolata-medium-normal-normal-*-*-*-*-*-m-0-iso10646-1")
 
