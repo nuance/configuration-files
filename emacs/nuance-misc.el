@@ -64,11 +64,10 @@
 ;; Remember mode
 ;;-----------------------------------------------------------------------------
 
-(require 'remember-autoloads)
+(require 'remember)
+
 (setq remember-data-file "~/notes.txt")
 (global-set-key (kbd "C-c r") 'remember)
-
-
 
 (eval-after-load 'remember
   '(progn
@@ -81,22 +80,27 @@
 ;; Org mode
 ;;-----------------------------------------------------------------------------
 
-(require 'org-install)
+;; (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+;; (define-key mode-specific-map [?a] 'org-agenda)
 
-(define-key mode-specific-map [?a] 'org-agenda)
+;; (add-hook 'org-mode-hook
+;;           '(lambda ()
+;;              (define-key org-mode-map (kbd "C-c C-l") 'my-org-insert-link)))
 
-(add-hook 'org-mode-hook
-          '(lambda ()
-             (define-key org-mode-map (kbd "C-c C-l") 'my-org-insert-link)))
+;; (setq org-paper-directory "~/org-papers/")
 
-(setq org-paper-directory "~/org-papers/")
+;; (setq org-export-with-LaTeX-fragments t)
 
-(setq org-export-with-LaTeX-fragments t)
+;; (setq org-todo-keywords
+;; 	  '((sequence "EXPLORE(e!)" "DESIGN(s!)" "CODE(c!)" "TEST(t!)" "REVIEW(r!)" "PUSH(p!)" "|" "DONE(d!)")))
 
-(setq org-todo-keywords
-	  '((sequence "DESIGN(d)" "CODE(c!)" "TEST(t!)" "REVIEW(r!)" "PUSH(p!)" "|" "DONE(d!)")))
+;; Set to the location of your Org files on your local system
+;;(setq org-directory "~/org")
+;; Set to the name of the file where new notes will be stored
+;;(setq org-mobile-inbox-for-pull "~/org/flagged.org")
+;; Set to <your Dropbox root directory>/MobileOrg.
+;;(setq org-mobile-directory "~/Dropbox/MobileOrg")
 
 ;; (require 'org-babel-init)
 ;; (require 'org-babel-python)
