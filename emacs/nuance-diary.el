@@ -1,7 +1,7 @@
 (defun open-diary ()
   (interactive)
-  (find-file "~/.diary")
-  (goto-line 2)
+  (find-file "~/org/work.org")
+  (goto-line 1)
   (move-end-of-line nil)
   (newline)
   (time-stamp)
@@ -9,7 +9,7 @@
 
 (defun save-diary ()
   (interactive)
-  (cd "~/diary")
+  (cd "~/org")
   (shell-command (format "/usr/local/bin/git commit -am\"%s\"" (format-time-string "%c" (current-time)))))
 
 (defvar my-diary-mode-keymap nil

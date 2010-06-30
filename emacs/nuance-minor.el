@@ -25,4 +25,6 @@
 
 (require 'nuance-diary)
 
+(require 'rainbow-mode)
+
 (provide 'nuance-minor)

@@ -25,6 +25,12 @@
 (setq comment-style 'plain)
 (setq frame-title-format (list '("emacs ") '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
 
+(setenv "PATH" (concat "/usr/local/bin:/usr/local/git/bin:" (getenv "PATH")))
+
+(require 'egg)
+;; Make egg usable
+(setq egg-auto-update nil)
+
 (require 'printing)
 (require 'cool-stuff)
 
@@ -58,51 +64,21 @@
 ;; Remember mode
 ;;-----------------------------------------------------------------------------
 
-;; (require 'remember-autoloads)
-;; (setq remember-data-file "~/notes.txt")
-;; (global-set-key (kbd "C-c r") 'remember)
+(require 'remember)
 
+(setq remember-data-file "~/notes.txt")
+(global-set-key (kbd "C-c r") 'remember)
 
-
-;; (eval-after-load 'remember
-;;   '(progn
-;;      (add-to-list 'remember-annotation-functions
-;;                   'wicked/remember-line-numbers-and-file-names)))
+(eval-after-load 'remember
+  '(progn
+     (add-to-list 'remember-annotation-functions
+                  'wicked/remember-line-numbers-and-file-names)))
 
 ;; (global-set-key (kbd "C-c R") 'wicked/remember-review-file)
 
 ;;-----------------------------------------------------------------------------
 ;; Org mode
 ;;-----------------------------------------------------------------------------
-
-;; (require 'org-install)
-
-;; (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-
-;; (define-key mode-specific-map [?a] 'org-agenda)
-
-;; (add-hook 'org-mode-hook
-;;           '(lambda ()
-;;              (define-key org-mode-map (kbd "C-c C-l") 'my-org-insert-link)))
-
-;; (setq org-paper-directory "~/org-papers/")
-
-;; (setq org-export-with-LaTeX-fragments t)
-
-;; (setq org-todo-keywords
-;; 	  '((sequence "DESIGN(d)" "CODE(c!)" "TEST(t!)" "REVIEW(r!)" "PUSH(p!)" "|" "DONE(d!)")))
-
-;; (require 'org-babel-init)
-;; (require 'org-babel-python)
-;; (org-babel-load-library-of-babel)
-
-(require 'org-babel-init)
-(require 'org-babel-python)
-(require 'org-babel-R)
-(require 'org-babel-ditaa)
-(require 'org-babel-sql)
-(require 'org-babel-javascript)
-(org-babel-load-library-of-babel)
 
 (defun export-for-candidate ()
   (interactive)
@@ -141,13 +117,13 @@
 ;; auto-hide
 ;;-----------------------------------------------------------------------------
 
-(autoload 'hide-lines "hide-lines" "Hide lines based on a regexp" t)
-(global-set-key "\C-ch" 'hide-lines)
+;; (autoload 'hide-lines "hide-lines" "Hide lines based on a regexp" t)
+;; (global-set-key "\C-ch" 'hide-lines)
 
-(defadvice show-hidden-lines
-  (after show-all activate)
-  """ Show invisible lines """
-  (message "calling show invisible")
-  (show-all-invisible))
+;; (defadvice show-hidden-lines
+;;   (after show-all activate)
+;;   """ Show invisible lines """
+;;   (message "calling show invisible")
+;;   (show-all-invisible))
 
 (provide 'nuance-misc)

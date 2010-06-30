@@ -84,7 +84,7 @@
 
 (defun current-branchname (&optional base filename)
   (let* ((bse (if base base "pg"))
-		 (branch (car (split-branch "pg" filename))))
+		 (branch (car (split-branch bse filename))))
 	(if branch (file-name-nondirectory branch) nil)))
 
 ;;=====================================

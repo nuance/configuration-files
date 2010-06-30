@@ -13,11 +13,12 @@
 (global-set-key [f5] 'flymake-goto-prev-error)
 (global-set-key [f6] 'flymake-goto-next-error)
 (global-set-key [f7] 'flymake-start-syntax-check)
-(global-set-key [f12] 'open-diary)
-(global-set-key [C-f12] 'save-diary)
+(global-set-key [f8] 'open-diary)
+(global-set-key [C-f8] 'save-diary)
 
 ;; Go to binding
-(global-set-key "\M-g" 'goto-line)
+(require 'nuance-defuns)
+(global-set-key "\M-g" 'smarter-goto-line)
 
 ;; Smarter centering
 (global-set-key [(control l)]  'centerer)

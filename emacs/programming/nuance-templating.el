@@ -55,28 +55,28 @@
     :face mmm-code-submode-face
     :front "#"
 	:back "$")
-   (html-css-embedded
-    :submode css-mode
-    :face mmm-declaration-submode-face
-    :front "<style\[^>\]*>"
-    :back "</style>")
-   (html-css-attribute
-    :submode css-mode
-    :face mmm-declaration-submode-face
-    :front "\\bstyle=\\s-*\""
-    :back "\"")
+;;    (html-css-embedded
+;;     :submode css-mode
+;;     :face mmm-declaration-submode-face
+;;     :front "<style\[^>\]*>"
+;;     :back "</style>")
+;;    (html-css-attribute
+;;     :submode css-mode
+;;     :face mmm-declaration-submode-face
+;;     :front "\\bstyle=\\s-*\""
+;;     :back "\"")
    (html-script-embedded
-    :submode javascript-mode
+    :submode espresso-mode
     :face mmm-code-submode-face
     :front "<script>"
     :back "</script>")
    (html-javascript-embedded
-    :submode javascript-mode
+    :submode espresso-mode
     :face mmm-code-submode-face
     :front "<script type=\"text/javascript\">"
     :back "</script>")
    (html-javascript-attribute
-    :submode javascript-mode
+    :submode espresso-mode
     :face mmm-code-submode-face
     :front "\\bon\\w+=\\s-*\""
     :back "\"")))

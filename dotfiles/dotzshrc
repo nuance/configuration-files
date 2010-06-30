@@ -116,7 +116,7 @@ alias i=/home/matt/bin/itunes
 alias pp="/home/matt/bin/itunes playpause"
 alias np="/home/matt/bin/itunes status"
 
-source $HOME/.bash_profile
+#source $HOME/.bash_profile
 
 source $HOME/includes/svn-magic.sh
 #source $HOME/includes/search.sh
@@ -199,3 +199,4 @@ function search()
 
 bindkey -s "^x^f" $'emacs '
 
+export PATH="$PATH:/sw/bin"

@@ -3,6 +3,7 @@
 ;;-----------------------------------------------------------------------------
 
 (load-library "python")
+
 (add-hook 'python-mode-hook '(lambda () (define-key python-mode-map "\C-m" 'newline-and-indent)))
 (add-hook 'python-mode-hook '(lambda () (custom-set-variables
                                          '(py-indent-offset 4)
@@ -77,11 +78,11 @@
   (hide-body)
   )
 
-(require 'hide-lines)
+;; (require 'hide-lines)
 
-(defun mr-focus ()
-  (interactive)
-  (hide-non-matching-lines "\\(yield\\|def\\|class\\)"))
+;; (defun mr-focus ()
+;;   (interactive)
+;;   (hide-non-matching-lines "\\(yield\\|def\\|class\\)"))
 
 (add-hook 'python-mode-hook 
 		  '(lambda () (define-key python-mode-map "\C-cm" 'mr-focus)))

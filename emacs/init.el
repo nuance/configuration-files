@@ -19,11 +19,6 @@
 ;; (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/jabber"))
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/color-theme"))
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/mmm-mode"))
-;; (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/ess/lisp"))
-;; (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/scala-mode"))
-;; (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/org"))
-;; (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/org-contrib"))
-;; (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/remember"))
 
 ;; All my programming mode customizations
 (add-to-list 'load-path (concat dotfiles-dir "/programming"))
@@ -35,7 +30,7 @@
 ;; These should be loaded on startup rather than autoloaded on demand
 ;; since they are likely to be used in every session
 
-(require 'byte-code-cache)
+;;(require 'byte-code-cache)
 (require 'saveplace)
 (require 'ffap)
 (require 'uniquify)
@@ -64,6 +59,8 @@
 (require 'nuance-programming)
 
 (require 'nuance-colortheme)
+
+(require 'nuance-org)
 
 (regen-autoloads)
 (load custom-file 'noerror)
