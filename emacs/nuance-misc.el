@@ -27,9 +27,9 @@
 
 (setenv "PATH" (concat "/usr/local/bin:/usr/local/git/bin:" (getenv "PATH")))
 
-(require 'egg)
+;;(require 'egg)
 ;; Make egg usable
-(setq egg-auto-update nil)
+;;(setq egg-auto-update nil)
 
 (require 'printing)
 (require 'cool-stuff)
@@ -125,5 +125,10 @@
 ;;   """ Show invisible lines """
 ;;   (message "calling show invisible")
 ;;   (show-all-invisible))
+
+(require 'notmuch)
+(setq notmuch-command "/Users/matt/bin/remote-notmuch")
+
+(require 'markdown-mode)
 
 (provide 'nuance-misc)

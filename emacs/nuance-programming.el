@@ -18,6 +18,7 @@
 (require 'nuance-js)
 (require 'nuance-python)
 (require 'nuance-templating)
+(require 'nuance-tornado)
 
 ;;-----------------------------------------------------------------------------
 ;; ESS mode

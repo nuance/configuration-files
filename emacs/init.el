@@ -19,6 +19,7 @@
 ;; (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/jabber"))
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/color-theme"))
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/mmm-mode"))
+(add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/notmuch"))
 
 ;; All my programming mode customizations
 (add-to-list 'load-path (concat dotfiles-dir "/programming"))
@@ -36,10 +37,6 @@
 (require 'uniquify)
 (require 'ansi-color)
 
-;; this must be loaded before ELPA since it bundles its own
-;; out-of-date js stuff. TODO: fix it to use ELPA dependencies
-(load "elpa-to-submit/nxhtml/autostart")
-
 ;; private config variables, not stored in git
 (require 'yelp-private)
 
@@ -47,7 +44,7 @@
 
 (require 'package)
 (package-initialize)
-(require 'nuance-elpa)
+;;(require 'nuance-elpa)
 
 ;; Load up nuance customizations
 
