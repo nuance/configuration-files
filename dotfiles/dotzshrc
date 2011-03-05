@@ -12,7 +12,12 @@ export SAVEHIST=$HISTSIZE
 setopt hist_ignore_all_dups
 setopt hist_ignore_space
 
-export PS1="[%n@%m %1~]$ "
+function git_branch() {
+	ref=$(git symbolic-ref HEAD 2> /dev/null) || return
+	echo " ($ref)"
+}
+
+export PS1="[%n@%m %1~]$(git_branch)$ "
 
 # See if we can use colors. 
 autoload colors zsh/terminfo 
@@ -116,7 +121,7 @@ alias i=/home/matt/bin/itunes
 alias pp="/home/matt/bin/itunes playpause"
 alias np="/home/matt/bin/itunes status"
 
-#source $HOME/.bash_profile
+source $HOME/.bash_profile
 
 source $HOME/includes/svn-magic.sh
 #source $HOME/includes/search.sh

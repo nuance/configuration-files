@@ -131,4 +131,6 @@
 
 (require 'markdown-mode)
 
+(require 'gtk-doc)
+
 (provide 'nuance-misc)

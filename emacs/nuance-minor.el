@@ -27,4 +27,6 @@
 
 (require 'rainbow-mode)
 
+(load-library "flymake-cursor")
+
 (provide 'nuance-minor)

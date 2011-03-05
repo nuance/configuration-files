@@ -10,6 +10,7 @@
 ;; (add-hook 'scala-mode-hook      'run-coding-hook)
 (add-hook 'sh-mode-hook         'run-coding-hook)
 (add-hook 'espresso-mode-hook   'run-coding-hook)
+(add-hook 'go-mode-hook         'run-coding-hook)
 
 (require 'mmm-auto)
 (setq mmm-global-mode 'maybe)

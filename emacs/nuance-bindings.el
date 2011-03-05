@@ -27,4 +27,6 @@
 (global-set-key [(control s)] 'isearch-forward-regexp)
 (global-set-key [(control r)] 'isearch-backward-regexp)
 
+(global-set-key [(super F)] 'ns-toggle-fullscreen)
+
 (provide 'nuance-bindings)
