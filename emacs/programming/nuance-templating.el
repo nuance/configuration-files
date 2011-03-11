@@ -32,6 +32,21 @@
   (font-lock-mode 1))
 
 ;;-----------------------------------------------------------------------------
+;; Tornado template mode
+;;-----------------------------------------------------------------------------
+
+(define-derived-mode tornado-template-mode html-mode "Tornado"
+  (make-face 'tornado-variable-face)
+  (font-lock-add-keywords
+   nil
+   '(
+	 ;; {% %} lines
+	 ("{%[^}]*%}" 1 font-lock-type-face)
+	 ;; {{ }} lines
+	 ("{{[^}]*}}" 1 font-lock-variable-face)))
+  (font-lock-mode 1))
+
+;;-----------------------------------------------------------------------------
 ;; Smart Cheetah (uses mmm for javascript, css)
 ;;-----------------------------------------------------------------------------
 
@@ -40,11 +55,6 @@
 (add-to-list 'auto-mode-alist '("\\.css\\'" . css-mode))
 (setq cssm-indent-function #'cssm-c-style-indenter)
 (setq cssm-indent-level '2)
-
-;; javascript-generic-mode
-(autoload 'js2-mode "js2" nil t)
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-(autoload 'javascript-mode "javascript" nil t)
 
 ;; Set up an mmm group for fancy html editing
 (mmm-add-group

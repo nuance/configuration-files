@@ -126,11 +126,11 @@
 ;;   (message "calling show invisible")
 ;;   (show-all-invisible))
 
-(require 'notmuch)
-(setq notmuch-command "/Users/matt/bin/remote-notmuch")
+;;(require 'notmuch)
+;;(setq notmuch-command "/Users/matt/bin/remote-notmuch")
 
 (require 'markdown-mode)
 
-(require 'gtk-doc)
+;; (require 'gtk-doc)
 
 (provide 'nuance-misc)

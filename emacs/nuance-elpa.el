@@ -4,7 +4,6 @@
 
 (defvar starter-kit-packages (list 'highline
         'javascript
-                                'js2-mode
                                 'lua-mode
                                    'css-mode
                                    'nxml)

@@ -137,6 +137,8 @@
 ;; Go mode
 ;;-----------------------------------------------------------------------------
 
+(require 'go-mode-load)
+
 ;; flymake for go
 (defun flymake-go-init ()
   (let* ((temp-file (flymake-init-create-temp-buffer-copy
