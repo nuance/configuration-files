@@ -164,7 +164,7 @@
 ;; Go mode
 ;;-----------------------------------------------------------------------------
 
-(require 'go-mode-load)
+;;(require 'go-mode-load)
 
 ;; flymake for go
 (require 'flymake)
