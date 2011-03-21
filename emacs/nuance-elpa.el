@@ -3,10 +3,9 @@
 ;; Derived from the Emacs Starter Kit
 
 (defvar starter-kit-packages (list 'highline
-        'javascript
-                                'lua-mode
-                                   'css-mode
-                                   'nxml)
+				   'javascript
+				   'lua-mode
+                                   'css-mode)
   "Libraries that should be installed by default.")
 
 (defun starter-kit-elpa-install ()
