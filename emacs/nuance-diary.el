@@ -1,6 +1,6 @@
 (defun open-diary ()
   (interactive)
-  (find-file "~/org/work.org")
+  (find-file "~/Dropbox/org/work.org")
   (goto-line 1)
   (move-end-of-line nil)
   (newline)
@@ -19,6 +19,7 @@
     nil
   (progn
     (setq my-diary-mode-keymap (make-sparse-keymap))
+	(define-key my-diary-mode-keymap (kbd "C-c C-n") 'open-diary)
 	(define-key my-diary-mode-keymap (kbd "C-c n") 'open-diary)))
 
 (define-minor-mode my-diary-mode

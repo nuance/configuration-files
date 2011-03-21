@@ -63,6 +63,12 @@
 ;;(require 'thrift-mode)
 
 ;;-----------------------------------------------------------------------------
+;; Protocol buffer mode
+;;-----------------------------------------------------------------------------
+
+(require 'protobuf-mode)
+
+;;-----------------------------------------------------------------------------
 ;; Objective-C mode
 ;;-----------------------------------------------------------------------------
 (defun objc-outline-level ()
@@ -80,11 +86,24 @@
 ;;-----------------------------------------------------------------------------
 ;; Java mode
 ;;-----------------------------------------------------------------------------
-(add-hook 'java-mode-hook       'my-java-tab-fix)
-(add-hook 'java-mode-hook
-          (lambda ()
-            (local-set-key [(return)] 'newline-and-indent)
-            (custom-set-variables '(tab-width 4))))
+ ;; Or enable more if you wish
+;; (setq semantic-default-submodes '(global-semantic-idle-scheduler-mode
+;; 								  global-semanticdb-minor-mode
+;; 								  global-semantic-idle-summary-mode
+;; 								  global-semantic-mru-bookmark-mode))
+;; (semantic-mode 1)
+
+;; (require 'malabar-mode)
+
+;; (setq malabar-groovy-lib-dir (concat dotfiles-dir "/elpa-to-submit/malabar-1.4.0/lib"))
+;; (add-to-list 'auto-mode-alist '("\\.java\\'" . malabar-mode))
+
+;; (add-hook 'malabar-mode-hook       'my-java-tab-fix)
+;; (add-hook 'malabar-mode-hook
+;;           (lambda ()
+;;             (local-set-key [(return)] 'newline-and-indent)
+;;             (custom-set-variables '(tab-width 4))))
+
 
 ;;-----------------------------------------------------------------------------
 ;; Erlang mode
@@ -148,12 +167,12 @@
                       (file-name-directory buffer-file-name))))
     (list "8g" (list local-file))))
 
-;; (add-hook
-;;  'go-mode-hook
-;;  '(lambda ()
-;;     (if (not (null buffer-file-name)) (flymake-mode))))
+(add-hook
+ 'go-mode-hook
+ '(lambda ()
+	(if (not (null buffer-file-name)) (flymake-mode))))
 
-;; (push '(".+\\.go$" flymake-go-init  flymake-simple-java-cleanup)
+;;(push '(".+\\.go$" flymake-go-init  flymake-simple-java-cleanup)
 ;;      flymake-allowed-file-name-masks)
 
 (provide 'nuance-programming)

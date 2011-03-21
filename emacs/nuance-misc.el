@@ -108,6 +108,44 @@
 ;; (require 'nnir)
 
 ;;-----------------------------------------------------------------------------
+;; PO Mode
+;;-----------------------------------------------------------------------------
+
+(require 'po-mode)
+
+;;-----------------------------------------------------------------------------
+;; simplenote
+;;-----------------------------------------------------------------------------
+
+(require 'simplenote)
+
+;;-----------------------------------------------------------------------------
+;; markdown
+;;-----------------------------------------------------------------------------
+
+(require 'markdown-mode)
+
+;;-----------------------------------------------------------------------------
+;; edit from chrome
+;;-----------------------------------------------------------------------------
+
+(require 'edit-server)
+(setq edit-server-new-frame nil)
+(add-hook 'edit-server-done-hook 'on-edit-server-done-do-backup)
+(edit-server-start)
+
+(defun on-edit-server-done-do-backup ()
+  "Run when text is sent to Google Chrome. Do a backup of the
+    stuff sent there in case something goes wrong, e.g. Chrome
+    crashes."
+  (let* ((backup-dir "~/._emacs_chrome-backup")
+		 (backup-file (format "%s.txt" (float-time)))
+		 (backup-path (concat backup-dir "/" backup-file)))
+	(unless (file-directory-p backup-dir)
+	  (make-directory backup-dir))
+	(write-region (point-min) (point-max) backup-path)))
+
+;;-----------------------------------------------------------------------------
 ;; dribbling (for future keyboard optimization)
 ;;-----------------------------------------------------------------------------
 

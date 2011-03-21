@@ -20,13 +20,18 @@
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/color-theme"))
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/mmm-mode"))
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/notmuch"))
+(add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/malabar-1.4.0/lisp"))
 
 ;; All my programming mode customizations
 (add-to-list 'load-path (concat dotfiles-dir "/programming"))
 
+;; system
+(add-to-list 'load-path "/usr/local/share/emacs/site-lisp")
+
 (setq autoload-file (concat dotfiles-dir "loaddefs.el"))
 (setq package-user-dir (concat dotfiles-dir "elpa"))
 (setq custom-file (concat dotfiles-dir "custom.el"))
+(load custom-file 'noerror)
 
 ;; These should be loaded on startup rather than autoloaded on demand
 ;; since they are likely to be used in every session

@@ -61,8 +61,11 @@
          (org-agenda-overriding-header "Unscheduled TODO entries: "))))))
  '(org-remember-store-without-prompt t)
  '(org-remember-templates
-   (quote ((116 "* TODO %?\n  %u" "~/Dropbox/org/work.org" "Tasks")
-       (110 "* %u %?" "~/Dropbox/org/notes.org" "Notes"))))
+   (quote ((116 "* TODO %?\n  %u" "~/Dropbox/org/work.2011.q1.org" "Tasks")
+		   (109 "* %?\n  %u" "~/Dropbox/org/work.2011.q1.org" "Mobile Search Metrics")
+		   (99 "* %?\n  %u" "~/Dropbox/org/work.2011.q1.org" "Contribution Search")
+		   (117 "* %?\n  %u" "~/Dropbox/org/work.2011.q1.org" "University Data Set")
+		   (110 "* %u %?" "~/Dropbox/org/notes.org" "Notes"))))
  '(remember-annotation-functions (quote (org-remember-annotation)))
  '(remember-handler-functions (quote (org-remember-handler))))
 
@@ -80,5 +83,7 @@
     			      default-frame-alist)))
         ad-do-it
         ))
+
+(setq org-log-done 'time)
 
 (provide 'nuance-org)

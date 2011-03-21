@@ -36,10 +36,13 @@
  '(org-remember-templates (quote ((116 "* TODO %?
   %u" "~/Dropbox/org/work.org" "Tasks") (110 "* %u %?" "~/Dropbox/org/notes.org" "Notes"))))
  '(org-reverse-note-order t)
+ '(pastebin-default-domain "pb.yelpcorp.com")
+ '(pastebin-domain-versions (quote (("pastebin.com" "/api_public.php") ("pastebin.example.com" "/pastebin.php") ("pb.yelpcorp.com" "/pastebin.php"))))
  '(py-indent-offset 4)
  '(py-smart-indentation nil)
  '(remember-annotation-functions (quote (org-remember-annotation)))
  '(remember-handler-functions (quote (org-remember-handler)))
+ '(simplenote-notes-mode (quote markdown-mode))
  '(speedbar-default-position (quote left))
  '(tab-width 4)
  '(uniquify-buffer-name-style (quote post-forward) nil (uniquify)))
@@ -51,6 +54,6 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width normal :foundry "unknown" :family "Inconsolata"))))
+ '(default ((t (:inherit nil :stipple nil :background "#141414" :foreground "#F8F8F8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 150 :width normal :foundry "apple" :family "Consolas"))))
  '(highline-face ((t (:background "gray15"))))
  '(mode-line ((t (:background "grey20" :foreground "grey85")))))

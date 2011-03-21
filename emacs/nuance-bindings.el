@@ -16,6 +16,9 @@
 (global-set-key [f8] 'open-diary)
 (global-set-key [C-f8] 'save-diary)
 
+(global-set-key [(control ^)] 'show-subtree)
+(global-set-key [(control meta ^)] 'hide-subtree)
+
 ;; Go to binding
 (require 'nuance-defuns)
 (global-set-key "\M-g" 'smarter-goto-line)
@@ -27,6 +30,10 @@
 (global-set-key [(control s)] 'isearch-forward-regexp)
 (global-set-key [(control r)] 'isearch-backward-regexp)
 
-(global-set-key [(super F)] 'ns-toggle-fullscreen)
+;; Fullscreen
+(global-set-key [(super return)] 'ns-toggle-fullscreen)
+
+
+(global-set-key "\M-R" 'org-remember)
 
 (provide 'nuance-bindings)
