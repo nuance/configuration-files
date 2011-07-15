@@ -172,6 +172,9 @@
  '(lambda ()
 	(if (not (null buffer-file-name)) (flymake-mode))))
 
+(require 'go-autocomplete)
+(require 'auto-complete-config)
+
 ;;(push '(".+\\.go$" flymake-go-init  flymake-simple-java-cleanup)
 ;;      flymake-allowed-file-name-masks)
 
