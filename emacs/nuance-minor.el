@@ -21,7 +21,7 @@
 ;;(require 'textmate)
 ;;(global-set-key "\C-q" 'textmate-goto-file)
 
-(require 'pomodoro)
+;; (require 'pomodoro)
 
 (require 'nuance-diary)
 

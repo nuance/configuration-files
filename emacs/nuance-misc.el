@@ -168,6 +168,10 @@
 ;;(setq notmuch-command "/Users/matt/bin/remote-notmuch")
 
 (require 'markdown-mode)
+(add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
+
+(require 'simplenote)
+(simplenote-setup)
 
 ;; (require 'gtk-doc)
 

@@ -67,6 +67,7 @@
 ;;-----------------------------------------------------------------------------
 
 (require 'protobuf-mode)
+(add-to-list 'auto-mode-alist '("\\.proto$" . protobuf-mode))
 
 ;;-----------------------------------------------------------------------------
 ;; Objective-C mode
@@ -153,29 +154,45 @@
 ;; (add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
 
 ;;-----------------------------------------------------------------------------
+;; YAML mode
+;;-----------------------------------------------------------------------------
+
+(require 'yaml-mode)
+(add-hook 'yaml-mode-hook '(lambda () (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
+
+;;-----------------------------------------------------------------------------
 ;; Go mode
 ;;-----------------------------------------------------------------------------
 
 (require 'go-mode-load)
 
 ;; flymake for go
-(defun flymake-go-init ()
-  (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                     'flymake-create-temp-inplace))
-         (local-file (file-relative-name
-                      temp-file
-                      (file-name-directory buffer-file-name))))
-    (list "8g" (list local-file))))
+(require 'flymake)
+(defun flymake-golang-init ()
+  (flymake-simple-make-init-impl
+   'flymake-create-temp-with-folder-structure nil
+   nil
+   buffer-file-name
+   (lambda (s b) `("make"))))
 
-(add-hook
- 'go-mode-hook
- '(lambda ()
-	(if (not (null buffer-file-name)) (flymake-mode))))
+(defun flymake-golang-test-init ()
+  (flymake-simple-make-init-impl
+   'flymake-create-temp-with-folder-structure nil
+   nil
+   buffer-file-name
+   (lambda (s b) `("gotest"))))
+
+(push '("\\.go$" flymake-golang-init)
+	  flymake-allowed-file-name-masks)
+(push '("_test\\.go$" flymake-golang-test-init)
+	  flymake-allowed-file-name-masks)
+
+(push '("\\([^:]*\\):\\([0-9]+\\):[0-9]+: \\(.*\\)" 1 2 nil 3)
+	  flymake-err-line-patterns)
+
+(add-hook 'go-mode-hook (lambda () (flymake-mode)))
 
 (require 'go-autocomplete)
 (require 'auto-complete-config)
-
-;;(push '(".+\\.go$" flymake-go-init  flymake-simple-java-cleanup)
-;;      flymake-allowed-file-name-masks)
 
 (provide 'nuance-programming)

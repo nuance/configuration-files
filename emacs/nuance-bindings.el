@@ -10,7 +10,7 @@
 (global-set-key [(shift f3)] 'show-all)
 (global-set-key [f4] 'hide-subtree)
 (global-set-key [(shift f4)] 'hide-sublevels)
-(global-set-key [f5] 'flymake-goto-prev-error)
+(global-set-key [f5] 'flymake-goto-next-error)
 (global-set-key [f6] 'flymake-goto-next-error)
 (global-set-key [f7] 'flymake-start-syntax-check)
 (global-set-key [f8] 'open-diary)
