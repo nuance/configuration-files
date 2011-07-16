@@ -87,4 +87,11 @@
 (add-hook 'python-mode-hook 
 		  '(lambda () (define-key python-mode-map "\C-cm" 'mr-focus)))
 
+(require 'auto-complete-python)
+
+(ac-ropemacs-initialize)
+(add-hook 'python-mode-hook
+          (lambda ()
+			    (add-to-list 'ac-sources 'ac-source-ropemacs)))
+
 (provide 'nuance-python)

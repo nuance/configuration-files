@@ -14,7 +14,7 @@
  '(erc-track-minor-mode t)
  '(erc-track-mode t)
  '(erc-track-showcount t)
- '(exec-path (quote ("/usr/bin" "/bin" "/usr/sbin" "/sbin" "/Applications/Utilities/Emacs.app/Contents/MacOS/bin" "/usr/local/bin" "/usr/local/git/bin")))
+ '(exec-path (quote ("/usr/bin" "/bin" "/usr/sbin" "/sbin" "/Applications/Utilities/Emacs.app/Contents/MacOS/bin" "/usr/local/bin" "/usr/local/git/bin" "/usr/local/Cellar/go/r58.1/bin")))
  '(gnus-cache-enter-articles (quote (ticked dormant unread read)))
  '(gnus-cache-remove-articles nil)
  '(gnus-cacheable-groups nil)
