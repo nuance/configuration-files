@@ -5,10 +5,14 @@
 (load-library "python")
 
 (add-hook 'python-mode-hook '(lambda () (define-key python-mode-map "\C-m" 'newline-and-indent)))
-(add-hook 'python-mode-hook '(lambda () (custom-set-variables
-                                         '(py-indent-offset 4)
-                                         '(tab-width 4)
-                                         '(py-smart-indentation nil))))
+;; (add-hook 'python-mode-hook '(lambda () (custom-set-variables
+;;                                          '(py-indent-offset 4)
+;; 										 '(indent-tabs-mode (or (string-match "/pg/yelp-main/" (buffer-file-name))
+;; 																(string-match "/pg/other-main/" (buffer-file-name))
+;; 																(string-match "/pg/yelp-push/" (buffer-file-name))
+;; 																(string-match "/pg/contribution_search/" (buffer-file-name))))
+;;                                          '(py-smart-indentation nil)
+;; 										 '(python-indent 4))))
                                          
 (defun python-auto-fill-comments-only ()
   (auto-fill-mode 1)

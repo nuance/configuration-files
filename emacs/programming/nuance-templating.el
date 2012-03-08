@@ -31,6 +31,8 @@
      ("^#.*\\(True\\|False\\|None\\)" 1 font-lock-builtin-face)))
   (font-lock-mode 1))
 
+(add-to-list 'auto-mode-alist '("\\.tmpl\\'" . cheetah-mode))
+
 ;;-----------------------------------------------------------------------------
 ;; Tornado template mode
 ;;-----------------------------------------------------------------------------
