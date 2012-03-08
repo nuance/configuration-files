@@ -186,4 +186,12 @@
     (if (= 21 emacs-major-version)
         (load "term/xterm-256color"))
 
+;;-----------------------------------------------------------------------------
+;; wind-move
+;;-----------------------------------------------------------------------------
+
+(when (fboundp 'windmove-default-keybindings)
+      (windmove-default-keybindings))
+(windmove-default-keybindings 'meta)
+
 (provide 'nuance-misc)

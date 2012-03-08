@@ -46,7 +46,9 @@
  '(simplenote-notes-mode (quote markdown-mode))
  '(speedbar-default-position (quote left))
  '(tab-width 4)
- '(uniquify-buffer-name-style (quote post-forward) nil (uniquify)))
+ '(uniquify-buffer-name-style (quote post-forward) nil (uniquify))
+ '(vc-handled-backends (quote (RCS CVS SVN SCCS Bzr Hg Mtn Arch)))
+ '(windmove-wrap-around t))
 
 (set-default-font "-apple-Inconsolata-medium-normal-normal-*-*-*-*-*-m-0-iso10646-1")
 

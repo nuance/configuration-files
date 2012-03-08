@@ -3,7 +3,7 @@
 
 (add-hook 'c-mode-hook          'run-coding-hook)
 (add-hook 'emacs-lisp-mode-hook 'run-coding-hook)
-(add-hook 'java-mode-hook       'run-coding-hook)
+;; (add-hook 'java-mode-hook       'run-coding-hook)
 ;; (add-hook 'lua-mode-hook        'run-coding-hook)
 (add-hook 'objc-mode-hook       'run-coding-hook)
 ;; (add-hook 'python-mode-hook     'run-coding-hook)
@@ -20,6 +20,9 @@
 (require 'nuance-python)
 (require 'nuance-templating)
 (require 'nuance-tornado)
+(require 'nuance-java)
+
+(require 'coffee-mode)
 
 ;;-----------------------------------------------------------------------------
 ;; Coffee mode

@@ -21,6 +21,8 @@
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/mmm-mode"))
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/notmuch"))
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/malabar-1.4.0/lisp"))
+(add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/emacs-eclim"))
+(add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/emacs-eclim/vendor"))
 
 ;; All my programming mode customizations
 (add-to-list 'load-path (concat dotfiles-dir "/programming"))
